@@ -77,7 +77,12 @@ function VendorProfileContent() {
       <h1 className="mt-1 font-display text-4xl">Store profile</h1>
       <div className="mt-6"><VendorNav /></div>
       <form onSubmit={submit} className="gn-card mt-8 max-w-2xl space-y-4 border border-border p-6">
-        {!form.is_verified ? (
+        {form.verification_status === "Rejected" ? (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900">
+            <h2 className="font-bold">Verification rejected</h2>
+            <p className="mt-1">Your documents or details were rejected. Please update the required information below and submit again for review.</p>
+          </div>
+        ) : !form.is_verified ? (
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
             <h2 className="font-bold">Complete verification</h2>
             <p className="mt-1">Upload your company register certificate, business address, and payout bank details. An admin will review these details before your services can be published.</p>

@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { imageUrl } from "@/utils/imageUrl";
 import { discountPercent, formatPrice } from "@/utils/formatPrice";
 import { RatingStars } from "./RatingStars";
-import { WishlistButton } from "./WishlistButton";
 
 function ServiceCard({ service }) {
   const slug = service.slug ?? service.sid;
@@ -39,9 +38,6 @@ function ServiceCard({ service }) {
             </span>
           ) : null}
           {percent ? <span className="gn-badge bg-ink text-cream">-{percent}%</span> : null}
-        </div>
-        <div className="absolute right-3 top-3">
-          <WishlistButton serviceId={service.id} />
         </div>
       </div>
 

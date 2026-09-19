@@ -1,5 +1,6 @@
 import json
 from datetime import timedelta
+from decimal import Decimal
 from urllib import request as urllib_request
 from urllib.parse import urlencode
 
@@ -18,28 +19,25 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from customer.models import Address as CustomerAddress, Wishlist as CustomerWishlist, Notifications as CustomerNotification
+from customer.models import Address as CustomerAddress, Notifications as CustomerNotification
 from store.models import (
     Category,
     Service,
     ServiceGallery,
     ServiceReview,
-    Wishlist,
     Notification,
     Booking,
 )
-from vendor.models import BankAccount, Payout, vendor as VendorModel
+from vendor.models import BankAccount, Dispute, Payout, Notifications as VendorNotifications, vendor as VendorModel
 from userauth.models import profile as ProfileModel, user as UserModel
 from .serializers import (
     CategorySerializer,
     CustomerAddressSerializer,
     CustomerNotificationSerializer,
-    CustomerWishlistSerializer,
     NotificationSerializer,
     BookingSerializer,
     ServiceReviewSerializer,
     ServiceSerializer,
-    StoreWishlistSerializer,
     UserSerializer,
     PublicVendorSerializer,
     VendorSerializer,
@@ -358,6 +356,12 @@ class VendorBookingsAPI(APIView):
         booking = get_object_or_404(Booking, bid=bid, service__vendor=vendor)
         if action == "confirm" and booking.booking_status == "Pending":
             booking.booking_status = "Confirmed"
+            create_booking_notification(
+                booking.customer,
+                booking,
+                f"Your beautician has been assigned for {booking.service.title}. Your booking is confirmed.",
+                vendor_type="Beautician Assigned",
+            )
         elif action == "decline" and booking.booking_status in {"Pending", "Confirmed"}:
             booking.booking_status = "Declined"
             booking.decline_reason = request.data.get("decline_reason", "")
@@ -380,8 +384,8 @@ class VendorDashboardAPI(APIView):
         bookings = Booking.objects.filter(service__vendor=vendor)
         status_data = list(bookings.values("booking_status").annotate(total=Count("id")).order_by("booking_status"))
         paid_bookings = bookings.filter(payment_status="Paid", booking_status="Completed")
-        total_earned = paid_bookings.aggregate(total=Sum("total"))["total"] or 0
-        payout_total = Payout.objects.filter(vendor=vendor, item__isnull=False).aggregate(total=Sum("item__total"))["total"] or 0
+        total_earned = paid_bookings.aggregate(total=Sum("vendor_amount"))["total"] or 0
+        payout_total = Payout.objects.filter(vendor=vendor, item__isnull=False).aggregate(total=Sum("net_amount"))["total"] or 0
         rating = ServiceReview.objects.filter(service__vendor=vendor, active=True).aggregate(value=Avg("rating"))["value"] or 0
         return Response({
             "total_services": services.count(),
@@ -396,7 +400,7 @@ class VendorDashboardAPI(APIView):
             "declined_bookings": bookings.filter(booking_status="Declined").count(),
             "revenue": float(total_earned),
             "total_earned": float(total_earned),
-            "pending_earnings": float(bookings.filter(payment_status="Processing").aggregate(total=Sum("total"))["total"] or 0),
+            "pending_earnings": float(bookings.filter(payment_status="Processing").aggregate(total=Sum("vendor_amount"))["total"] or 0),
             "available_payout": float(max(total_earned - payout_total, 0)),
             "total_paid_out": float(payout_total),
             "total_customers": bookings.values("customer").distinct().count(),
@@ -434,9 +438,10 @@ class VendorAnalyticsAPI(APIView):
             for row in bookings.filter(payment_status="Paid", booking_status="Completed")
             .annotate(day=TruncDate("date"))
             .values("day")
-            .annotate(amount=Sum("total"))
+            .annotate(amount=Sum("vendor_amount"))
         }
-        dates = [start + timedelta(days=index) for index in range(days)]
+        dates = [timezone.localdate() - timedelta(days=index) for index in range(days)]
+        dates.sort(reverse=True)
         return Response({
             "period_days": days,
             "bookings": [{"date": day.isoformat(), "count": booking_rows.get(day, 0)} for day in dates],
@@ -455,8 +460,11 @@ class VendorPayoutsAPI(APIView):
         rows = [
             {
                 "id": payout.id,
-                "amount": float(payout.item.total) if payout.item else 0,
-                "status": "Processed",
+                "amount": float(payout.net_amount),
+                "gross_amount": float(payout.gross_amount),
+                "commission_amount": float(payout.commission_amount),
+                "net_amount": float(payout.net_amount),
+                "status": payout.status,
                 "requested_date": payout.date,
                 "processed_date": payout.date,
                 "booking_id": payout.item.bid if payout.item else None,
@@ -481,11 +489,21 @@ class VendorPayoutsAPI(APIView):
         )
         if Payout.objects.filter(vendor=vendor, item=booking).exists():
             return Response({"detail": "This booking has already been paid out."}, status=status.HTTP_400_BAD_REQUEST)
-        payout = Payout.objects.create(vendor=vendor, item=booking)
+        payout = Payout.objects.create(
+            vendor=vendor,
+            item=booking,
+            gross_amount=booking.total,
+            commission_amount=booking.commission_amount,
+            net_amount=booking.vendor_amount,
+            status="Processed",
+        )
         return Response({
             "id": payout.id,
-            "amount": float(booking.total),
-            "status": "Processed",
+            "amount": float(payout.net_amount),
+            "gross_amount": float(payout.gross_amount),
+            "commission_amount": float(payout.commission_amount),
+            "net_amount": float(payout.net_amount),
+            "status": payout.status,
             "requested_date": payout.date,
             "processed_date": payout.date,
             "booking_id": booking.bid,
@@ -502,9 +520,9 @@ class VendorEarningsAPI(APIView):
         bookings = Booking.objects.filter(service__vendor=vendor)
         paid = bookings.filter(payment_status="Paid", booking_status="Completed")
         pending = bookings.filter(payment_status="Processing")
-        total_earned = paid.aggregate(total=Sum("total"))["total"] or 0
-        pending_earnings = pending.aggregate(total=Sum("total"))["total"] or 0
-        paid_out = Payout.objects.filter(vendor=vendor, item__isnull=False).aggregate(total=Sum("item__total"))["total"] or 0
+        total_earned = paid.aggregate(total=Sum("vendor_amount"))["total"] or 0
+        pending_earnings = pending.aggregate(total=Sum("vendor_amount"))["total"] or 0
+        paid_out = Payout.objects.filter(vendor=vendor, item__isnull=False).aggregate(total=Sum("net_amount"))["total"] or 0
         return Response({
             "total_earned": float(total_earned),
             "pending_earnings": float(pending_earnings),
@@ -627,10 +645,22 @@ class VendorVerificationAPI(APIView):
             vendor.is_verified = True
             vendor.verification_status = "Verified"
             vendor.verified_at = timezone.now()
+            create_user_notification(
+                vendor.user,
+                "Your vendor profile has been approved. You can now publish services and receive bookings.",
+                notification_type="General",
+                title="Vendor approved",
+            )
         elif action in ["reject", "decline", "deny"]:
             vendor.is_verified = False
             vendor.verification_status = "Rejected"
             vendor.verified_at = None
+            create_user_notification(
+                vendor.user,
+                "Your vendor submission was rejected. Please update your store profile and try again.",
+                notification_type="General",
+                title="Verification rejected",
+            )
         else:
             return Response({"error": "action must be verify or reject."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -684,8 +714,15 @@ class BookingsAPI(APIView):
         if serializer.is_valid():
             booking = serializer.save()
             booking.total = booking.service.effective_price
-            booking.save(update_fields=["total"])
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            booking.save(update_fields=["total", "commission_amount", "vendor_amount", "commission_rate"])
+            vendor_user = booking.service.vendor.user if booking.service and booking.service.vendor else None
+            create_booking_notification(
+                vendor_user,
+                booking,
+                f"New booking received for {booking.service.title}. Please confirm the appointment.",
+                vendor_type="New Order",
+            )
+            return Response(BookingSerializer(booking).data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -730,49 +767,76 @@ class MyReviewsAPI(APIView):
         return Response(ServiceReviewSerializer(reviews, many=True).data)
 
 
-# Lists and creates saved store-service wishlists.
-class WishlistsAPI(APIView):
-    # Return all saved services with related user and service data.
-    def get(self, request):
-        wishlists = Wishlist.objects.select_related("user", "service").order_by("-date")
-        serializer = StoreWishlistSerializer(wishlists, many=True)
-        return Response(serializer.data)
-
-    # Validate and save a new saved-service item.
-    def post(self, request):
-        serializer = StoreWishlistSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+def create_user_notification(user, message, notification_type="General", booking=None, title=None):
+    if user is None:
+        return None
+    return Notification.objects.create(
+        user=user,
+        booking=booking,
+        type=notification_type,
+        message=message,
+    )
 
 
-# Returns store notifications ordered from newest to oldest.
+def create_booking_notification(user, booking, message, *, notification_type="Booking", vendor_type=None):
+    if user is None or booking is None:
+        return None
+    notification = Notification.objects.create(
+        user=user,
+        booking=booking,
+        type=notification_type,
+        message=message,
+    )
+
+    if booking.service and booking.service.vendor and booking.service.vendor.user_id == getattr(user, "id", None):
+        try:
+            VendorNotifications.objects.create(
+                user=user,
+                booking=booking,
+                type=vendor_type or "New Order",
+            )
+        except Exception:
+            pass
+
+    return notification
+
+
+# Returns notifications for the authenticated user.
 class NotificationsAPI(APIView):
-    # Query notifications and serialize them as JSON.
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
-        notifications = Notification.objects.select_related("user", "booking").order_by("-date")
+        notifications = Notification.objects.filter(user=request.user).select_related("user", "booking").order_by("-date")
         serializer = NotificationSerializer(notifications, many=True)
         return Response(serializer.data)
+
+    def post(self, request, pk=None):
+        notifications = Notification.objects.filter(user=request.user)
+        if pk is not None:
+            notification = get_object_or_404(notifications, pk=pk)
+            notification.seen = True
+            notification.save(update_fields=["seen"])
+            return Response(NotificationSerializer(notification).data)
+        notifications.update(seen=True)
+        return Response({"detail": "Notifications marked as read."})
 
 
 # Returns notifications belonging to customers.
 class CustomerNotificationsAPI(APIView):
     permission_classes = [IsAuthenticated]
 
-    # Query customer notifications and serialize them as JSON.
     def get(self, request):
-        notifications = CustomerNotification.objects.filter(user=request.user).select_related("user", "booking").order_by("-id")
-        serializer = CustomerNotificationSerializer(notifications, many=True)
+        notifications = Notification.objects.filter(user=request.user).select_related("user", "booking").order_by("-date")
+        serializer = NotificationSerializer(notifications, many=True)
         return Response(serializer.data)
 
     def post(self, request, pk=None):
-        notifications = CustomerNotification.objects.filter(user=request.user)
+        notifications = Notification.objects.filter(user=request.user)
         if pk is not None:
             notification = get_object_or_404(notifications, pk=pk)
             notification.seen = True
             notification.save(update_fields=["seen"])
-            return Response(CustomerNotificationSerializer(notification).data)
+            return Response(NotificationSerializer(notification).data)
         notifications.update(seen=True)
         return Response({"detail": "Notifications marked as read."})
 
@@ -810,33 +874,6 @@ class CustomerAddressAPI(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# Returns customer wishlist records.
-class CustomerWishlistAPI(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        items = CustomerWishlist.objects.filter(user=request.user).select_related("user", "service").order_by("-id")
-        serializer = CustomerWishlistSerializer(items, many=True)
-        return Response(serializer.data)
-
-    def post(self, request):
-        service_id = request.data.get("service_id") or request.data.get("service")
-        if not service_id:
-            return Response({"service_id": ["Service is required."]}, status=status.HTTP_400_BAD_REQUEST)
-        service = get_object_or_404(Service, pk=service_id)
-        item, created = CustomerWishlist.objects.get_or_create(user=request.user, service=service)
-        if not created:
-            return Response({"detail": "This service is already in your wishlist."}, status=status.HTTP_200_OK)
-        return Response(CustomerWishlistSerializer(item).data, status=status.HTTP_201_CREATED)
-
-    def delete(self, request, pk=None):
-        if pk is None:
-            return Response({"detail": "Wishlist item id is required."}, status=status.HTTP_400_BAD_REQUEST)
-        item = get_object_or_404(CustomerWishlist, pk=pk, user=request.user)
-        item.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
 # Calculates summary statistics for the administrator dashboard.
 class AdminDashboardAPI(APIView):
     # Aggregate counts, revenue, booking statuses, and pending vendors.
@@ -847,6 +884,9 @@ class AdminDashboardAPI(APIView):
         pending_vendors = VendorModel.objects.filter(is_verified=False).count()
         total_bookings = Booking.objects.count()
         total_revenue = Booking.objects.filter(payment_status="Paid").aggregate(total=Sum("total"))["total"] or 0
+        total_platform_commission = Booking.objects.filter(payment_status="Paid").aggregate(total=Sum("commission_amount"))["total"] or 0
+        total_vendor_payout = Booking.objects.filter(payment_status="Paid").aggregate(total=Sum("vendor_amount"))["total"] or 0
+        open_disputes = Dispute.objects.filter(status="Open").count()
 
         booking_status_data = list(
             Booking.objects.values("booking_status").annotate(total=Count("id")).order_by("booking_status")
@@ -868,6 +908,9 @@ class AdminDashboardAPI(APIView):
             "pending_vendors": pending_vendors,
             "total_bookings": total_bookings,
             "total_revenue": float(total_revenue),
+            "total_platform_commission": float(total_platform_commission),
+            "total_vendor_payout": float(total_vendor_payout),
+            "open_disputes": open_disputes,
             "booking_status": chart_data,
             "pending_vendor_list": [
                 {
@@ -915,7 +958,12 @@ class KhaltiInitiateAPI(APIView):
             },
         }
 
-        secret_key = getattr(settings, "KHALTI_SECRET_KEY", "")
+        secret_key = str(getattr(settings, "KHALTI_SECRET_KEY", "") or "").strip()
+        if not secret_key:
+            return Response(
+                {"error": "Khalti is not configured. Set the KHALTI_SECRET_KEY in your .env or OS environment and restart Django before paying."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         url = getattr(settings, "KHALTI_BASE_URL", "https://dev.khalti.com/api/v2/") + "epayment/initiate/"
 
         req = urllib_request.Request(
@@ -967,7 +1015,9 @@ class KhaltiCallbackAPI(APIView):
         if not pidx:
             return self.frontend_redirect(False, purchase_order_id)
 
-        secret_key = getattr(settings, "KHALTI_SECRET_KEY", "")
+        secret_key = str(getattr(settings, "KHALTI_SECRET_KEY", "") or "").strip()
+        if not secret_key:
+            return self.frontend_redirect(False, purchase_order_id)
         url = getattr(settings, "KHALTI_BASE_URL", "https://dev.khalti.com/api/v2/") + "epayment/lookup/"
 
         payload = json.dumps({"pidx": pidx}).encode("utf-8")

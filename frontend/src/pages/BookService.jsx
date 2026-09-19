@@ -34,6 +34,12 @@ function BookingForm() {
   const [busy, setBusy] = useState(false);
   const [bookingError, setBookingError] = useState(null);
 
+  const today = new Date();
+  const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  const currentTime = `${String(today.getHours()).padStart(2, "0")}:${String(today.getMinutes()).padStart(2, "0")}`;
+  const dateMin = localDate;
+  const timeMin = date === localDate ? currentTime : "00:00";
+
   useEffect(() => {
     let active = true;
     setIsLoading(true);
@@ -60,6 +66,18 @@ function BookingForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setBookingError(null);
+
+    if (!date || !time) {
+      setBookingError("Please choose a future appointment date and time.");
+      return;
+    }
+
+    const selectedDateTime = new Date(`${date}T${time}:00`);
+    if (selectedDateTime < new Date()) {
+      setBookingError("Past dates and times are not allowed. Please select a future appointment.");
+      return;
+    }
+
     setBusy(true);
 
     try {
@@ -118,11 +136,10 @@ function BookingForm() {
                   key={type}
                   type="button"
                   onClick={() => setServiceType(type)}
-                  className={`gn-btn py-3 text-sm font-bold border ${
-                    serviceType === type
+                  className={`gn-btn py-3 text-sm font-bold border ${serviceType === type
                       ? "bg-primary text-primary-foreground border-primary"
                       : "bg-secondary/40 text-foreground border-border hover:bg-secondary"
-                  }`}
+                    }`}
                 >
                   {type === "Home" ? "🏠 Doorstep Home Visit" : "💈 Salon Studio Visit"}
                 </button>
@@ -156,11 +173,10 @@ function BookingForm() {
                   key={method}
                   type="button"
                   onClick={() => setPaymentMethod(method)}
-                  className={`gn-btn py-3 text-sm font-bold border ${
-                    paymentMethod === method
+                  className={`gn-btn py-3 text-sm font-bold border ${paymentMethod === method
                       ? "bg-primary text-primary-foreground border-primary"
                       : "bg-secondary/40 text-foreground border-border hover:bg-secondary"
-                  }`}
+                    }`}
                 >
                   {method === "Khalti" ? "Pay with Khalti" : "Cash on service"}
                 </button>
@@ -183,6 +199,7 @@ function BookingForm() {
                 id="date"
                 type="date"
                 required
+                min={dateMin}
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 className="gn-input mt-1.5 w-full"
@@ -196,6 +213,7 @@ function BookingForm() {
                 id="time"
                 type="time"
                 required
+                min={timeMin}
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
                 className="gn-input mt-1.5 w-full"

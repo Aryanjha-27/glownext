@@ -23,7 +23,7 @@ KHALTI_RETURN_URL = env.str(
     "KHALTI_RETURN_URL",
     "http://127.0.0.1:8000/api/payments/khalti/callback/",
 )
-WEBSITE_URL = env.str("WEBSITE_URL", "http://localhost:5173")
+WEBSITE_URL = env.str("WEBSITE_URL", "http://localhost:8000")
 FRONTEND_URL = env.str("FRONTEND_URL", "http://localhost:5173")
 
 
@@ -118,11 +118,9 @@ JAZZMIN_SETTINGS = {
         "store.ServiceAvailability": "fas fa-clock",
         "store.Booking": "fas fa-calendar-check",
         "store.ServiceReview": "fas fa-star",
-        "store.Wishlist": "fas fa-heart",
         "store.Notification": "fas fa-bell",
 
         "customer.Address": "fas fa-map-marker-alt",
-        "customer.Wishlist": "fas fa-heart",
         "customer.Notifications": "fas fa-bell",
     },
 
@@ -181,7 +179,7 @@ DATABASES = {
         "ENGINE": env.str("DB_ENGINE", "django.db.backends.mysql"),
         "NAME": env.str("DB_NAME", "glownext"),
         "USER": env.str("DB_USER", "root"),
-        "PASSWORD": env.str("DB_PASSWORD", ""),
+        "PASSWORD": env.str("DB_PASSWORD", "root"),
         "HOST": env.str("DB_HOST", "127.0.0.1"),
         "PORT": env.int("DB_PORT", 3306),
     }

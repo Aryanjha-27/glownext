@@ -43,9 +43,8 @@ function Navbar() {
               <Link
                 key={link.to}
                 to={link.to}
-                className={`text-sm font-semibold transition-colors ${
-                  isActive ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"
-                }`}
+                className={`text-sm font-semibold transition-colors ${isActive ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"
+                  }`}
               >
                 {link.label}
               </Link>
@@ -57,9 +56,6 @@ function Navbar() {
         <div className="hidden items-center gap-3 lg:flex">
           {isAuthenticated ? (
             <>
-              <Link to="/wishlist" title="Wishlist" className="gn-btn gn-btn-ghost px-3">
-                <i className="fa-regular fa-heart text-base" aria-hidden="true" />
-              </Link>
               <Link to="/notifications" title="Notifications" className="gn-btn gn-btn-ghost px-3">
                 <i className="fa-regular fa-bell text-base" aria-hidden="true" />
               </Link>
@@ -134,13 +130,6 @@ function Navbar() {
                   className="rounded-xl px-3 py-2 text-sm font-semibold text-muted-foreground"
                 >
                   My Bookings
-                </Link>
-                <Link
-                  to="/wishlist"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="rounded-xl px-3 py-2 text-sm font-semibold text-muted-foreground"
-                >
-                  Wishlist
                 </Link>
                 <Link
                   to="/profile"

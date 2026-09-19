@@ -6,7 +6,6 @@ from .views import (
     CategoriesAPI,
     CustomerAddressAPI,
     CustomerNotificationsAPI,
-    CustomerWishlistAPI,
     KhaltiCallbackAPI,
     KhaltiInitiateAPI,
     LoginAPI,
@@ -31,7 +30,6 @@ from .views import (
     VendorVerificationAPI,
     VendorsAPI,
     PendingVendorsAPI,
-    WishlistsAPI,
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -65,15 +63,12 @@ urlpatterns = [
     path("vendor/bookings/", VendorBookingsAPI.as_view()),
     path("vendor/bookings/<str:bid>/<str:action>/", VendorBookingsAPI.as_view()),
     path("vendor/profile/", VendorProfileAPI.as_view()),
-    path("wishlists/", WishlistsAPI.as_view()),
     path("notifications/", NotificationsAPI.as_view()),
     path("customer/notifications/", CustomerNotificationsAPI.as_view()),
     path("customer/notifications/<int:pk>/read/", CustomerNotificationsAPI.as_view()),
     path("customer/notifications/read-all/", CustomerNotificationsAPI.as_view()),
     path("customer/address/", CustomerAddressAPI.as_view()),
     path("customer/address/<int:pk>/", CustomerAddressAPI.as_view()),
-    path("customer/wishlist/", CustomerWishlistAPI.as_view()),
-    path("customer/wishlist/<int:pk>/", CustomerWishlistAPI.as_view()),
     path("payments/khalti/initiate/", KhaltiInitiateAPI.as_view()),
     path("payments/khalti/callback/", KhaltiCallbackAPI.as_view()),
 ]

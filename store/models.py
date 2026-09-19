@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 from django.core.exceptions import ValidationError
 from shortuuid.django_fields import ShortUUIDField
@@ -302,6 +304,9 @@ class Booking(models.Model):
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD, default="Khalti")
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS, default="Processing")
     total          = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
+    commission_rate = models.DecimalField(max_digits=5, decimal_places=2, default=10.00)
+    commission_amount = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
+    vendor_amount = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
 
   
     khalti_pidx  = models.CharField(max_length=200, null=True, blank=True)
@@ -313,6 +318,14 @@ class Booking(models.Model):
 
     def __str__(self):
         return f"Booking {self.bid} — {self.service.title if self.service else 'N/A'}"
+
+    def save(self, *args, **kwargs):
+        if self.total is not None:
+            commission_rate = Decimal(str(self.commission_rate or 10))
+            commission_value = (Decimal(str(self.total)) * commission_rate / Decimal("100")).quantize(Decimal("0.01"))
+            self.commission_amount = commission_value
+            self.vendor_amount = (Decimal(str(self.total)) - commission_value).quantize(Decimal("0.01"))
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ["-date"]
@@ -361,31 +374,6 @@ class ServiceReview(models.Model):
     class Meta:
         ordering = ["-date"]
         verbose_name_plural = "Service Reviews"
-
-
-# Stores a service that a user has saved for later.
-class Wishlist(models.Model):
-
-    user    = models.ForeignKey(
-        user_models.user,
-        on_delete=models.CASCADE,
-        related_name="wishlist",
-    )
-    service = models.ForeignKey(
-        Service,
-        on_delete=models.CASCADE,
-        related_name="wishlisted_by",
-    )
-    date    = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.user} — {self.service.title}"
-
-    class Meta:
-        
-        unique_together     = ["user", "service"]
-        verbose_name_plural = "Wishlists"
-
 
 
 # Stores booking, payment, and general messages for users.

@@ -15,7 +15,7 @@ function ProtectedRoute({ children, requireUserType }) {
           <p className="mt-2 text-sm text-muted-foreground">
             {authUnavailable
               ? "The accounts service isn't available yet, so this area can't be opened."
-              : "This area is private. Log in to see your bookings, wishlist, and profile."}
+              : "This area is private. Log in to see your bookings and profile."}
           </p>
           <div className="mt-6 flex justify-center gap-2">
             <Link to="/login" className="gn-btn gn-btn-primary">

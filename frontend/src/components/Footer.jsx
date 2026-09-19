@@ -68,9 +68,6 @@ function Footer() {
               <Link to="/bookings" className="hover:text-cream transition-colors">My Appointments</Link>
             </li>
             <li>
-              <Link to="/wishlist" className="hover:text-cream transition-colors">Saved Wishlist</Link>
-            </li>
-            <li>
               <Link to="/login" className="hover:text-cream transition-colors">Client Login</Link>
             </li>
             <li>

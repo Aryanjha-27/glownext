@@ -53,7 +53,7 @@ export default function Login() {
           <p className="gn-eyebrow text-primary">Welcome Back</p>
           <h1 className="mt-2 text-4xl font-display text-foreground">Log In to Glow Next</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Access your appointments, saved wishlist, and account settings.
+            Access your appointments and account settings.
           </p>
         </div>
 

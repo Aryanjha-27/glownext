@@ -4,7 +4,6 @@ import { getService } from "@/api/serviceApi";
 import { imageUrl } from "@/utils/imageUrl";
 import { formatPrice, discountPercent } from "@/utils/formatPrice";
 import { RatingStars } from "@/components/RatingStars";
-import { WishlistButton } from "@/components/WishlistButton";
 import { ReviewCard } from "@/components/ReviewCard";
 import { listServiceReviews } from "@/api/reviewApi";
 import { ErrorMessage } from "@/components/ErrorMessage";
@@ -68,9 +67,6 @@ export default function ServiceDetail() {
               <i className="fa-regular fa-image text-5xl" />
             </div>
           )}
-          <div className="absolute right-4 top-4">
-            <WishlistButton serviceId={service.id} />
-          </div>
         </div>
 
         {/* Details & Booking Sidebar */}

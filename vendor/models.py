@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 from shortuuid.django_fields import ShortUUIDField
 from userauth.models import user
@@ -64,6 +66,10 @@ class vendor(models.Model):
 class Payout(models.Model):
         vendor=models.ForeignKey(vendor, on_delete=models.SET_NULL,null=True)
         item = models.ForeignKey("store.Booking", on_delete=models.SET_NULL,null=True,related_name="store_item")
+        gross_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+        commission_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+        net_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+        status = models.CharField(max_length=20, choices=(("Requested", "Requested"), ("Processed", "Processed"), ("Disputed", "Disputed"), ("Paid", "Paid")), default="Requested")
         date = models.DateTimeField(auto_now_add=True)
 
         def __str__(self):
@@ -71,6 +77,23 @@ class Payout(models.Model):
 
         class Meta:
                 ordering =['-date']
+
+
+class Dispute(models.Model):
+        vendor = models.ForeignKey(vendor, on_delete=models.CASCADE, related_name="disputes")
+        booking = models.ForeignKey("store.Booking", on_delete=models.SET_NULL, null=True, blank=True, related_name="disputes")
+        customer = models.ForeignKey("userauth.user", on_delete=models.SET_NULL, null=True, blank=True, related_name="disputes")
+        reason = models.TextField()
+        notes = models.TextField(blank=True)
+        amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+        status = models.CharField(max_length=20, choices=(("Open", "Open"), ("In Review", "In Review"), ("Resolved", "Resolved"), ("Rejected", "Rejected")), default="Open")
+        date = models.DateTimeField(auto_now_add=True)
+
+        def __str__(self):
+                return f"Dispute for {self.vendor}"
+
+        class Meta:
+                ordering = ["-date"]
 
 # Stores the bank or payment account used for vendor payouts.
 class BankAccount(models.Model):

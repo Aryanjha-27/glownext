@@ -9,28 +9,6 @@ TYPE=(
     ("Service Completed","Service Completed"),
 )
 
-# Stores services saved by customers.
-class Wishlist(models.Model):
-    user = models.ForeignKey(
-        user,
-        on_delete=models.CASCADE,
-        related_name="customer_wishlists",
-        null=True,
-        blank=True
-    )
-
-    service = models.ForeignKey(
-        Service,
-        on_delete=models.CASCADE,
-        related_name="customer_wishlist_items"
-    )
-
-    class Meta:
-        verbose_name_plural = "Wishlists"
-
-    def __str__(self):
-        return f"{self.user} - {self.service.title}"
-
 # Stores a customer's contact and delivery address.
 class Address(models.Model):
     user =models.ForeignKey(user, on_delete=models.CASCADE, null=True)

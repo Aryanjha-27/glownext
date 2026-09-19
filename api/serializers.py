@@ -1,3 +1,7 @@
+from datetime import datetime
+
+from django.db.models import Avg
+from django.utils import timezone
 from rest_framework import serializers
 
 from store.models import (
@@ -8,12 +12,11 @@ from store.models import (
     ServiceAvailability,
     Booking,
     ServiceReview,
-    Wishlist,
     Notification,
 )
 from userauth.models import user as UserModel, profile as ProfileModel
 from vendor.models import vendor as VendorModel
-from customer.models import Address as CustomerAddress, Wishlist as CustomerWishlist, Notifications as CustomerNotification
+from customer.models import Address as CustomerAddress, Notifications as CustomerNotification
 
 
 # Converts category model records into API JSON.
@@ -85,11 +88,51 @@ class VendorSerializer(serializers.ModelSerializer):
 
 # Removes the private verification document from public vendor responses.
 class PublicVendorSerializer(VendorSerializer):
+    services = serializers.SerializerMethodField()
+    reviews = serializers.SerializerMethodField()
+    average_rating = serializers.SerializerMethodField()
+    review_count = serializers.SerializerMethodField()
+
     class Meta(VendorSerializer.Meta):
         fields = [
-            field for field in VendorSerializer.Meta.fields
-            if field != "document"
+            *[
+                field for field in VendorSerializer.Meta.fields
+                if field != "document"
+            ],
+            "services",
+            "average_rating",
+            "review_count",
+            "reviews",
         ]
+
+    def get_services(self, obj):
+        services = (
+            obj.services.filter(status="Published")
+            .select_related("vendor", "category")
+            .prefetch_related("tags", "gallery", "availability")
+            .order_by("-date")
+        )
+        return ServiceSerializer(services, many=True).data
+
+    def get_reviews(self, obj):
+        reviews = (
+            ServiceReview.objects.filter(service__vendor=obj, active=True)
+            .select_related("user", "service")
+            .order_by("-date")
+        )
+        return ServiceReviewSerializer(reviews, many=True).data
+
+    def get_average_rating(self, obj):
+        average = (
+            ServiceReview.objects.filter(service__vendor=obj, active=True)
+            .aggregate(avg=Avg("rating"))["avg"]
+        )
+        if average is None:
+            return 0
+        return round(float(average), 1)
+
+    def get_review_count(self, obj):
+        return ServiceReview.objects.filter(service__vendor=obj, active=True).count()
 
 
 # Builds the nested public JSON representation of a service.
@@ -184,12 +227,29 @@ class BookingSerializer(serializers.ModelSerializer):
             "payment_method",
             "payment_status",
             "total",
+            "commission_rate",
+            "commission_amount",
+            "vendor_amount",
             "date",
             "has_review",
         ]
 
     def get_has_review(self, obj):
         return hasattr(obj, "review")
+
+    def validate(self, attrs):
+        scheduled_date = attrs.get("scheduled_date")
+        scheduled_time = attrs.get("scheduled_time")
+        if scheduled_date and scheduled_time:
+            try:
+                selected_dt = datetime.combine(scheduled_date, scheduled_time)
+            except TypeError:
+                raise serializers.ValidationError({"scheduled_date": "Choose a valid appointment date and time."})
+            if scheduled_date < timezone.localdate():
+                raise serializers.ValidationError({"scheduled_date": "Past dates cannot be selected."})
+            if scheduled_date == timezone.localdate() and selected_dt < timezone.now():
+                raise serializers.ValidationError({"scheduled_time": "Past times cannot be selected."})
+        return super().validate(attrs)
 
 
 # Converts service review records into API JSON.
@@ -212,56 +272,34 @@ class ServiceReviewSerializer(serializers.ModelSerializer):
         ]
 
 
-# Converts store wishlist records and validates submitted user/service IDs.
-class StoreWishlistSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-    service = ServiceSerializer(read_only=True)
-    user_id = serializers.PrimaryKeyRelatedField(
-        source="user",
-        queryset=UserModel.objects.all(),
-        write_only=True,
-        required=False,
-    )
-    service_id = serializers.PrimaryKeyRelatedField(
-        source="service",
-        queryset=Service.objects.all(),
-        write_only=True,
-        required=False,
-    )
-
-    class Meta:
-        model = Wishlist
-        fields = ["id", "user", "user_id", "service", "service_id", "date"]
-
-
-# Converts customer wishlist records into API JSON.
-class CustomerWishlistSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-    service = ServiceSerializer(read_only=True)
-
-    class Meta:
-        model = CustomerWishlist
-        fields = ["id", "user", "service"]
-
-
 # Converts store notification records into API JSON.
 class NotificationSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     booking = BookingSerializer(read_only=True)
+    title = serializers.SerializerMethodField()
+    created_at = serializers.DateTimeField(source="date", read_only=True)
 
     class Meta:
         model = Notification
-        fields = ["id", "nid", "user", "booking", "type", "message", "seen", "date"]
+        fields = ["id", "nid", "user", "booking", "type", "title", "message", "seen", "date", "created_at"]
+
+    def get_title(self, obj):
+        return obj.type or "Update"
 
 
 # Converts customer notification records into API JSON.
 class CustomerNotificationSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     booking = BookingSerializer(read_only=True)
+    title = serializers.SerializerMethodField()
+    created_at = serializers.DateTimeField(source="date", read_only=True)
 
     class Meta:
         model = CustomerNotification
-        fields = ["id", "user", "type", "seen", "date", "booking"]
+        fields = ["id", "user", "type", "title", "message", "seen", "date", "created_at", "booking"]
+
+    def get_title(self, obj):
+        return obj.type or "Update"
 
 
 # Converts customer address records into API JSON.

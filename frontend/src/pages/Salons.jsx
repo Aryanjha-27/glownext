@@ -20,7 +20,7 @@ export default function Salons() {
     setError(null);
     try {
       const data = await listVendors();
-      setVendors(data?.results ?? []);
+      setVendors(data ?? []);
     } catch (err) {
       setError(err);
     } finally {

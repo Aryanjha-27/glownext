@@ -3,6 +3,22 @@ from django.utils import timezone
 from vendor import models as vendor_models
 
 
+class DisputeAdmin(admin.ModelAdmin):
+    list_display = (
+        "vendor",
+        "booking",
+        "customer",
+        "reason",
+        "amount",
+        "status",
+        "date",
+    )
+    list_filter = ("status", "date")
+    search_fields = ("vendor__store_name", "customer__email", "reason")
+    ordering = ("-date",)
+    list_per_page = 25
+
+
 # Configures vendor review, search, filtering, and verification actions.
 class VendorAdmin(admin.ModelAdmin):
 
@@ -84,18 +100,26 @@ class PayoutAdmin(admin.ModelAdmin):
     list_display = (
         "vendor",
         "item",
+        "gross_amount",
+        "commission_amount",
+        "net_amount",
+        "status",
+        "date",
     )
 
     search_fields = (
         "vendor__store_name",
+        "item__bid",
     )
 
     list_filter = (
         "vendor",
+        "status",
+        "date",
     )
 
     ordering = (
-        "-id",
+        "-date",
     )
 
     actions = (
@@ -164,5 +188,6 @@ class NotificationsAdmin(admin.ModelAdmin):
 # Register vendor models so staff can manage them in Django admin.
 admin.site.register(vendor_models.vendor, VendorAdmin)
 admin.site.register(vendor_models.Payout, PayoutAdmin)
+admin.site.register(vendor_models.Dispute, DisputeAdmin)
 admin.site.register(vendor_models.BankAccount, BankAccountAdmin)
 admin.site.register(vendor_models.Notifications, NotificationsAdmin)

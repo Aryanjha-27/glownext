@@ -20,7 +20,6 @@ import Register from "@/pages/Register";
 import Dashboard from "@/pages/Dashboard";
 import Bookings from "@/pages/Bookings";
 import BookingDetail from "@/pages/BookingDetail";
-import Wishlist from "@/pages/Wishlist";
 import Profile from "@/pages/Profile";
 import Notifications from "@/pages/Notifications";
 import Reviews from "@/pages/Reviews";
@@ -71,7 +70,6 @@ export default function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/bookings" element={<Bookings />} />
             <Route path="/bookings/:bid" element={<BookingDetail />} />
-            <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/reviews" element={<Reviews />} />

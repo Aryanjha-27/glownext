@@ -4,6 +4,7 @@ import { getVendor } from "@/api/vendorApi";
 import { imageUrl } from "@/utils/imageUrl";
 import { ServiceCard } from "@/components/ServiceCard";
 import { RatingStars } from "@/components/RatingStars";
+import { ReviewCard } from "@/components/ReviewCard";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 
@@ -38,6 +39,7 @@ export default function SalonDetail() {
   const banner = imageUrl(vendor.banner_image);
   const logo = imageUrl(vendor.logo);
   const services = vendor.services ?? [];
+  const reviews = vendor.reviews ?? [];
 
   return (
     <div>
@@ -102,6 +104,26 @@ export default function SalonDetail() {
             </div>
           )}
         </div>
+
+        <section className="mt-12 border-t border-border pt-10">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="gn-eyebrow text-primary">Client feedback</p>
+              <h2 className="mt-1 font-display text-3xl text-foreground">Reviews</h2>
+            </div>
+            <RatingStars rating={vendor.average_rating} count={vendor.review_count} />
+          </div>
+
+          {reviews.length ? (
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {reviews.map((review) => (
+                <ReviewCard key={String(review.id ?? review.rid)} review={review} />
+              ))}
+            </div>
+          ) : (
+            <p className="mt-6 text-sm text-muted-foreground">No written reviews yet.</p>
+          )}
+        </section>
       </div>
     </div>
   );

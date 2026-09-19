@@ -143,6 +143,8 @@ class BookingAdmin(admin.ModelAdmin):
         "booking_status",
         "payment_status",
         "total",
+        "commission_amount",
+        "vendor_amount",
     )
 
     list_filter = (
@@ -152,6 +154,8 @@ class BookingAdmin(admin.ModelAdmin):
         "service_type",
         "scheduled_date",
     )
+
+    ordering = ("-scheduled_date", "-scheduled_time")
 
     search_fields = (
         "bid",
@@ -201,18 +205,6 @@ class ServiceReviewAdmin(admin.ModelAdmin):
     )
 
 
-
-
-# Configures the saved-service list in admin.
-class WishlistAdmin(admin.ModelAdmin):
-    list_display = (
-        "user",
-        "service",
-        "date",
-    )
-
-
-
 # Configures notification columns and filters in admin.
 class NotificationAdmin(admin.ModelAdmin):
     list_display = (
@@ -238,5 +230,4 @@ admin.site.register(store_models.ServiceGallery, ServiceGalleryAdmin)
 admin.site.register(store_models.ServiceAvailability, ServiceAvailabilityAdmin)
 admin.site.register(store_models.Booking, BookingAdmin)
 admin.site.register(store_models.ServiceReview, ServiceReviewAdmin)
-admin.site.register(store_models.Wishlist, WishlistAdmin)
 admin.site.register(store_models.Notification, NotificationAdmin)

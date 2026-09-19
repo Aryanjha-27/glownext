@@ -67,10 +67,12 @@ function VendorDashboardContent() {
       <div className="mt-6"><VendorNav /></div>
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-secondary/20 p-4">
-        <span className={`gn-badge ${stats.is_verified ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-800"}`}>
-          {stats.is_verified ? "Verified" : "Pending Verification"}
+        <span className={`gn-badge ${stats.is_verified ? "bg-emerald-100 text-emerald-700" : stats.verification_status === "Rejected" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-800"}`}>
+          {stats.verification_status === "Rejected" ? "Rejected" : stats.is_verified ? "Verified" : "Pending Verification"}
         </span>
-        {!stats.is_verified ? <Link to="/vendor/profile" className="gn-btn gn-btn-outline text-sm">Complete verification steps</Link> : null}
+        {stats.verification_status === "Rejected" ? (
+          <Link to="/vendor/profile" className="gn-btn gn-btn-outline text-sm">Try again</Link>
+        ) : !stats.is_verified ? <Link to="/vendor/profile" className="gn-btn gn-btn-outline text-sm">Complete verification steps</Link> : null}
         <div className="flex gap-2">
           {[7, 30, 180].map((days) => (
             <button key={days} type="button" onClick={() => setPeriod(days)} className={`gn-chip ${period === days ? "bg-primary text-primary-foreground font-bold" : ""}`}>
