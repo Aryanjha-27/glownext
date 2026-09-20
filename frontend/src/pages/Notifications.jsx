@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { DashboardNav } from "@/components/DashboardNav";
+import { useAuth } from "@/hooks/useAuth";
 import { listNotifications, markNotificationRead, markAllNotificationsRead } from "@/api/notificationApi";
 import { formatDate } from "@/utils/formatDate";
 import { ErrorMessage } from "@/components/ErrorMessage";
@@ -16,6 +18,8 @@ export default function Notifications() {
 }
 
 function NotificationsContent() {
+  const { userType } = useAuth();
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -37,12 +41,14 @@ function NotificationsContent() {
     fetchNotes();
   }, []);
 
-  const handleMarkRead = async (nid) => {
+  const handleNotificationClick = async (item) => {
     try {
-      await markNotificationRead(nid);
+      await markNotificationRead(item.id);
       setItems((prev) =>
-        prev.map((item) => (item.id === nid ? { ...item, seen: true } : item))
+        prev.map((notification) => (notification.id === item.id ? { ...notification, seen: true } : notification))
       );
+      const bookingId = item.booking?.bid;
+      if (bookingId) navigate(userType === "Vendor" ? "/vendor/bookings" : `/bookings/${bookingId}`);
     } catch {
       // Keep UI state intact
     }
@@ -76,7 +82,7 @@ function NotificationsContent() {
       </div>
 
       <div className="mt-6">
-        <DashboardNav />
+        {userType === "Vendor" ? null : <DashboardNav />}
       </div>
 
       <div className="mt-8 max-w-2xl">
@@ -89,7 +95,7 @@ function NotificationsContent() {
             {items.map((item) => (
               <div
                 key={item.id}
-                onClick={() => handleMarkRead(item.id)}
+                onClick={() => handleNotificationClick(item)}
                 className={`gn-card p-4 border transition-colors cursor-pointer ${
                   item.seen ? "border-border bg-card opacity-80" : "border-primary/40 bg-secondary/20"
                 }`}

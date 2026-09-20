@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { vendorBookingApi } from "@/api/bookingApi";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { VendorNav } from "@/components/DashboardNav";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { formatPrice } from "@/utils/formatPrice";
@@ -64,7 +63,6 @@ function VendorDashboardContent() {
         <Link to="/vendor/services" className="gn-btn gn-btn-primary">+ List New Service</Link>
       </div>
 
-      <div className="mt-6"><VendorNav /></div>
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-secondary/20 p-4">
         <span className={`gn-badge ${stats.is_verified ? "bg-emerald-100 text-emerald-700" : stats.verification_status === "Rejected" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-800"}`}>
@@ -96,7 +94,7 @@ function VendorDashboardContent() {
         <section className="gn-card border border-border p-6">
           <h2 className="font-display text-2xl text-foreground">Bookings over time</h2>
           <div className="mt-6 space-y-4">
-            {(analytics.bookings ?? []).slice(-14).map((item) => (
+            {(analytics.bookings ?? []).slice(0, 14).map((item) => (
               <div key={item.date}>
                 <div className="flex justify-between text-sm font-semibold"><span>{item.date}</span><span>{item.count}</span></div>
                 <div className="mt-2 h-3 rounded-full bg-secondary"><div className="h-3 rounded-full bg-primary" style={{ width: `${(item.count / chartMax) * 100}%` }} /></div>

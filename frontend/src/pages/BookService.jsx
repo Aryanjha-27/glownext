@@ -10,7 +10,7 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export default function BookService() {
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requireUserType="Customer">
       <BookingForm />
     </ProtectedRoute>
   );

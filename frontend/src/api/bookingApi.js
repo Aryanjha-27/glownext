@@ -43,6 +43,9 @@ async function cancelBooking(bid) {
     throw error;
   }
 }
+async function confirmCashPayment(bid) {
+  return apiClient.post(`/bookings/${bid}/confirm-cash/`);
+}
 const vendorBookingApi = {
   list: async (status) => {
     const query = buildQuery({
@@ -114,4 +117,4 @@ function missing(error) {
     (error.status === 404 || error.status === 0)
   );
 }
-export { cancelBooking, createBooking, getBooking, listBookings, vendorBookingApi };
+export { cancelBooking, confirmCashPayment, createBooking, getBooking, listBookings, vendorBookingApi };

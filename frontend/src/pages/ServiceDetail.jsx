@@ -109,7 +109,7 @@ export default function ServiceDetail() {
             <div className="mt-6 space-y-3 rounded-2xl bg-secondary/30 p-5 text-sm border border-border">
               <div className="flex items-center gap-3">
                 <i className="fa-solid fa-clock text-primary" />
-                <span>Duration: {service.duration_minutes ?? 60} minutes</span>
+                <span>Duration: {formatDuration(service.duration_minutes)}</span>
               </div>
               <div className="flex items-center gap-3">
                 <i className="fa-solid fa-house-chimney text-primary" />
@@ -125,7 +125,7 @@ export default function ServiceDetail() {
             <div className="mt-6">
               <h3 className="font-bold text-foreground">Description</h3>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-                {service.description || "No description provided for this service."}
+                {service.description ? <span dangerouslySetInnerHTML={{ __html: sanitizeDescription(service.description) }} /> : "No description provided for this service."}
               </p>
             </div>
           </div>
@@ -159,4 +159,27 @@ export default function ServiceDetail() {
       </section>
     </div>
   );
+}
+
+function formatDuration(minutes = 60) {
+  const value = Number(minutes) || 60;
+  const hours = Math.floor(value / 60);
+  const remaining = value % 60;
+  if (!hours) return `${remaining} minutes`;
+  if (!remaining) return `${hours} ${hours === 1 ? "hour" : "hours"}`;
+  return `${hours} ${hours === 1 ? "hour" : "hours"} ${remaining} minutes`;
+}
+
+function sanitizeDescription(html) {
+  if (typeof DOMParser === "undefined") return "";
+  const document = new DOMParser().parseFromString(html, "text/html");
+  document.querySelectorAll("script, style, iframe, object, embed, form").forEach((node) => node.remove());
+  document.querySelectorAll("*").forEach((node) => {
+    [...node.attributes].forEach((attribute) => {
+      if (attribute.name.toLowerCase().startsWith("on") || (attribute.name.toLowerCase() === "href" && attribute.value.toLowerCase().startsWith("javascript:"))) {
+        node.removeAttribute(attribute.name);
+      }
+    });
+  });
+  return document.body.innerHTML;
 }

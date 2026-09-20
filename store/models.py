@@ -2,6 +2,8 @@ from decimal import Decimal
 
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
+from django.conf import settings
 from shortuuid.django_fields import ShortUUIDField
 from django.utils import timezone
 from django.utils.text import slugify
@@ -127,6 +129,8 @@ class Service(models.Model):
 
 
     price          = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
+
+    duration_minutes = models.PositiveIntegerField(default=60, validators=[MinValueValidator(1)])
     
     discount_price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
 
@@ -321,7 +325,8 @@ class Booking(models.Model):
 
     def save(self, *args, **kwargs):
         if self.total is not None:
-            commission_rate = Decimal(str(self.commission_rate or 10))
+            commission_rate = Decimal(str(getattr(settings, "PLATFORM_COMMISSION_PERCENT", 10)))
+            self.commission_rate = commission_rate
             commission_value = (Decimal(str(self.total)) * commission_rate / Decimal("100")).quantize(Decimal("0.01"))
             self.commission_amount = commission_value
             self.vendor_amount = (Decimal(str(self.total)) - commission_value).quantize(Decimal("0.01"))

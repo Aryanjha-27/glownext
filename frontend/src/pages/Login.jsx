@@ -38,7 +38,7 @@ export default function Login() {
     try {
       const userData = await login(email, password);
       const nextType = userData?.profile?.user_type ?? userData?.user_type ?? "Customer";
-      navigate(nextType === "Vendor" ? "/vendor" : "/dashboard");
+      navigate(nextType === "Vendor" ? "/vendor/dashboard" : "/");
     } catch (err) {
       setApiError(err);
     } finally {

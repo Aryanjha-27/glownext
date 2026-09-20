@@ -92,7 +92,7 @@ function buildQuery(params = {}) {
   return qs ? `?${qs}` : "";
 }
 async function request(path, options = {}) {
-  const { method = "GET", body, auth = true, signal } = options;
+  const { method = "GET", body, auth = true, signal, isRetry = false } = options;
   const headers = { Accept: "application/json" };
   const token = auth ? getToken() : null;
   if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -122,9 +122,27 @@ async function request(path, options = {}) {
   }
   if (!response.ok) {
     if (response.status === 401) {
-      setTokens(null, null);
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent(UNAUTHORIZED_EVENT));
+      const refreshToken = typeof window !== "undefined" ? window.localStorage.getItem(REFRESH_STORAGE_KEY) : null;
+      if (auth && refreshToken && !isRetry && !path.includes("/auth/token/refresh/")) {
+        try {
+          const refreshResponse = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify({ refresh: refreshToken }),
+          });
+          if (refreshResponse.ok) {
+            const refreshed = await refreshResponse.json();
+            setTokens(refreshed.access, refreshed.refresh);
+            return request(path, { ...options, isRetry: true });
+          }
+        } catch {
+          // Fall through to the normal authentication failure below.
+        }
+        setTokens(null, null);
+        if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent(UNAUTHORIZED_EVENT));
+      } else if (!refreshToken || isRetry) {
+        setTokens(null, null);
+        if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent(UNAUTHORIZED_EVENT));
       }
     }
     throw new ApiError(messageForStatus(response.status, payload), {
@@ -138,6 +156,7 @@ async function request(path, options = {}) {
 const apiClient = {
   get: (path, options) => request(path, { ...options, method: "GET" }),
   post: (path, body, options) => request(path, { ...options, method: "POST", body }),
+  postFormData: (path, body, options) => request(path, { ...options, method: "POST", body }),
   put: (path, body, options) => request(path, { ...options, method: "PUT", body }),
   patch: (path, body, options) => request(path, { ...options, method: "PATCH", body }),
   delete: (path, options) => request(path, { ...options, method: "DELETE" }),

@@ -1,6 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { getUnreadNotificationCount } from "@/api/notificationApi";
 
 // Navigation links list for BCA Project Presentation
 const navLinks = [
@@ -20,6 +21,21 @@ function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    if (isAuthenticated) {
+      getUnreadNotificationCount().then((count) => {
+        if (active) setUnreadNotifications(count);
+      }).catch(() => {
+        if (active) setUnreadNotifications(0);
+      });
+    } else {
+      setUnreadNotifications(0);
+    }
+    return () => { active = false; };
+  }, [isAuthenticated]);
 
   // Handle user logout
   const handleLogout = async () => {
@@ -58,6 +74,7 @@ function Navbar() {
             <>
               <Link to="/notifications" title="Notifications" className="gn-btn gn-btn-ghost px-3">
                 <i className="fa-regular fa-bell text-base" aria-hidden="true" />
+                {unreadNotifications > 0 ? <span className="ml-1 text-xs font-bold">{unreadNotifications}</span> : null}
               </Link>
               {userType === "Vendor" ? (
                 <Link to="/vendor" className="gn-btn gn-btn-outline">

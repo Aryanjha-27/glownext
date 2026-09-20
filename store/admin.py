@@ -2,6 +2,24 @@ from django.contrib import admin
 from store import models as store_models
 from vendor import models as vendor_models
 
+# Connect live database platform analytics directly to Jazzmin Admin homepage index
+_original_admin_index = admin.site.index
+
+def jazzmin_analytics_index(request, extra_context=None):
+    if extra_context is None:
+        extra_context = {}
+    try:
+        from glownext.admin_analytics import get_jazzmin_dashboard_context
+        analytics = get_jazzmin_dashboard_context()["analytics"]
+        extra_context.update({
+            "analytics": analytics,
+        })
+    except Exception:
+        pass
+    return _original_admin_index(request, extra_context=extra_context)
+
+admin.site.index = jazzmin_analytics_index
+
 
 
 

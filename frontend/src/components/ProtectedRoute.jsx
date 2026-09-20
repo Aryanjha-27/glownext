@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { LoadingSpinner } from "./LoadingSpinner";
 
@@ -31,19 +31,7 @@ function ProtectedRoute({ children, requireUserType }) {
   }
 
   if (requireUserType && userType && userType !== requireUserType) {
-    return (
-      <div className="gn-container py-20">
-        <div className="gn-card mx-auto max-w-md p-8 text-center border border-border">
-          <h1 className="font-display text-3xl text-foreground">Not your area</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            This section is for {requireUserType.toLowerCase()} accounts.
-          </p>
-          <Link to="/" className="gn-btn gn-btn-ink mt-6">
-            Go home
-          </Link>
-        </div>
-      </div>
-    );
+    return <Navigate to={userType === "Vendor" ? "/vendor" : "/dashboard"} replace />;
   }
 
   return <>{children}</>;

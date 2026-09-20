@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { getMyVendorProfile, updateMyVendorProfile } from "@/api/vendorApi";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { VendorNav } from "@/components/DashboardNav";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 
@@ -12,11 +11,6 @@ const emptyForm = {
   country: "",
   city: "",
   address: "",
-  account_type: "Khalti",
-  bank_name: "",
-  account_number: "",
-  account_name: "",
-  khalti_id: "",
 };
 
 export default function VendorProfile() {
@@ -37,7 +31,6 @@ function VendorProfileContent() {
       .then((profile) => setForm((current) => ({
         ...current,
         ...profile,
-        ...(profile.bank_account ?? {}),
         address: profile.address ?? profile.user?.profile?.address ?? "",
       })))
       .catch(setError)
@@ -51,6 +44,7 @@ function VendorProfileContent() {
     setBusy(true);
     setNotice("");
     setError(null);
+    const wasRejected = form.verification_status === "Rejected";
     try {
       const payload = new FormData();
       Object.entries(form).forEach(([key, value]) => {
@@ -61,7 +55,7 @@ function VendorProfileContent() {
       await updateMyVendorProfile(payload);
       setProfileImage(null);
       setVerificationDocument(null);
-      setNotice("Store profile and verification details updated.");
+      setNotice(wasRejected ? "Updated verification form submitted for admin review." : "Store profile and verification details updated.");
     } catch (requestError) {
       setError(requestError);
     } finally {
@@ -75,7 +69,6 @@ function VendorProfileContent() {
     <div className="gn-container py-12">
       <p className="gn-eyebrow text-primary">Vendor Profile</p>
       <h1 className="mt-1 font-display text-4xl">Store profile</h1>
-      <div className="mt-6"><VendorNav /></div>
       <form onSubmit={submit} className="gn-card mt-8 max-w-2xl space-y-4 border border-border p-6">
         {form.verification_status === "Rejected" ? (
           <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900">
@@ -97,13 +90,6 @@ function VendorProfileContent() {
           <label className="gn-label">City<input className="gn-input mt-1.5 w-full" value={form.city || ""} onChange={(event) => update("city", event.target.value)} /></label>
         </div>
         <label className="gn-label">Country<input className="gn-input mt-1.5 w-full" value={form.country || ""} onChange={(event) => update("country", event.target.value)} /></label>
-        <label className="gn-label">Business address<textarea required={!form.is_verified} rows="3" className="gn-input mt-1.5 w-full" value={form.address || ""} onChange={(event) => update("address", event.target.value)} /></label>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <label className="gn-label">Bank name<input required={!form.is_verified} className="gn-input mt-1.5 w-full" value={form.bank_name || ""} onChange={(event) => update("bank_name", event.target.value)} /></label>
-          <label className="gn-label">Account number<input required={!form.is_verified} className="gn-input mt-1.5 w-full" value={form.account_number || ""} onChange={(event) => update("account_number", event.target.value)} /></label>
-          <label className="gn-label">Account holder name<input required={!form.is_verified} className="gn-input mt-1.5 w-full" value={form.account_name || ""} onChange={(event) => update("account_name", event.target.value)} /></label>
-          <label className="gn-label">Payment account type<select className="gn-input mt-1.5 w-full" value={form.account_type || "Khalti"} onChange={(event) => update("account_type", event.target.value)}><option value="Khalti">Khalti</option></select></label>
-        </div>
         <label className="gn-label">Company register certificate<input type="file" accept="image/*" required={!form.is_verified} className="gn-input mt-1.5 w-full" onChange={(event) => setVerificationDocument(event.target.files?.[0] ?? null)} /></label>
         <label className="gn-label">Store photo<input type="file" accept="image/*" className="gn-input mt-1.5 w-full" onChange={(event) => setProfileImage(event.target.files?.[0] ?? null)} /></label>
         <button disabled={busy} className="gn-btn gn-btn-primary">{busy ? "Saving..." : "Save Store Profile"}</button>

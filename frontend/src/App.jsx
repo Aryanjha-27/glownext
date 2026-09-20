@@ -1,4 +1,5 @@
-import { Routes, Route } from "react-router-dom";
+import { Navigate, Routes, Route, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { Providers } from "@/components/Providers";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -24,12 +25,17 @@ import Profile from "@/pages/Profile";
 import Notifications from "@/pages/Notifications";
 import Reviews from "@/pages/Reviews";
 import Addresses from "@/pages/Addresses";
+import Disputes from "@/pages/Disputes";
+import DisputeDetail from "@/pages/DisputeDetail";
 import NotFound from "@/pages/NotFound";
 import VendorDashboard from "@/pages/VendorDashboard";
 import VendorServices from "@/pages/VendorServices";
 import VendorBookings from "@/pages/VendorBookings";
 import VendorProfile from "@/pages/VendorProfile";
 import VendorEarnings from "@/pages/VendorEarnings";
+import VendorDisputes from "@/pages/VendorDisputes";
+import VendorDisputeDetail from "@/pages/VendorDisputeDetail";
+import VendorLayout from "@/components/VendorLayout";
 
 /**
  * Main Application Component - React + Vite
@@ -38,8 +44,24 @@ import VendorEarnings from "@/pages/VendorEarnings";
 export default function App() {
   return (
     <Providers>
-      <div className="flex min-h-screen flex-col bg-background text-foreground">
-        <Navbar />
+      <AppContent />
+    </Providers>
+  );
+}
+
+function AppContent() {
+  const { userType, loading } = useAuth();
+  const location = useLocation();
+  const vendorPath = location.pathname === "/vendor" || location.pathname.startsWith("/vendor/");
+  const authPath = location.pathname === "/login" || location.pathname === "/register";
+
+  if (!loading && userType === "Vendor" && !vendorPath && !authPath) {
+    return <Navigate to="/vendor/dashboard" replace />;
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      {!vendorPath && userType !== "Vendor" ? <Navbar /> : null}
         <main className="flex-1">
           <Routes>
             {/* Public Routes */}
@@ -70,24 +92,30 @@ export default function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/bookings" element={<Bookings />} />
             <Route path="/bookings/:bid" element={<BookingDetail />} />
+            <Route path="/disputes" element={<Disputes />} />
+            <Route path="/disputes/:id" element={<DisputeDetail />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/addresses" element={<Addresses />} />
 
             {/* Vendor dashboard */}
-            <Route path="/vendor" element={<VendorDashboard />} />
-            <Route path="/vendor/services" element={<VendorServices />} />
-            <Route path="/vendor/bookings" element={<VendorBookings />} />
-            <Route path="/vendor/profile" element={<VendorProfile />} />
-            <Route path="/vendor/earnings" element={<VendorEarnings />} />
+            <Route path="/vendor" element={<VendorLayout><VendorDashboard /></VendorLayout>} />
+            <Route path="/vendor/dashboard" element={<VendorLayout><VendorDashboard /></VendorLayout>} />
+            <Route path="/vendor/services" element={<VendorLayout><VendorServices /></VendorLayout>} />
+            <Route path="/vendor/bookings" element={<VendorLayout><VendorBookings /></VendorLayout>} />
+            <Route path="/vendor/disputes" element={<VendorLayout><VendorDisputes /></VendorLayout>} />
+            <Route path="/vendor/disputes/:id" element={<VendorLayout><VendorDisputeDetail /></VendorLayout>} />
+            <Route path="/vendor/profile" element={<VendorLayout><VendorProfile /></VendorLayout>} />
+            <Route path="/vendor/earnings" element={<VendorLayout><VendorEarnings /></VendorLayout>} />
+            <Route path="/vendor/payouts" element={<VendorLayout><VendorEarnings /></VendorLayout>} />
+            <Route path="/vendor/notifications" element={<VendorLayout><Notifications /></VendorLayout>} />
 
             {/* 404 Catch-All */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
         <Footer />
-      </div>
-    </Providers>
+    </div>
   );
 }

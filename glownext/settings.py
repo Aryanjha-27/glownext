@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os
+from datetime import timedelta
 
 from environs import Env
 env = Env()
@@ -25,6 +26,10 @@ KHALTI_RETURN_URL = env.str(
 )
 WEBSITE_URL = env.str("WEBSITE_URL", "http://localhost:8000")
 FRONTEND_URL = env.str("FRONTEND_URL", "http://localhost:5173")
+
+# Platform commission percentage deducted from each successful booking payment.
+# Vendors receive (100 - PLATFORM_COMMISSION_PERCENT)% of the booking total.
+PLATFORM_COMMISSION_PERCENT = env.int("PLATFORM_COMMISSION_PERCENT", 10)
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -110,6 +115,9 @@ JAZZMIN_SETTINGS = {
         "vendor.Payout": "fas fa-money-bill-wave",
         "vendor.BankAccount": "fas fa-university",
         "vendor.Notifications": "fas fa-bell",
+        "vendor.Dispute": "fas fa-gavel",
+        "vendor.DisputeMessage": "fas fa-comments",
+        "vendor.DisputeAuditLog": "fas fa-history",
 
         "store.Category": "fas fa-layer-group",
         "store.Tag": "fas fa-tags",
@@ -287,12 +295,6 @@ CKEDITOR_5_CONFIGS = {
             "blockQuote",
         ],
         "toolbar": [
-            # "heading",
-            # "codeBlock",
-            # "|",
-            # "outdent",
-            # "indent",
-            # "|",
             "bold",
             "italic",
             "underline",
@@ -397,4 +399,11 @@ CKEDITOR_5_CONFIGS = {
             ]
         },
     },
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=14),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": False,
 }

@@ -1,16 +1,20 @@
 import { apiClient, backendMissing, normalizeList } from "./apiClient";
 async function listNotifications() {
   try {
-    const payload = await apiClient.get("/customer/notifications/");
+    const payload = await apiClient.get("/notifications/");
     return normalizeList(payload).results;
   } catch {
-    return backendMissing("GET /api/customer/notifications/");
+    return backendMissing("GET /api/notifications/");
   }
 }
 async function markNotificationRead(nid) {
-  return apiClient.post(`/customer/notifications/${nid}/read/`);
+  return apiClient.post(`/notifications/${nid}/`);
 }
 async function markAllNotificationsRead() {
-  return apiClient.post("/customer/notifications/read-all/");
+  return apiClient.post("/notifications/");
 }
-export { listNotifications, markAllNotificationsRead, markNotificationRead };
+async function getUnreadNotificationCount() {
+  const notifications = await listNotifications();
+  return notifications.filter((notification) => !notification.seen).length;
+}
+export { getUnreadNotificationCount, listNotifications, markAllNotificationsRead, markNotificationRead };

@@ -52,7 +52,7 @@ function ServiceCard({ service }) {
         <h3 className="mt-2 line-clamp-2 text-lg font-bold leading-snug text-foreground">
           <Link to={`/services/${slug}`}>{service.title}</Link>
         </h3>
-        <p className="mt-1 text-sm text-muted-foreground">by {service.vendor_name ?? "Vendor"}</p>
+        <p className="mt-1 text-sm text-muted-foreground">by {service.vendor_name ?? "Vendor"} · {service.duration_minutes ?? 60} minutes</p>
 
         <div className="mt-4 flex items-baseline gap-2">
           {hasDiscount ? (

@@ -47,4 +47,7 @@ async function getMyVendorEarnings() {
     return backendMissing("GET /api/vendor/earnings/");
   }
 }
-export { getMyVendorEarnings, getMyVendorProfile, getVendor, listVendors, updateMyVendorProfile };
+async function requestVendorPayout(amount) {
+  return await apiClient.post("/vendor/payouts/", { amount });
+}
+export { getMyVendorEarnings, getMyVendorProfile, getVendor, listVendors, requestVendorPayout, updateMyVendorProfile };
