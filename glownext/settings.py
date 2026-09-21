@@ -120,10 +120,8 @@ JAZZMIN_SETTINGS = {
         "vendor.DisputeAuditLog": "fas fa-history",
 
         "store.Category": "fas fa-layer-group",
-        "store.Tag": "fas fa-tags",
         "store.Service": "fas fa-spa",
         "store.ServiceGallery": "fas fa-images",
-        "store.ServiceAvailability": "fas fa-clock",
         "store.Booking": "fas fa-calendar-check",
         "store.ServiceReview": "fas fa-star",
         "store.Notification": "fas fa-bell",
@@ -152,6 +150,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
+CORS_ALLOW_CREDENTIALS = True
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [

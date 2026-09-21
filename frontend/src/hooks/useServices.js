@@ -32,6 +32,3 @@ export function useServices(params = {}) {
   return { data, isLoading, isError, error, refetch: fetchServices };
 }
 
-export function useFeaturedServices() {
-  return useServices({ featured: true, page_size: 6 });
-}

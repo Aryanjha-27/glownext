@@ -26,16 +26,12 @@ async function listServices(params = {}, signal) {
     min_price: params.min_price,
     max_price: params.max_price,
     min_rating: params.min_rating,
-    featured: params.featured ? "true" : void 0,
     ordering: params.ordering,
     page: params.page,
     page_size: params.page_size,
   };
   const payload = await apiClient.get(`/services/${buildQuery(query)}`, { auth: false, signal });
   return normalizeServices(payload);
-}
-async function listFeaturedServices(signal) {
-  return listServices({ featured: true, page_size: 6 }, signal);
 }
 async function getService(slug, signal) {
   return normalizeService(
@@ -100,7 +96,6 @@ export {
   createCategory,
   getService,
   listCategories,
-  listFeaturedServices,
   listServices,
   vendorServiceApi,
 };

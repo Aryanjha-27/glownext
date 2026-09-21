@@ -6,10 +6,8 @@ from rest_framework import serializers
 
 from store.models import (
     Category,
-    Tag,
     Service,
     ServiceGallery,
-    ServiceAvailability,
     Booking,
     ServiceReview,
     Notification,
@@ -27,25 +25,11 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ["id", "title", "slug", "image"]
 
 
-# Converts service tag records into API JSON.
-class TagSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Tag
-        fields = ["id", "title"]
-
-
 # Converts gallery image records into API JSON.
 class ServiceGallerySerializer(serializers.ModelSerializer):
     class Meta:
         model = ServiceGallery
         fields = ["id", "image", "caption", "date"]
-
-
-# Converts service opening-hour records into API JSON.
-class ServiceAvailabilitySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ServiceAvailability
-        fields = ["id", "day", "start_time", "end_time", "is_active"]
 
 
 # Converts a user profile into API JSON.
@@ -61,7 +45,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserModel
-        fields = ["id", "email", "username", "profile"]
+        fields = ["id", "email", "username", "is_staff", "is_superuser", "profile"]
 
 
 # Converts complete vendor data, including verification documents for staff.
@@ -110,7 +94,7 @@ class PublicVendorSerializer(VendorSerializer):
         services = (
             obj.services.filter(status="Published")
             .select_related("vendor", "category")
-            .prefetch_related("tags", "gallery", "availability")
+            .prefetch_related("gallery")
             .order_by("-date")
         )
         return ServiceSerializer(services, many=True).data
@@ -140,9 +124,7 @@ class PublicVendorSerializer(VendorSerializer):
 class ServiceSerializer(serializers.ModelSerializer):
     vendor = VendorSerializer(read_only=True)
     category = CategorySerializer(read_only=True)
-    tags = TagSerializer(many=True, read_only=True)
     gallery = ServiceGallerySerializer(many=True, read_only=True)
-    availability = ServiceAvailabilitySerializer(many=True, read_only=True)
     vendor_name = serializers.SerializerMethodField()
     category_name = serializers.SerializerMethodField()
     effective_price = serializers.ReadOnlyField()
@@ -159,22 +141,18 @@ class ServiceSerializer(serializers.ModelSerializer):
             "slug",
             "description",
             "price",
-            "discount_price",
             "duration_minutes",
             "effective_price",
             "service_type",
             "thumbnail",
             "status",
-            "featured",
             "date",
             "updated",
             "vendor",
             "vendor_name",
             "category",
             "category_name",
-            "tags",
             "gallery",
-            "availability",
             "average_rating",
             "review_count",
             "booking_count",

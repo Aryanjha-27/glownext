@@ -1,7 +1,12 @@
-import { apiClient, backendMissing, setTokens } from "./apiClient";
+import { API_SERVER_URL, apiClient, backendMissing, setTokens } from "./apiClient";
 async function login(payload) {
   try {
-    const data = await apiClient.post("/auth/login/", payload, { auth: false });
+    const backendUrl = API_SERVER_URL || "http://127.0.0.1:8000";
+    const data = await apiClient.post("/auth/login/", payload, {
+      auth: false,
+      baseUrl: `${backendUrl}/api`,
+      credentials: "include",
+    });
     setTokens(data.access ?? data.token ?? null, data.refresh ?? null);
     return data;
   } catch (error) {

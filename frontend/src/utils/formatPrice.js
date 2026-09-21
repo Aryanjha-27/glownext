@@ -4,10 +4,4 @@ function formatPrice(value) {
   if (Number.isNaN(num)) return String(value);
   return `Rs. ${num.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 }
-function discountPercent(price, effective) {
-  const p = Number(price);
-  const e = Number(effective);
-  if (!p || Number.isNaN(p) || Number.isNaN(e) || e >= p) return null;
-  return Math.round(((p - e) / p) * 100);
-}
-export { discountPercent, formatPrice };
+export { formatPrice };

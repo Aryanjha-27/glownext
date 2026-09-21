@@ -92,7 +92,7 @@ function buildQuery(params = {}) {
   return qs ? `?${qs}` : "";
 }
 async function request(path, options = {}) {
-  const { method = "GET", body, auth = true, signal, isRetry = false } = options;
+  const { method = "GET", body, auth = true, signal, credentials, baseUrl = API_BASE_URL, isRetry = false } = options;
   const headers = { Accept: "application/json" };
   const token = auth ? getToken() : null;
   if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -100,10 +100,11 @@ async function request(path, options = {}) {
   if (body !== void 0 && !isForm) headers["Content-Type"] = "application/json";
   let response;
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, {
+    response = await fetch(`${baseUrl}${path}`, {
       method,
       headers,
       ...(signal ? { signal } : {}),
+      ...(credentials ? { credentials } : {}),
       ...(body === void 0 ? {} : { body: isForm ? body : JSON.stringify(body) }),
     });
   } catch {

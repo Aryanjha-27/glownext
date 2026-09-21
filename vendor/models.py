@@ -119,7 +119,6 @@ DISPUTE_REASON = (
     ("Incorrect service", "Incorrect service"),
     ("Payment issue", "Payment issue"),
     ("Booking issue", "Booking issue"),
-    ("Refund request", "Refund request"),
     ("Other", "Other"),
 )
 

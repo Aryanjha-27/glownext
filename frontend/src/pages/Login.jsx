@@ -2,14 +2,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { API_SERVER_URL } from "@/api/apiClient";
 
 /**
  * LoginPage Component for React + Vite
- * Features min 8 chars password security enforcement, required field asterisks (*),
- * and show/hide password visibility toggle.
+ * Login page with show/hide password visibility toggle.
  */
 export default function Login() {
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
 
   // State variables for form input
@@ -28,15 +28,14 @@ export default function Login() {
     setClientError("");
     setApiError(null);
 
-    // Security Check: Password length validation
-    if (password.length < 8) {
-      setClientError("Password must be at least 8 characters long.");
-      return;
-    }
-
     setBusy(true);
     try {
       const userData = await login(email, password);
+      if (userData?.is_staff || userData?.is_superuser) {
+        await logout();
+        window.location.assign(`${API_SERVER_URL || "http://127.0.0.1:8000"}/admin/`);
+        return;
+      }
       const nextType = userData?.profile?.user_type ?? userData?.user_type ?? "Customer";
       navigate(nextType === "Vendor" ? "/vendor/dashboard" : "/");
     } catch (err) {
@@ -62,13 +61,12 @@ export default function Login() {
           <div>
             <label className="gn-label flex items-center justify-between" htmlFor="email">
               <span>
-                Email Address <span className="text-red-500">*</span>
+                Email Address
               </span>
             </label>
             <input
               id="email"
               type="email"
-              required
               placeholder="you@example.com"
               autoComplete="email"
               value={email}
@@ -81,16 +79,13 @@ export default function Login() {
           <div>
             <label className="gn-label flex items-center justify-between" htmlFor="password">
               <span>
-                Password <span className="text-red-500">*</span>
+                Password
               </span>
-              <span className="text-xs text-muted-foreground">(Min. 8 characters)</span>
             </label>
             <div className="relative mt-1.5">
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                required
-                minLength={8}
                 placeholder="Enter your password"
                 autoComplete="current-password"
                 value={password}
@@ -131,7 +126,7 @@ export default function Login() {
           {/* Bottom Links */}
           <div className="flex justify-end pt-2 text-sm">
             <Link to="/register" className="font-semibold text-foreground hover:underline">
-              Create an Account &rarr;
+              Create an Account
             </Link>
           </div>
         </form>

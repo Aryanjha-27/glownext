@@ -1,8 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { listCategories } from "@/api/serviceApi";
-import { useFeaturedServices } from "@/hooks/useServices";
-import { ServiceCard } from "@/components/ServiceCard";
 import { SearchBar } from "@/components/SearchBar";
 import { SkeletonGrid } from "@/components/SkeletonCard";
 import { ErrorMessage } from "@/components/ErrorMessage";
@@ -22,7 +20,6 @@ const fallbackCategoryArt = [catHair, catSpa, catMakeup];
  */
 export default function Home() {
   const navigate = useNavigate();
-  const featured = useFeaturedServices();
 
   // State for Categories
   const [categories, setCategories] = useState([]);
@@ -133,43 +130,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. Featured Services Section */}
-      <section className="gn-section bg-secondary/40">
-        <div className="gn-container">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="gn-eyebrow">Featured Treatments</p>
-              <h2 className="mt-2 text-3xl sm:text-4xl font-display text-foreground">Top Choice Services This Week</h2>
-            </div>
-            <Link to="/services" className="gn-btn gn-btn-outline">
-              See All Services
-            </Link>
-          </div>
-
-          <div className="mt-10">
-            {featured.isLoading ? (
-              <SkeletonGrid count={3} />
-            ) : featured.isError ? (
-              <ErrorMessage error={featured.error} onRetry={featured.refetch} />
-            ) : featured.data && featured.data.results.length > 0 ? (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {featured.data.results.map((s) => (
-                  <ServiceCard key={String(s.sid)} service={s} />
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                title="No featured services yet"
-                description="Once studios feature their services, they will appear here."
-                actionLabel="Browse all services"
-                actionTo="/services"
-              />
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* 4. How We Work Preview Section */}
+      {/* 3. How We Work Preview Section */}
       <section className="gn-section">
         <div className="gn-container">
           <div className="text-center max-w-2xl mx-auto">

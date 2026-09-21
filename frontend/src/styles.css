@@ -1,9 +1,6 @@
 @import "tailwindcss";
 
-/*
- * Glow Next design system — "Cinematic Rose Luxe" (pink tone).
- * All colors are oklch tokens. Never hardcode colors in components.
- */
+
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -53,32 +50,32 @@
 }
 
 :root {
-  --radius: 1rem;
+  --radius: 0.5rem;
 
-  --font-display-family: "Anton", ui-sans-serif, sans-serif;
-  --font-body-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display-family: "Manrope", ui-sans-serif, sans-serif;
+  --font-body-family: "Manrope", ui-sans-serif, sans-serif;
 
   /* Brand */
-  --ink: oklch(0.19 0.045 12);
-  --ink-soft: oklch(0.28 0.05 12);
-  --cream: oklch(0.968 0.012 15);
-  --blush: oklch(0.905 0.042 8);
-  --rose: oklch(0.66 0.15 5);
-  --gold: oklch(0.78 0.1 70);
+  --ink: oklch(0.22 0.02 250);
+  --ink-soft: oklch(0.32 0.02 250);
+  --cream: oklch(0.98 0.004 250);
+  --blush: oklch(0.94 0.01 250);
+  --rose: oklch(0.48 0.13 250);
+  --gold: oklch(0.72 0.11 80);
 
   /* Semantic */
   --background: var(--cream);
   --foreground: var(--ink);
-  --card: oklch(0.99 0.006 15);
+  --card: oklch(1 0 0);
   --card-foreground: var(--ink);
-  --popover: oklch(0.99 0.006 15);
+  --popover: oklch(1 0 0);
   --popover-foreground: var(--ink);
   --primary: var(--rose);
   --primary-foreground: oklch(0.985 0.008 15);
   --secondary: var(--blush);
   --secondary-foreground: var(--ink);
-  --muted: oklch(0.94 0.018 15);
-  --muted-foreground: oklch(0.52 0.035 12);
+  --muted: oklch(0.94 0.01 250);
+  --muted-foreground: oklch(0.48 0.02 250);
   --accent: var(--gold);
   --accent-foreground: var(--ink);
   --destructive: oklch(0.58 0.2 25);
@@ -87,8 +84,8 @@
   --success-foreground: oklch(0.98 0.01 155);
   --warning: oklch(0.78 0.13 75);
   --warning-foreground: oklch(0.22 0.04 40);
-  --border: oklch(0.88 0.025 12);
-  --input: oklch(0.88 0.025 12);
+  --border: oklch(0.86 0.015 250);
+  --input: oklch(0.78 0.015 250);
   --ring: var(--rose);
 }
 
@@ -113,23 +110,23 @@
   h3,
   .font-display {
     font-family: var(--font-display-family);
-    font-weight: 400;
-    letter-spacing: 0.01em;
+    font-weight: 700;
+    letter-spacing: 0;
   }
 }
 
 @layer components {
   .gn-container {
     width: 100%;
-    max-width: 1320px;
+    max-width: 1180px;
     margin-inline: auto;
-    padding-inline: 1.5rem;
+    padding-inline: 1rem;
   }
 
   .gn-eyebrow {
     font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.28em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--color-rose);
   }
@@ -137,7 +134,8 @@
   .gn-card {
     background-color: var(--color-card);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-3xl);
+    border-radius: var(--radius);
+    box-shadow: 0 1px 3px rgb(15 23 42 / 0.06);
   }
 
   .gn-btn {
@@ -145,10 +143,10 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    border-radius: 9999px;
+    border-radius: var(--radius);
     font-size: 0.875rem;
     font-weight: 700;
-    padding: 0.7rem 1.5rem;
+    padding: 0.6rem 1rem;
     transition:
       background-color 0.2s ease,
       color 0.2s ease,
@@ -206,7 +204,7 @@
 
   .gn-input {
     width: 100%;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius);
     border: 1px solid var(--color-input);
     background-color: var(--color-card);
     padding: 0.65rem 0.9rem;
@@ -226,8 +224,8 @@
     display: block;
     font-size: 0.75rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    letter-spacing: 0;
+    text-transform: none;
     color: var(--color-muted-foreground);
     margin-bottom: 0.4rem;
   }
@@ -236,7 +234,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    border-radius: 9999px;
+    border-radius: var(--radius);
     border: 1px solid var(--color-border);
     padding: 0.35rem 0.8rem;
     font-size: 0.75rem;
@@ -261,7 +259,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    border-radius: 9999px;
+    border-radius: var(--radius);
     padding: 0.2rem 0.65rem;
     font-size: 10px;
     font-weight: 700;

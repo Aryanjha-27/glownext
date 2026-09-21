@@ -84,14 +84,6 @@ class Category(models.Model):
         super().save(*args, **kwargs)
 
 
-# Stores reusable labels that can be attached to services.
-class Tag(models.Model):
-    title = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.title
-
-
 # Stores a vendor's beauty service and its publication settings.
 class Service(models.Model):
 
@@ -119,9 +111,6 @@ class Service(models.Model):
     )
 
   
-    tags = models.ManyToManyField(Tag, blank=True)
-
-    
     title       = models.CharField(max_length=255)
     
     description = CKEditor5Field(config_name="extends", null=True, blank=True)
@@ -131,9 +120,6 @@ class Service(models.Model):
     price          = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
 
     duration_minutes = models.PositiveIntegerField(default=60, validators=[MinValueValidator(1)])
-    
-    discount_price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
-
 
     service_type = models.CharField(
         max_length=10,
@@ -145,8 +131,6 @@ class Service(models.Model):
 
 
     status   = models.CharField(max_length=20, choices=STATUS, default="Published")
-    featured = models.BooleanField(default=False)  # show on homepage?
-
 
     date    = models.DateTimeField(default=timezone.now)
     updated = models.DateTimeField(auto_now=True)
@@ -174,20 +158,7 @@ class Service(models.Model):
 
     @property
     def effective_price(self):
-        """
-        Returns discount_price if set, otherwise returns regular price.
-        Use this in your templates: {{ service.effective_price }}
-        """
-        if self.discount_price and self.discount_price < self.price:
-            return self.discount_price
         return self.price
-
-    @property
-    def has_discount(self):
-        """Returns True if this service currently has a discount."""
-        return bool(self.discount_price and self.discount_price < self.price)
-
-
 
     @property
     def average_rating(self):
@@ -243,29 +214,6 @@ class ServiceGallery(models.Model):
 
 
 # Stores the days and hours when a service can be booked.
-class ServiceAvailability(models.Model):
-
-    service    = models.ForeignKey(
-        Service,
-        on_delete=models.CASCADE,
-        related_name="availability",
-    )
-    day        = models.CharField(max_length=15, choices=DAY_CHOICES)
-    start_time = models.TimeField()
-    end_time   = models.TimeField()
-
-    is_active  = models.BooleanField(default=True)
-
-    def __str__(self):
-        return f"{self.service.title} — {self.day} {self.start_time}–{self.end_time}"
-
-    class Meta:
-        verbose_name_plural = "Service Availability"
-
-        unique_together = ["service", "day", "start_time"]
-        ordering = ["day", "start_time"]
-
-
 # Stores customer booking, schedule, status, and payment information.
 class Booking(models.Model):
 

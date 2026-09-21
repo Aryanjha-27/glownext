@@ -5,7 +5,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 
-const emptyForm = { title: "", description: "", price: "", discount_price: "", duration_minutes: 60, service_type: "Store", category_id: "", status: "Draft" };
+const emptyForm = { title: "", description: "", price: "", duration_minutes: 60, service_type: "Store", category_id: "", status: "Draft" };
 
 export default function VendorServices() {
   return <ProtectedRoute requireUserType="Vendor"><VendorServicesContent /></ProtectedRoute>;
@@ -85,7 +85,6 @@ function VendorServicesContent() {
       payload.append("description", form.description);
       payload.append("price", String(Number(form.price)));
       payload.append("duration_minutes", String(Number(form.duration_minutes)));
-      if (form.discount_price) payload.append("discount_price", String(Number(form.discount_price)));
       if (form.category_id) payload.append("category_id", form.category_id);
       payload.append("service_type", form.service_type);
       payload.append("status", form.status);
@@ -138,9 +137,8 @@ function VendorServicesContent() {
           <div className="text-xs text-muted-foreground">{isVerified ? "Your store is verified and can publish services." : "You can save drafts now. Publishing is available after admin verification."}</div>
           <label className="gn-label">Service title<input required className="gn-input mt-1.5 w-full" value={form.title} onChange={(event) => update("title", event.target.value)} /></label>
           <label className="gn-label">Description<textarea required className="gn-input mt-1.5 w-full" rows="4" value={form.description} onChange={(event) => update("description", event.target.value)} /></label>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-1">
             <label className="gn-label">Price<input required type="number" min="0" step="0.01" className="gn-input mt-1.5 w-full" value={form.price} onChange={(event) => update("price", event.target.value)} /></label>
-            <label className="gn-label">Discount price<input type="number" min="0" step="0.01" className="gn-input mt-1.5 w-full" value={form.discount_price} onChange={(event) => update("discount_price", event.target.value)} /></label>
           </div>
           <label className="gn-label">Service duration (minutes)<input required type="number" min="1" step="1" className="gn-input mt-1.5 w-full" value={form.duration_minutes} onChange={(event) => update("duration_minutes", event.target.value)} /></label>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -161,7 +159,7 @@ function VendorServicesContent() {
         <section>
           <h2 className="font-display text-2xl">Your services ({services.length})</h2>
           <div className="mt-4 space-y-3">
-            {services.map((service) => <article key={service.sid} className="gn-card flex flex-wrap items-center justify-between gap-4 border border-border p-5"><div className="min-w-0"><h3 className="truncate font-bold">{service.title}</h3><p className="mt-1 text-sm text-muted-foreground">{service.category_name || "Uncategorised"} · {service.duration_minutes ?? 60} minutes · Rs. {service.effective_price} · {service.booking_count ?? 0} bookings</p></div><div className="flex shrink-0 items-center gap-2"><span className="gn-badge bg-secondary text-secondary-foreground">{service.status}</span><button type="button" title={`Edit ${service.title}`} aria-label={`Edit ${service.title}`} onClick={() => { setEditingSid(service.sid); setForm({ title: service.title ?? "", description: service.description ?? "", price: service.price ?? "", discount_price: service.discount_price ?? "", duration_minutes: service.duration_minutes ?? 60, service_type: service.service_type ?? "Store", category_id: service.category?.id ?? "", status: service.status ?? "Draft" }); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-primary/30 text-primary transition hover:bg-primary hover:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"><i className="fa-solid fa-pen-to-square" aria-hidden="true" /></button><button type="button" title={`Delete ${service.title}`} aria-label={`Delete ${service.title}`} onClick={async () => { if (!window.confirm(`Delete ${service.title}? This cannot be undone.`)) return; try { await vendorServiceApi.remove(service.sid); await load(); } catch (requestError) { setError(requestError); } }} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 text-red-600 transition hover:bg-red-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-300"><i className="fa-solid fa-trash-can" aria-hidden="true" /></button></div></article>)}
+            {services.map((service) => <article key={service.sid} className="gn-card flex flex-wrap items-center justify-between gap-4 border border-border p-5"><div className="min-w-0"><h3 className="truncate font-bold">{service.title}</h3><p className="mt-1 text-sm text-muted-foreground">{service.category_name || "Uncategorised"} · {service.duration_minutes ?? 60} minutes · Rs. {service.effective_price} · {service.booking_count ?? 0} bookings</p></div><div className="flex shrink-0 items-center gap-2"><span className="gn-badge bg-secondary text-secondary-foreground">{service.status}</span><button type="button" title={`Edit ${service.title}`} aria-label={`Edit ${service.title}`} onClick={() => { setEditingSid(service.sid); setForm({ title: service.title ?? "", description: service.description ?? "", price: service.price ?? "", duration_minutes: service.duration_minutes ?? 60, service_type: service.service_type ?? "Store", category_id: service.category?.id ?? "", status: service.status ?? "Draft" }); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-primary/30 text-primary transition hover:bg-primary hover:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"><i className="fa-solid fa-pen-to-square" aria-hidden="true" /></button><button type="button" title={`Delete ${service.title}`} aria-label={`Delete ${service.title}`} onClick={async () => { if (!window.confirm(`Delete ${service.title}? This cannot be undone.`)) return; try { await vendorServiceApi.remove(service.sid); await load(); } catch (requestError) { setError(requestError); } }} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 text-red-600 transition hover:bg-red-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-300"><i className="fa-solid fa-trash-can" aria-hidden="true" /></button></div></article>)}
             {!services.length ? <div className="gn-card border border-border p-8 text-center text-muted-foreground">Create your first service to start receiving bookings.</div> : null}
           </div>
         </section>

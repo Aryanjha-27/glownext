@@ -1,9 +1,8 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { getUnreadNotificationCount } from "@/api/notificationApi";
+import { getUnreadNotificationCount, listNotifications, markNotificationRead } from "@/api/notificationApi";
 
-// Navigation links list for BCA Project Presentation
 const navLinks = [
   { to: "/", label: "Home" },
   { to: "/services", label: "Services" },
@@ -12,46 +11,69 @@ const navLinks = [
   { to: "/vendors", label: "Salons" },
 ];
 
-/**
- * Navbar Component - React + react-router-dom
- * Beginner-friendly code for 4th Sem BCA Project Defense
- */
 function Navbar() {
   const { isAuthenticated, user, userType, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [notifications, setNotifications] = useState([]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
-    if (isAuthenticated) {
-      getUnreadNotificationCount().then((count) => {
-        if (active) setUnreadNotifications(count);
-      }).catch(() => {
-        if (active) setUnreadNotifications(0);
-      });
-    } else {
-      setUnreadNotifications(0);
+    if (!isAuthenticated) {
+      setNotifications([]);
+      return () => {
+        active = false;
+      };
     }
-    return () => { active = false; };
-  }, [isAuthenticated]);
 
-  // Handle user logout
+    Promise.all([
+      listNotifications(),
+      getUnreadNotificationCount(),
+    ]).then(([items, count]) => {
+      if (!active) return;
+      setNotifications(items ?? []);
+      if (count === 0 && (!items || !items.some((item) => !item.seen))) {
+        setNotifications(items ?? []);
+      }
+    }).catch(() => {
+      if (active) setNotifications([]);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [isAuthenticated, user?.id]);
+
+  const unreadNotifications = notifications.filter((item) => !item.seen).length;
+
   const handleLogout = async () => {
     await logout();
     navigate("/");
   };
 
+  const handleNotificationClick = async (item) => {
+    try {
+      await markNotificationRead(item.id);
+    } catch {
+      // The notification still opens even if the backend read flag update fails.
+    }
+    setDropdownOpen(false);
+    setNotifications((prev) => prev.map((notification) => (notification.id === item.id ? { ...notification, seen: true } : notification)));
+    const bookingId = item.booking?.bid;
+    if (bookingId) {
+      navigate(userType === "Vendor" ? "/vendor/bookings" : `/bookings/${bookingId}`);
+    }
+  };
+
   return (
-    <header className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-border bg-background">
       <div className="gn-container flex h-16 items-center justify-between gap-4">
-        {/* Brand Logo */}
         <Link to="/" className="font-display text-2xl tracking-wide text-foreground">
           Glow<span className="text-primary">Next</span>
         </Link>
 
-        {/* Desktop Navigation Links */}
         <nav className="hidden items-center gap-6 lg:flex" aria-label="Main Navigation">
           {navLinks.map((link) => {
             const isActive = location.pathname === link.to;
@@ -59,8 +81,7 @@ function Navbar() {
               <Link
                 key={link.to}
                 to={link.to}
-                className={`text-sm font-semibold transition-colors ${isActive ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"
-                  }`}
+                className={`border-b-2 py-1 text-sm font-semibold transition-colors ${isActive ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:border-border hover:text-foreground"}`}
               >
                 {link.label}
               </Link>
@@ -68,14 +89,52 @@ function Navbar() {
           })}
         </nav>
 
-        {/* Action Buttons (Right side) */}
         <div className="hidden items-center gap-3 lg:flex">
           {isAuthenticated ? (
             <>
-              <Link to="/notifications" title="Notifications" className="gn-btn gn-btn-ghost px-3">
-                <i className="fa-regular fa-bell text-base" aria-hidden="true" />
-                {unreadNotifications > 0 ? <span className="ml-1 text-xs font-bold">{unreadNotifications}</span> : null}
-              </Link>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setDropdownOpen((prev) => !prev)}
+                  className="gn-btn gn-btn-ghost px-3"
+                  aria-label="Open notifications"
+                >
+                  <i className="fa-regular fa-bell text-base" aria-hidden="true" />
+                  {unreadNotifications > 0 ? <span className="ml-1 text-xs font-bold">{unreadNotifications}</span> : null}
+                </button>
+
+                {dropdownOpen ? (
+                  <div className="absolute right-0 mt-2 w-[22rem] rounded-xl border border-border bg-card p-2 shadow-lg">
+                    <div className="flex items-center justify-between border-b border-border px-2 pb-2">
+                      <span className="text-sm font-bold text-foreground">Notifications</span>
+                      <span className="text-xs text-muted-foreground">{unreadNotifications} unread</span>
+                    </div>
+                    <div className="mt-2 max-h-80 space-y-2 overflow-auto">
+                      {notifications.length ? notifications.slice(0, 8).map((item) => (
+                        <button
+                          key={item.id ?? item.nid}
+                          type="button"
+                          onClick={() => handleNotificationClick(item)}
+                          className={`block w-full rounded-lg border px-3 py-2 text-left transition-colors ${
+                            item.seen ? "border-border bg-transparent text-muted-foreground" : "border-primary/30 bg-primary/5 text-foreground"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-semibold">{item.title ?? item.type ?? "Update"}</p>
+                              <p className="mt-1 text-xs">{item.message}</p>
+                            </div>
+                            {!item.seen ? <span className="mt-1 h-2.5 w-2.5 rounded-full bg-primary" aria-label="Unread notification" /> : null}
+                          </div>
+                        </button>
+                      )) : (
+                        <p className="px-2 py-4 text-sm text-muted-foreground">No notifications yet.</p>
+                      )}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+
               {userType === "Vendor" ? (
                 <Link to="/vendor" className="gn-btn gn-btn-outline">
                   Vendor Panel
@@ -104,7 +163,6 @@ function Navbar() {
           )}
         </div>
 
-        {/* Mobile Menu Toggle Button */}
         <button
           type="button"
           aria-label="Toggle navigation menu"
@@ -115,7 +173,6 @@ function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Drawer Menu */}
       {isMobileMenuOpen ? (
         <div className="border-t border-border bg-background lg:hidden">
           <div className="gn-container flex flex-col gap-2 py-4">

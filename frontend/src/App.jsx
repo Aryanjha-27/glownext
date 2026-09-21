@@ -1,5 +1,7 @@
 import { Navigate, Routes, Route, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { API_SERVER_URL } from "@/api/apiClient";
 import { Providers } from "@/components/Providers";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -50,10 +52,22 @@ export default function App() {
 }
 
 function AppContent() {
-  const { userType, loading } = useAuth();
+  const { user, userType, loading, logout } = useAuth();
   const location = useLocation();
   const vendorPath = location.pathname === "/vendor" || location.pathname.startsWith("/vendor/");
   const authPath = location.pathname === "/login" || location.pathname === "/register";
+  const isAdmin = Boolean(user?.is_staff || user?.is_superuser);
+
+  useEffect(() => {
+    if (!loading && isAdmin) {
+      void (async () => {
+        await logout();
+        window.location.assign(`${API_SERVER_URL || "http://127.0.0.1:8000"}/admin/`);
+      })();
+    }
+  }, [isAdmin, loading, logout]);
+
+  if (isAdmin) return null;
 
   if (!loading && userType === "Vendor" && !vendorPath && !authPath) {
     return <Navigate to="/vendor/dashboard" replace />;
@@ -108,7 +122,6 @@ function AppContent() {
             <Route path="/vendor/disputes/:id" element={<VendorLayout><VendorDisputeDetail /></VendorLayout>} />
             <Route path="/vendor/profile" element={<VendorLayout><VendorProfile /></VendorLayout>} />
             <Route path="/vendor/earnings" element={<VendorLayout><VendorEarnings /></VendorLayout>} />
-            <Route path="/vendor/payouts" element={<VendorLayout><VendorEarnings /></VendorLayout>} />
             <Route path="/vendor/notifications" element={<VendorLayout><Notifications /></VendorLayout>} />
 
             {/* 404 Catch-All */}

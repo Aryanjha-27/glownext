@@ -29,12 +29,6 @@ class ServiceGalleryInline(admin.TabularInline):
     extra = 1
 
 
-# Shows service availability records inside the service admin form.
-class ServiceAvailabilityInline(admin.TabularInline):
-    model = store_models.ServiceAvailability
-    extra = 1
-
-
 
 
 # Configures category fields, search, and automatic slug generation.
@@ -48,12 +42,6 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 
-# Configures the tag list and search behavior in admin.
-class TagAdmin(admin.ModelAdmin):
-    list_display = ("title",)
-    search_fields = ("title",)
-
-
 
 
 # Configures service editing, filtering, related inlines, and vendor choices.
@@ -63,16 +51,13 @@ class ServiceAdmin(admin.ModelAdmin):
         "vendor",
         "category",
         "price",
-        "discount_price",
         "service_type",
         "status",
-        "featured",
         "date",
     )
 
     list_filter = (
         "status",
-        "featured",
         "service_type",
         "category",
     )
@@ -85,10 +70,6 @@ class ServiceAdmin(admin.ModelAdmin):
     prepopulated_fields = {
         "slug": ("title",)
     }
-
-    filter_horizontal = (
-        "tags",
-    )
 
     readonly_fields = (
         "sid",
@@ -104,7 +85,6 @@ class ServiceAdmin(admin.ModelAdmin):
 
     inlines = [
         ServiceGalleryInline,
-        ServiceAvailabilityInline,
     ]
 
 
@@ -123,26 +103,6 @@ class ServiceGalleryAdmin(admin.ModelAdmin):
     )
 
 
-
-
-# Configures service availability filtering and search in admin.
-class ServiceAvailabilityAdmin(admin.ModelAdmin):
-    list_display = (
-        "service",
-        "day",
-        "start_time",
-        "end_time",
-        "is_active",
-    )
-
-    list_filter = (
-        "day",
-        "is_active",
-    )
-
-    search_fields = (
-        "service__title",
-    )
 
 
 
@@ -242,10 +202,8 @@ class NotificationAdmin(admin.ModelAdmin):
 
 # Register store models so staff can manage marketplace data in Django admin.
 admin.site.register(store_models.Category, CategoryAdmin)
-admin.site.register(store_models.Tag, TagAdmin)
 admin.site.register(store_models.Service, ServiceAdmin)
 admin.site.register(store_models.ServiceGallery, ServiceGalleryAdmin)
-admin.site.register(store_models.ServiceAvailability, ServiceAvailabilityAdmin)
 admin.site.register(store_models.Booking, BookingAdmin)
 admin.site.register(store_models.ServiceReview, ServiceReviewAdmin)
 admin.site.register(store_models.Notification, NotificationAdmin)

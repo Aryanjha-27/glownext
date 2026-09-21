@@ -149,11 +149,10 @@ export default function Register() {
               </div>
               <div>
                 <label className="gn-label" htmlFor="username">
-                  Username <span className="text-red-500">*</span>
+                  Username
                 </label>
                 <input
                   id="username"
-                  required
                   placeholder="ananya_s"
                   value={form.username}
                   onChange={(e) => updateField("username", e.target.value)}
@@ -301,7 +300,7 @@ export default function Register() {
             <p className="text-center text-sm text-muted-foreground pt-2">
               Already have an account?{" "}
               <Link to="/login" className="font-semibold text-primary hover:underline">
-                Log In &rarr;
+                Log In
               </Link>
             </p>
           </form>

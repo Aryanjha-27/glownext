@@ -1,13 +1,11 @@
 import { Link } from "react-router-dom";
 import { imageUrl } from "@/utils/imageUrl";
-import { discountPercent, formatPrice } from "@/utils/formatPrice";
+import { formatPrice } from "@/utils/formatPrice";
 import { RatingStars } from "./RatingStars";
 
 function ServiceCard({ service }) {
   const slug = service.slug ?? service.sid;
   const thumb = imageUrl(service.thumbnail);
-  const hasDiscount = Number(service.effective_price) < Number(service.price);
-  const percent = discountPercent(service.price, service.effective_price);
 
   return (
     <article className="gn-card group overflow-hidden transition duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lift)]">
@@ -29,15 +27,11 @@ function ServiceCard({ service }) {
           )}
         </Link>
         <div className="absolute left-3 top-3 flex flex-col items-start gap-2">
-          {service.featured ? (
-            <span className="gn-badge bg-accent text-accent-foreground">Featured</span>
-          ) : null}
           {service.service_type ? (
             <span className="gn-badge bg-primary text-primary-foreground">
               {service.service_type === "Both" ? "Home or store" : `${service.service_type} visit`}
             </span>
           ) : null}
-          {percent ? <span className="gn-badge bg-ink text-cream">-{percent}%</span> : null}
         </div>
       </div>
 
@@ -55,13 +49,8 @@ function ServiceCard({ service }) {
         <p className="mt-1 text-sm text-muted-foreground">by {service.vendor_name ?? "Vendor"} · {service.duration_minutes ?? 60} minutes</p>
 
         <div className="mt-4 flex items-baseline gap-2">
-          {hasDiscount ? (
-            <span className="text-sm text-muted-foreground line-through">
-              {formatPrice(service.price)}
-            </span>
-          ) : null}
           <span className="font-display text-2xl text-foreground">
-            {formatPrice(service.effective_price)}
+            {formatPrice(service.effective_price ?? service.price)}
           </span>
         </div>
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getService } from "@/api/serviceApi";
 import { imageUrl } from "@/utils/imageUrl";
-import { formatPrice, discountPercent } from "@/utils/formatPrice";
+import { formatPrice } from "@/utils/formatPrice";
 import { RatingStars } from "@/components/RatingStars";
 import { ReviewCard } from "@/components/ReviewCard";
 import { listServiceReviews } from "@/api/reviewApi";
@@ -44,8 +44,6 @@ export default function ServiceDetail() {
   if (!service) return null;
 
   const thumb = imageUrl(service.thumbnail);
-  const hasDiscount = Number(service.effective_price) < Number(service.price);
-  const percent = discountPercent(service.price, service.effective_price);
 
   return (
     <div className="gn-container py-12">
@@ -91,19 +89,9 @@ export default function ServiceDetail() {
             </p>
 
             <div className="mt-6 flex items-baseline gap-3">
-              {hasDiscount ? (
-                <span className="text-lg text-muted-foreground line-through">
-                  {formatPrice(service.price)}
-                </span>
-              ) : null}
               <span className="font-display text-4xl text-foreground">
-                {formatPrice(service.effective_price)}
+                {formatPrice(service.effective_price ?? service.price)}
               </span>
-              {percent ? (
-                <span className="gn-badge bg-primary text-primary-foreground font-bold">
-                  SAVE {percent}%
-                </span>
-              ) : null}
             </div>
 
             <div className="mt-6 space-y-3 rounded-2xl bg-secondary/30 p-5 text-sm border border-border">

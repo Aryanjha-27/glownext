@@ -5,7 +5,7 @@ from urllib import request as urllib_request
 from urllib.parse import urlencode
 
 from django.conf import settings
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login as django_login
 from django.db.models import Avg, Count, Q, Sum
 from django.db.models.functions import TruncDate
 from django.db import transaction
@@ -51,9 +51,7 @@ from .serializers import (
 )
 
 
-# Returns a simple response used to confirm that the Django API is reachable.
 class TestAPI(APIView):
-    # Handle the API health-check request.
     def get(self, request):
         return Response({"message": "Django is connected!"})
 
@@ -127,6 +125,7 @@ class LoginAPI(APIView):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
+        django_login(request, user)
         refresh = RefreshToken.for_user(user)
         return Response({
             "access": str(refresh.access_token),
@@ -163,9 +162,7 @@ class LogoutAPI(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# Returns all service categories sorted alphabetically.
 class CategoriesAPI(APIView):
-    # Query categories, serialize them, and send JSON to the client.
     def get(self, request):
         categories = Category.objects.all().order_by("title")
         serializer = CategorySerializer(categories, many=True)
@@ -206,11 +203,9 @@ def category_filter_queryset(queryset, request):
     return queryset.filter(category=category)
 
 
-# Returns published services that belong to verified vendors.
 class ServicesAPI(APIView):
-    # Load related objects efficiently before serializing the service list.
     def get(self, request):
-        services = Service.objects.filter(status="Published", vendor__is_verified=True).select_related("vendor", "category").prefetch_related("tags", "gallery", "availability")
+        services = Service.objects.filter(status="Published", vendor__is_verified=True).select_related("vendor", "category").prefetch_related("gallery")
         services = category_filter_queryset(services, request)
         search = request.query_params.get("search")
         if search:
@@ -238,9 +233,6 @@ class ServicesAPI(APIView):
         if max_price:
             services = services.filter(price__lte=max_price)
 
-        if request.query_params.get("featured") == "true":
-            services = services.filter(featured=True)
-
         min_rating = request.query_params.get("min_rating")
         if min_rating:
             services = services.annotate(avg_rating=Avg("reviews__rating", filter=Q(reviews__active=True))).filter(
@@ -260,20 +252,35 @@ def current_vendor(request):
     return get_object_or_404(VendorModel, user=request.user)
 
 
+def require_vendor(request):
+    vendor = current_vendor(request)
+    if vendor is None:
+        return None, Response({"detail": "Vendor profile not found."}, status=status.HTTP_404_NOT_FOUND)
+    return vendor, None
+
+
+def require_customer(request):
+    if not request.user.is_authenticated:
+        return None, Response({"detail": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
+    if getattr(getattr(request.user, "profile", None), "user_type", "Customer") != "Customer":
+        return None, Response({"detail": "Only customer accounts can access customer bookings."}, status=status.HTTP_403_FORBIDDEN)
+    return request.user, None
+
+
 class VendorServicesAPI(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        vendor = current_vendor(request)
-        if not vendor:
-            return Response({"detail": "Vendor profile not found."}, status=status.HTTP_404_NOT_FOUND)
+        vendor, error = require_vendor(request)
+        if error is not None:
+            return error
         services = Service.objects.filter(vendor=vendor).select_related("category").order_by("-date")
         return Response(ServiceSerializer(services, many=True).data)
 
     def post(self, request):
-        vendor = current_vendor(request)
-        if not vendor:
-            return Response({"detail": "Vendor profile not found."}, status=status.HTTP_404_NOT_FOUND)
+        vendor, error = require_vendor(request)
+        if error is not None:
+            return error
         requested_status = request.data.get("status", "Draft")
         if requested_status == "Published" and not vendor.is_verified:
             return Response(
@@ -292,10 +299,8 @@ class VendorServicesAPI(APIView):
             description=request.data.get("description", ""),
             price=request.data.get("price", 0),
             duration_minutes=request.data.get("duration_minutes", 60),
-            discount_price=request.data.get("discount_price") or None,
             service_type=request.data.get("service_type", "Store"),
             status=request.data.get("status", "Draft"),
-            featured=False,
         )
         if "thumbnail" in request.FILES:
             service.thumbnail = request.FILES["thumbnail"]
@@ -311,9 +316,9 @@ class VendorServicesAPI(APIView):
         return Response(ServiceSerializer(service).data, status=status.HTTP_201_CREATED)
 
     def patch(self, request, sid):
-        vendor = current_vendor(request)
-        if not vendor:
-            return Response({"detail": "Vendor profile not found."}, status=status.HTTP_404_NOT_FOUND)
+        vendor, error = require_vendor(request)
+        if error is not None:
+            return error
         service = get_object_or_404(Service, sid=sid, vendor=vendor)
         requested_status = request.data.get("status", service.status)
         if requested_status == "Published" and not vendor.is_verified:
@@ -321,13 +326,9 @@ class VendorServicesAPI(APIView):
                 {"detail": "Your vendor account is not verified. Services can be listed after your account is verified."},
                 status=status.HTTP_403_FORBIDDEN,
             )
-        for field in ("title", "description", "price", "discount_price", "duration_minutes", "service_type", "status"):
+        for field in ("title", "description", "price", "duration_minutes", "service_type", "status"):
             if field in request.data:
-                value = request.data[field]
-                if field == "discount_price":
-                    setattr(service, field, value or None)
-                else:
-                    setattr(service, field, value)
+                setattr(service, field, request.data[field])
         if "category_id" in request.data:
             service.category = get_object_or_404(Category, pk=request.data["category_id"])
         if "thumbnail" in request.FILES:
@@ -342,9 +343,9 @@ class VendorServicesAPI(APIView):
         return Response(ServiceSerializer(service).data)
 
     def delete(self, request, sid):
-        vendor = current_vendor(request)
-        if not vendor:
-            return Response({"detail": "Vendor profile not found."}, status=status.HTTP_404_NOT_FOUND)
+        vendor, error = require_vendor(request)
+        if error is not None:
+            return error
         service = get_object_or_404(Service, sid=sid, vendor=vendor)
         service.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -354,7 +355,9 @@ class VendorBookingsAPI(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        vendor = current_vendor(request)
+        vendor, error = require_vendor(request)
+        if error is not None:
+            return error
         bookings = Booking.objects.filter(service__vendor=vendor).select_related(
             "customer", "service", "service__category"
         ).order_by("-scheduled_date", "-scheduled_time", "-date")
@@ -364,7 +367,9 @@ class VendorBookingsAPI(APIView):
         return Response(BookingSerializer(bookings, many=True).data)
 
     def post(self, request, bid, action):
-        vendor = current_vendor(request)
+        vendor, error = require_vendor(request)
+        if error is not None:
+            return error
         booking = get_object_or_404(Booking, bid=bid, service__vendor=vendor)
         if action == "confirm" and booking.booking_status == "Pending":
             booking.booking_status = "Confirmed"
@@ -406,7 +411,7 @@ class CashPaymentConfirmationAPI(APIView):
             return Response({"detail": "The vendor must complete the service before payment confirmation."}, status=status.HTTP_400_BAD_REQUEST)
         if booking.payment_status == "Paid":
             return Response(BookingSerializer(booking).data)
-        if booking.payment_status in {"Failed", "Refunded"}:
+        if booking.payment_status == "Failed":
             return Response({"detail": "This booking cannot be marked as paid."}, status=status.HTTP_400_BAD_REQUEST)
 
         with transaction.atomic():
@@ -435,9 +440,9 @@ class VendorDashboardAPI(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        vendor = current_vendor(request)
-        if not vendor:
-            return Response({"detail": "Vendor profile not found."}, status=status.HTTP_404_NOT_FOUND)
+        vendor, error = require_vendor(request)
+        if error is not None:
+            return error
         services = Service.objects.filter(vendor=vendor)
         bookings = Booking.objects.filter(service__vendor=vendor)
         status_data = list(bookings.values("booking_status").annotate(total=Count("id")).order_by("booking_status"))
@@ -477,9 +482,9 @@ class VendorAnalyticsAPI(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        vendor = current_vendor(request)
-        if not vendor:
-            return Response({"detail": "Vendor profile not found."}, status=status.HTTP_404_NOT_FOUND)
+        vendor, error = require_vendor(request)
+        if error is not None:
+            return error
         try:
             days = int(request.query_params.get("days", 30))
         except (TypeError, ValueError):
@@ -506,10 +511,6 @@ class VendorAnalyticsAPI(APIView):
 
 
 def get_vendor_finance_stats(vendor_obj):
-    """
-    Computes vendor sales, platform commission, net earnings, pending payouts,
-    completed payouts, and current available balance using strict Decimal math.
-    """
     paid_bookings = Booking.objects.filter(service__vendor=vendor_obj, payment_status="Paid")
     totals = paid_bookings.aggregate(
         gross=Sum("total"),
@@ -548,10 +549,10 @@ class VendorPayoutsAPI(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, pk=None):
-        vendor = current_vendor(request)
-        if not vendor:
-            return Response({"detail": "Vendor profile not found."}, status=status.HTTP_404_NOT_FOUND)
-        
+        vendor, error = require_vendor(request)
+        if error is not None:
+            return error
+
         if pk is not None:
             payout = (
                 Payout.objects.filter(vendor=vendor, id=pk if str(pk).isdigit() else -1).first()
@@ -566,9 +567,9 @@ class VendorPayoutsAPI(APIView):
         return Response(serializer.data)
 
     def post(self, request, pk=None):
-        vendor = current_vendor(request)
-        if not vendor:
-            return Response({"detail": "Vendor profile not found."}, status=status.HTTP_404_NOT_FOUND)
+        vendor, error = require_vendor(request)
+        if error is not None:
+            return error
         if not vendor.is_verified:
             return Response({"detail": "Vendor verification is required before requesting a payout."}, status=status.HTTP_403_FORBIDDEN)
         
@@ -605,7 +606,6 @@ class VendorPayoutsAPI(APIView):
                 status="Pending",
             )
 
-        # Notify staff users
         for admin_user in UserModel.objects.filter(is_staff=True):
             create_user_notification(
                 admin_user,
@@ -625,10 +625,10 @@ class VendorEarningsAPI(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        vendor = current_vendor(request)
-        if not vendor:
-            return Response({"detail": "Vendor profile not found."}, status=status.HTTP_404_NOT_FOUND)
-        
+        vendor, error = require_vendor(request)
+        if error is not None:
+            return error
+
         stats = get_vendor_finance_stats(vendor)
         payouts = Payout.objects.filter(vendor=vendor).order_by("-requested_at", "-date")
         
@@ -675,49 +675,39 @@ class VendorProfileAPI(APIView):
         return Response(data)
 
 
-# Returns one published service identified by its slug.
 class ServiceDetailAPI(APIView):
-    # Find the requested public service or return a 404 response.
     def get(self, request, slug):
         service = get_object_or_404(Service, slug=slug, status="Published", vendor__is_verified=True)
         serializer = ServiceSerializer(service)
         return Response(serializer.data)
 
 
-# Returns the public list of verified vendors.
 class VendorsAPI(APIView):
-    # Query verified vendors, serialize them, and return their public data.
     def get(self, request):
         vendors = VendorModel.objects.filter(is_verified=True).order_by("store_name")
         serializer = PublicVendorSerializer(vendors, many=True)
         return Response(serializer.data)
 
 
-# Returns unverified vendors for administrator review.
 class PendingVendorsAPI(APIView):
     permission_classes = [IsAdminUser]
 
-    # Restrict the result to pending vendors and staff users.
     def get(self, request):
         vendors = VendorModel.objects.filter(is_verified=False).order_by("-date")
         serializer = VendorSerializer(vendors, many=True)
         return Response(serializer.data)
 
 
-# Returns one verified vendor identified by its slug.
 class VendorDetailAPI(APIView):
-    # Find the requested verified vendor or return a 404 response.
     def get(self, request, slug):
         vendor = get_object_or_404(VendorModel, slug=slug, is_verified=True)
         serializer = PublicVendorSerializer(vendor)
         return Response(serializer.data)
 
 
-# Allows an administrator to approve or reject a vendor.
 class VendorVerificationAPI(APIView):
     permission_classes = [IsAdminUser]
 
-    # Apply the requested verification action and return the new state.
     def post(self, request, pk):
         vendor = get_object_or_404(VendorModel, id=pk)
         action = (request.data.get("action") or "verify").lower()
@@ -756,14 +746,11 @@ class VendorVerificationAPI(APIView):
         })
 
 
-# Lists existing bookings and creates new bookings.
 class BookingsAPI(APIView):
-    # Return bookings with their related customer and service data.
     def get(self, request, bid=None):
-        if not request.user.is_authenticated:
-            return Response({"detail": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
-        if getattr(getattr(request.user, "profile", None), "user_type", "Customer") != "Customer":
-            return Response({"detail": "Only customer accounts can access customer bookings."}, status=status.HTTP_403_FORBIDDEN)
+        customer, error = require_customer(request)
+        if error is not None:
+            return error
         if bid is not None:
             return Response({"detail": "Use POST to cancel a booking."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         bookings = Booking.objects.filter(customer=request.user).select_related("customer", "service", "service__vendor", "service__category").order_by("-scheduled_date", "-scheduled_time", "-date")
@@ -773,12 +760,10 @@ class BookingsAPI(APIView):
         serializer = BookingSerializer(bookings, many=True)
         return Response(serializer.data)
 
-    # Validate incoming booking JSON and save a valid booking.
     def post(self, request, bid=None):
-        if not request.user.is_authenticated:
-            return Response({"detail": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
-        if getattr(getattr(request.user, "profile", None), "user_type", "Customer") != "Customer":
-            return Response({"detail": "Only customer accounts can create or cancel bookings."}, status=status.HTTP_403_FORBIDDEN)
+        customer, error = require_customer(request)
+        if error is not None:
+            return error
         if bid is not None:
             booking = get_object_or_404(Booking, bid=bid, customer=request.user)
             if booking.booking_status not in {"Pending", "Confirmed"}:
@@ -817,9 +802,7 @@ class BookingsAPI(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Returns active reviews belonging to a service.
 class ReviewsAPI(APIView):
-    # Find the service and serialize only visible reviews.
     def get(self, request, slug):
         service = get_object_or_404(Service.objects.filter(Q(slug=slug) | Q(sid=slug)).distinct())
         reviews = service.reviews.filter(active=True).select_related("user", "service")
@@ -892,7 +875,6 @@ def create_booking_notification(user, booking, message, *, notification_type="Bo
     return notification
 
 
-# Returns notifications for the authenticated user.
 class NotificationsAPI(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -912,7 +894,6 @@ class NotificationsAPI(APIView):
         return Response({"detail": "Notifications marked as read."})
 
 
-# Returns notifications belonging to customers.
 class CustomerNotificationsAPI(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -932,11 +913,9 @@ class CustomerNotificationsAPI(APIView):
         return Response({"detail": "Notifications marked as read."})
 
 
-# Returns customer address records.
 class CustomerAddressAPI(APIView):
     permission_classes = [IsAuthenticated]
 
-    # Query addresses and serialize them as JSON.
     def get(self, request):
         addresses = CustomerAddress.objects.filter(user=request.user).order_by("id")
         serializer = CustomerAddressSerializer(addresses, many=True)
@@ -965,11 +944,9 @@ class CustomerAddressAPI(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# Calculates summary statistics for the administrator dashboard.
 class AdminDashboardAPI(APIView):
     permission_classes = [IsAdminUser]
 
-    # Aggregate counts, revenue, booking statuses, and pending vendors.
     def get(self, request):
         total_services = Service.objects.count()
         total_vendors = VendorModel.objects.count()
@@ -1017,9 +994,7 @@ class AdminDashboardAPI(APIView):
         })
 
 
-# Starts a payment request with the Khalti payment service.
 class KhaltiInitiateAPI(APIView):
-    # Validate the booking amount, call Khalti, and mark payment as processing.
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -1085,9 +1060,7 @@ class KhaltiInitiateAPI(APIView):
         })
 
 
-# Receives Khalti's return request and verifies the payment status.
 class KhaltiCallbackAPI(APIView):
-    # Look up the payment and mark the matching booking as paid when complete.
     @staticmethod
     def frontend_redirect(success, purchase_order_id=""):
         frontend_url = getattr(settings, "FRONTEND_URL", "http://localhost:5173").rstrip("/")
@@ -1131,9 +1104,7 @@ class KhaltiCallbackAPI(APIView):
             if booking:
                 booking.payment_status = "Paid"
                 booking.khalti_txn_id = data.get("transaction", {}).get("txnId") or booking.khalti_txn_id
-                # Recalculate commission and vendor amount on confirmed payment.
-                # Booking.save() computes these from total + commission_rate.
-                booking.save()  # triggers full commission recalculation
+                booking.save()
                 create_user_notification(
                     booking.customer,
                     f"Your payment of Rs. {booking.total} for {booking.service.title if booking.service else 'your booking'} was successful. "
@@ -1153,12 +1124,6 @@ class KhaltiCallbackAPI(APIView):
         return self.frontend_redirect(False, purchase_order_id or data.get("purchase_order_id", ""))
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# CUSTOMER DISPUTE ENDPOINTS
-# ──────────────────────────────────────────────────────────────────────────────
-
-
-# Lists a customer's own disputes and allows raising a new dispute.
 class CustomerDisputeListCreateAPI(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1173,7 +1138,6 @@ class CustomerDisputeListCreateAPI(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        # Validate that the booking belongs to this customer (accepts booking_id, booking, or pk).
         booking_val = request.data.get("booking_id") or request.data.get("booking")
         if not booking_val:
             return Response({"detail": "booking or booking_id is required."}, status=status.HTTP_400_BAD_REQUEST)
@@ -1194,7 +1158,6 @@ class CustomerDisputeListCreateAPI(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Prevent duplicate disputes on the same booking.
         if Dispute.objects.filter(booking=booking, customer=request.user).exclude(
             status__in=("Resolved", "Rejected", "Closed")
         ).exists():
@@ -1203,7 +1166,6 @@ class CustomerDisputeListCreateAPI(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Determine the vendor from the booking.
         vendor = booking.service.vendor if booking.service else None
         if vendor is None:
             return Response(
@@ -1239,7 +1201,6 @@ class CustomerDisputeListCreateAPI(APIView):
             dispute.attachment = request.FILES["attachment"]
             dispute.save(update_fields=["attachment"])
 
-        # Create initial audit log entry.
         DisputeAuditLog.objects.create(
             dispute=dispute,
             changed_by=request.user,
@@ -1247,7 +1208,6 @@ class CustomerDisputeListCreateAPI(APIView):
             new_status="Open",
         )
 
-        # Notify admin (all staff users).
         for admin_user in UserModel.objects.filter(is_staff=True):
             create_user_notification(
                 admin_user,
@@ -1255,7 +1215,6 @@ class CustomerDisputeListCreateAPI(APIView):
                 notification_type="General",
             )
 
-        # Notify vendor.
         if vendor.user:
             create_user_notification(
                 vendor.user,
@@ -1268,7 +1227,6 @@ class CustomerDisputeListCreateAPI(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-# Helper function to find a dispute by ID or did
 def get_dispute_by_lookup(lookup, **filters):
     if str(lookup).isdigit():
         d = Dispute.objects.filter(id=int(lookup), **filters).first()
@@ -1280,7 +1238,6 @@ def get_dispute_by_lookup(lookup, **filters):
     return None
 
 
-# Returns the detail of a single customer dispute — only the owning customer can view.
 class CustomerDisputeDetailAPI(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1292,7 +1249,6 @@ class CustomerDisputeDetailAPI(APIView):
         return Response(serializer.data)
 
 
-# Allows a customer to post additional messages on their own dispute.
 class CustomerDisputeMessageAPI(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1316,7 +1272,6 @@ class CustomerDisputeMessageAPI(APIView):
             is_internal=False,
         )
 
-        # If status is Waiting for Customer, move it back to Under Review.
         if dispute.status == "Waiting for Customer":
             old_status = dispute.status
             dispute.status = "Under Review"
@@ -1333,12 +1288,6 @@ class CustomerDisputeMessageAPI(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# VENDOR DISPUTE ENDPOINTS
-# ──────────────────────────────────────────────────────────────────────────────
-
-
-# Lists disputes related to the authenticated vendor's bookings.
 class VendorDisputeListAPI(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1356,7 +1305,6 @@ class VendorDisputeListAPI(APIView):
         return Response(serializer.data)
 
 
-# Returns detail of a single dispute relevant to the authenticated vendor.
 class VendorDisputeDetailAPI(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1371,7 +1319,6 @@ class VendorDisputeDetailAPI(APIView):
         return Response(serializer.data)
 
 
-# Allows the vendor to submit a response to a dispute on their booking.
 class VendorDisputeResponseAPI(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1402,7 +1349,6 @@ class VendorDisputeResponseAPI(APIView):
         dispute.status = "Under Review"
         dispute.save(update_fields=["vendor_response", "vendor_responded_at", "status", "updated"])
 
-        # Also create a visible message in the dispute thread.
         DisputeMessage.objects.create(
             dispute=dispute,
             sender=request.user,
@@ -1418,7 +1364,6 @@ class VendorDisputeResponseAPI(APIView):
             new_status="Under Review",
         )
 
-        # Notify customer that vendor has responded.
         if dispute.customer:
             create_user_notification(
                 dispute.customer,
@@ -1431,7 +1376,6 @@ class VendorDisputeResponseAPI(APIView):
         return Response(serializer.data)
 
 
-# Lists paid booking transactions for the authenticated vendor with commission breakdown.
 class VendorTransactionsAPI(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1449,7 +1393,6 @@ class VendorTransactionsAPI(APIView):
             .order_by("-date")
         )
 
-        # Allow optional status filter.
         booking_status_filter = request.query_params.get("booking_status")
         if booking_status_filter and booking_status_filter != "All":
             transactions = transactions.filter(booking_status=booking_status_filter)
@@ -1458,12 +1401,6 @@ class VendorTransactionsAPI(APIView):
         return Response(serializer.data)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# ADMIN-ONLY ENDPOINTS
-# ──────────────────────────────────────────────────────────────────────────────
-
-
-# Returns comprehensive platform analytics data for admin users.
 class AdminAnalyticsAPI(APIView):
     permission_classes = [IsAdminUser]
 
@@ -1544,7 +1481,6 @@ class AdminAnalyticsAPI(APIView):
         })
 
 
-# Lists all disputes for admin with filtering and search capabilities.
 class AdminDisputeListAPI(APIView):
     permission_classes = [IsAdminUser]
 
@@ -1556,7 +1492,6 @@ class AdminDisputeListAPI(APIView):
             .order_by("-date")
         )
 
-        # Filters.
         status_filter = request.query_params.get("status")
         if status_filter:
             disputes = disputes.filter(status=status_filter)
@@ -1569,7 +1504,6 @@ class AdminDisputeListAPI(APIView):
         if vendor_filter:
             disputes = disputes.filter(vendor_id=vendor_filter)
 
-        # Search.
         search = request.query_params.get("search")
         if search:
             disputes = disputes.filter(
@@ -1583,7 +1517,6 @@ class AdminDisputeListAPI(APIView):
         return Response(serializer.data)
 
 
-# Returns one dispute detail and allows admin to update status/resolution.
 class AdminDisputeDetailAPI(APIView):
     permission_classes = [IsAdminUser]
 
@@ -1613,14 +1546,12 @@ class AdminDisputeDetailAPI(APIView):
 
         new_status = dispute.status
 
-        # Set resolution metadata when marking as resolved/rejected/closed.
         if new_status in ("Resolved", "Rejected", "Closed") and old_status != new_status:
             dispute.resolved_by = request.user
             dispute.resolved_at = timezone.now()
 
         dispute.save()
 
-        # Write audit log for every admin patch.
         action_parts = []
         if "status" in request.data and old_status != new_status:
             action_parts.append(f"Status: {old_status} → {new_status}")
@@ -1638,7 +1569,6 @@ class AdminDisputeDetailAPI(APIView):
             comment=request.data.get("admin_response", ""),
         )
 
-        # Notify the customer when status changes.
         if old_status != new_status and dispute.customer:
             create_user_notification(
                 dispute.customer,
@@ -1647,7 +1577,6 @@ class AdminDisputeDetailAPI(APIView):
                 notification_type="General",
             )
 
-        # Notify the vendor when the dispute is resolved/rejected.
         if new_status in ("Resolved", "Rejected", "Closed") and dispute.vendor and dispute.vendor.user:
             create_user_notification(
                 dispute.vendor.user,

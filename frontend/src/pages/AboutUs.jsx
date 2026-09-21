@@ -69,7 +69,7 @@ export default function AboutUs() {
               Whether you need a quick haircut, a relaxing spa therapy session, bridal makeup, or routine skincare, finding trusted beauty experts shouldn't be stressful.
             </p>
             <p className="mt-3 text-muted-foreground leading-relaxed">
-              Glow Next connects clients directly with verified beauty salons and independent stylists. You get real-time availability, clear price tags, and the choice between studio visits or doorstep appointments.
+              Glow Next connects clients directly with verified beauty salons and independent stylists. You get clear price tags and the choice between studio visits or doorstep appointments.
             </p>
             <div className="mt-6">
               <Link to="/services" className="gn-btn gn-btn-primary">
