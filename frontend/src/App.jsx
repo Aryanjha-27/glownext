@@ -17,7 +17,6 @@ import PaymentFailure from "@/pages/PaymentFailure";
 import Salons from "@/pages/Salons";
 import SalonDetail from "@/pages/SalonDetail";
 import AboutUs from "@/pages/AboutUs";
-import HowWeWork from "@/pages/HowWeWork";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import Dashboard from "@/pages/Dashboard";
@@ -76,59 +75,58 @@ function AppContent() {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       {!vendorPath && userType !== "Vendor" ? <Navbar /> : null}
-        <main className="flex-1">
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Home />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/services/:slug" element={<ServiceDetail />} />
-            <Route path="/services/:slug/book" element={<BookService />} />
-            <Route path="/booking/:slug" element={<BookService />} />
-            <Route path="/booking/success" element={<BookingSuccess />} />
-            <Route path="/payment/success" element={<PaymentSuccess />} />
-            <Route path="/payment/failure" element={<PaymentFailure />} />
+      <main className="flex-1">
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/services/:slug" element={<ServiceDetail />} />
+          <Route path="/services/:slug/book" element={<BookService />} />
+          <Route path="/booking/:slug" element={<BookService />} />
+          <Route path="/booking/success" element={<BookingSuccess />} />
+          <Route path="/payment/success" element={<PaymentSuccess />} />
+          <Route path="/payment/failure" element={<PaymentFailure />} />
 
-            {/* Salons / Vendors */}
-            <Route path="/vendors" element={<Salons />} />
-            <Route path="/vendors/:slug" element={<SalonDetail />} />
-            <Route path="/salons" element={<Salons />} />
-            <Route path="/salons/:slug" element={<SalonDetail />} />
+          {/* Salons / Vendors */}
+          <Route path="/vendors" element={<Salons />} />
+          <Route path="/vendors/:slug" element={<SalonDetail />} />
+          <Route path="/salons" element={<Salons />} />
+          <Route path="/salons/:slug" element={<SalonDetail />} />
 
-            {/* Informational Pages */}
-            <Route path="/about" element={<AboutUs />} />
-            <Route path="/how-we-work" element={<HowWeWork />} />
+          {/* Informational Pages */}
+          <Route path="/about" element={<AboutUs />} />
 
-            {/* Auth Pages */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+          {/* Auth Pages */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-            {/* Client Dashboard & Protected Routes */}
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/bookings" element={<Bookings />} />
-            <Route path="/bookings/:bid" element={<BookingDetail />} />
-            <Route path="/disputes" element={<Disputes />} />
-            <Route path="/disputes/:id" element={<DisputeDetail />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/reviews" element={<Reviews />} />
-            <Route path="/addresses" element={<Addresses />} />
+          {/* Client Dashboard & Protected Routes */}
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/bookings" element={<Bookings />} />
+          <Route path="/bookings/:bid" element={<BookingDetail />} />
+          <Route path="/disputes" element={<Disputes />} />
+          <Route path="/disputes/:id" element={<DisputeDetail />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/reviews" element={<Reviews />} />
+          <Route path="/addresses" element={<Addresses />} />
 
-            {/* Vendor dashboard */}
-            <Route path="/vendor" element={<VendorLayout><VendorDashboard /></VendorLayout>} />
-            <Route path="/vendor/dashboard" element={<VendorLayout><VendorDashboard /></VendorLayout>} />
-            <Route path="/vendor/services" element={<VendorLayout><VendorServices /></VendorLayout>} />
-            <Route path="/vendor/bookings" element={<VendorLayout><VendorBookings /></VendorLayout>} />
-            <Route path="/vendor/disputes" element={<VendorLayout><VendorDisputes /></VendorLayout>} />
-            <Route path="/vendor/disputes/:id" element={<VendorLayout><VendorDisputeDetail /></VendorLayout>} />
-            <Route path="/vendor/profile" element={<VendorLayout><VendorProfile /></VendorLayout>} />
-            <Route path="/vendor/earnings" element={<VendorLayout><VendorEarnings /></VendorLayout>} />
-            <Route path="/vendor/notifications" element={<VendorLayout><Notifications /></VendorLayout>} />
+          {/* Vendor dashboard */}
+          <Route path="/vendor" element={<VendorLayout><VendorDashboard /></VendorLayout>} />
+          <Route path="/vendor/dashboard" element={<VendorLayout><VendorDashboard /></VendorLayout>} />
+          <Route path="/vendor/services" element={<VendorLayout><VendorServices /></VendorLayout>} />
+          <Route path="/vendor/bookings" element={<VendorLayout><VendorBookings /></VendorLayout>} />
+          <Route path="/vendor/disputes" element={<VendorLayout><VendorDisputes /></VendorLayout>} />
+          <Route path="/vendor/disputes/:id" element={<VendorLayout><VendorDisputeDetail /></VendorLayout>} />
+          <Route path="/vendor/profile" element={<VendorLayout><VendorProfile /></VendorLayout>} />
+          <Route path="/vendor/earnings" element={<VendorLayout><VendorEarnings /></VendorLayout>} />
+          <Route path="/vendor/notifications" element={<VendorLayout><Notifications /></VendorLayout>} />
 
-            {/* 404 Catch-All */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
-        <Footer />
+          {/* 404 Catch-All */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+      <Footer />
     </div>
   );
 }

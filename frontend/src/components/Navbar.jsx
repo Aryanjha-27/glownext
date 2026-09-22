@@ -6,7 +6,6 @@ import { getUnreadNotificationCount, listNotifications, markNotificationRead } f
 const navLinks = [
   { to: "/", label: "Home" },
   { to: "/services", label: "Services" },
-  { to: "/how-we-work", label: "How We Work" },
   { to: "/about", label: "About Us" },
   { to: "/vendors", label: "Salons" },
 ];
@@ -115,9 +114,8 @@ function Navbar() {
                           key={item.id ?? item.nid}
                           type="button"
                           onClick={() => handleNotificationClick(item)}
-                          className={`block w-full rounded-lg border px-3 py-2 text-left transition-colors ${
-                            item.seen ? "border-border bg-transparent text-muted-foreground" : "border-primary/30 bg-primary/5 text-foreground"
-                          }`}
+                          className={`block w-full rounded-lg border px-3 py-2 text-left transition-colors ${item.seen ? "border-border bg-transparent text-muted-foreground" : "border-primary/30 bg-primary/5 text-foreground"
+                            }`}
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div>
@@ -139,12 +137,8 @@ function Navbar() {
                 <Link to="/vendor" className="gn-btn gn-btn-outline">
                   Vendor Panel
                 </Link>
-              ) : (
-                <Link to="/dashboard" className="gn-btn gn-btn-outline">
-                  Dashboard
-                </Link>
-              )}
-              <Link to="/profile" className="gn-btn gn-btn-ink">
+              ) : null}
+              <Link to="/dashboard" className="gn-btn gn-btn-ink">
                 {user?.profile?.full_name?.split(" ")[0] ?? user?.username ?? "Profile"}
               </Link>
               <button type="button" onClick={handleLogout} className="gn-btn gn-btn-ghost text-red-500 hover:text-red-600">
@@ -191,13 +185,15 @@ function Navbar() {
 
             {isAuthenticated ? (
               <>
-                <Link
-                  to={userType === "Vendor" ? "/vendor" : "/dashboard"}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="rounded-xl px-3 py-2 text-sm font-semibold text-primary"
-                >
-                  {userType === "Vendor" ? "Vendor Panel" : "Dashboard"}
-                </Link>
+                {userType === "Vendor" ? (
+                  <Link
+                    to="/vendor"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="rounded-xl px-3 py-2 text-sm font-semibold text-primary"
+                  >
+                    Vendor Panel
+                  </Link>
+                ) : null}
                 <Link
                   to="/bookings"
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -206,7 +202,7 @@ function Navbar() {
                   My Bookings
                 </Link>
                 <Link
-                  to="/profile"
+                  to="/dashboard"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="rounded-xl px-3 py-2 text-sm font-semibold text-muted-foreground"
                 >

@@ -2,7 +2,6 @@ import { useSearchParams } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import { listServices, listCategories } from "@/api/serviceApi";
 import { ServiceCard } from "@/components/ServiceCard";
-import { SearchBar } from "@/components/SearchBar";
 import { SkeletonGrid } from "@/components/SkeletonCard";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { EmptyState } from "@/components/EmptyState";
@@ -63,26 +62,46 @@ export default function Services() {
         </p>
       </div>
 
-      {/* Search Input */}
-      <div className="mt-8 max-w-6xl">
-        <SearchBar
-          initialQuery={search}
-          onSearch={(q) => setSearch(q)}
-          submitLabel="Search Services"
-        />
-      </div>
+      <form
+        className="mt-8 w-full max-w-6xl"
+        onSubmit={(event) => event.preventDefault()}
+      >
+        <div className="flex flex-col gap-3 md:flex-row md:items-center">
+          <div className="relative flex-1">
+            <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-muted-foreground">
+              <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
+            </span>
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search services"
+              className="w-full border border-border bg-white py-4 pl-12 pr-4 text-base text-foreground outline-none focus:border-primary"
+            />
+          </div>
 
-      <div className="mt-4 max-w-2xl">
-        <label className="gn-label" htmlFor="location">Location</label>
-        <input
-          id="location"
-          type="search"
-          value={location}
-          onChange={(event) => setLocation(event.target.value)}
-          placeholder="Search by city or country"
-          className="gn-input mt-1.5 w-full"
-        />
-      </div>
+          <div className="relative flex-1">
+            <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-muted-foreground">
+              <i className="fa-solid fa-location-dot" aria-hidden="true" />
+            </span>
+            <input
+              id="location"
+              type="search"
+              value={location}
+              onChange={(event) => setLocation(event.target.value)}
+              placeholder="Location"
+              className="w-full border border-border bg-white py-4 pl-12 pr-4 text-base text-foreground outline-none focus:border-primary"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="gn-btn gn-btn-primary h-[58px] px-6 text-base md:min-w-[190px]"
+          >
+            Search Services
+          </button>
+        </div>
+      </form>
 
       {/* Category Filter Chips */}
       {categories && categories.length > 0 ? (
@@ -99,11 +118,10 @@ export default function Services() {
               key={String(cat.id)}
               type="button"
               onClick={() => setSelectedCategory(cat.slug ?? String(cat.id))}
-              className={`gn-chip ${
-                selectedCategory === (cat.slug ?? String(cat.id))
-                  ? "bg-primary text-primary-foreground font-bold"
-                  : ""
-              }`}
+              className={`gn-chip ${selectedCategory === (cat.slug ?? String(cat.id))
+                ? "bg-primary text-primary-foreground font-bold"
+                : ""
+                }`}
             >
               {cat.title}
             </button>

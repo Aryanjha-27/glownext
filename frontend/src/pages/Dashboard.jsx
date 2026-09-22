@@ -54,26 +54,6 @@ function DashboardContent() {
         <DashboardNav />
       </div>
 
-      {/* Quick Navigation Cards */}
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Link to="/" className="gn-card p-4 text-center hover:border-primary/50 transition-colors">
-          <i className="fa-solid fa-house text-primary text-xl mb-2" />
-          <p className="text-xs font-bold text-foreground">Home</p>
-        </Link>
-        <Link to="/services" className="gn-card p-4 text-center hover:border-primary/50 transition-colors">
-          <i className="fa-solid fa-scissors text-primary text-xl mb-2" />
-          <p className="text-xs font-bold text-foreground">Services</p>
-        </Link>
-        <Link to="/how-we-work" className="gn-card p-4 text-center hover:border-primary/50 transition-colors">
-          <i className="fa-solid fa-circle-info text-primary text-xl mb-2" />
-          <p className="text-xs font-bold text-foreground">How We Work</p>
-        </Link>
-        <Link to="/about" className="gn-card p-4 text-center hover:border-primary/50 transition-colors">
-          <i className="fa-solid fa-users text-primary text-xl mb-2" />
-          <p className="text-xs font-bold text-foreground">About Us</p>
-        </Link>
-      </div>
-
       {/* Main Content Area */}
       {isLoading ? (
         <div className="mt-8">

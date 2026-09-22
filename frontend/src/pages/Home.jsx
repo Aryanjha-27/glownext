@@ -1,24 +1,18 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { listCategories } from "@/api/serviceApi";
-import { SearchBar } from "@/components/SearchBar";
 import { SkeletonGrid } from "@/components/SkeletonCard";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { EmptyState } from "@/components/EmptyState";
 import { imageUrl } from "@/utils/imageUrl";
 
 import hero from "@/assets/hero.jpg";
-import catHair from "@/assets/cat-hair.jpg";
 import catSpa from "@/assets/cat-spa.jpg";
-import catMakeup from "@/assets/cat-makeup.jpg";
 
-const fallbackCategoryArt = [catHair, catSpa, catMakeup];
+const fallbackCategoryArt = [catSpa];
 
 
 export default function Home() {
-  const navigate = useNavigate();
-
- 
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [categoriesError, setCategoriesError] = useState(null);
@@ -40,41 +34,46 @@ export default function Home() {
     fetchCategories();
   }, []);
 
-  const goSearch = (search) => {
-    navigate(`/services?search=${encodeURIComponent(search)}`);
-  };
-
   return (
     <>
       {/* 1. Hero Section */}
       <section className="relative overflow-hidden bg-ink text-cream">
-        <img
-          src={hero}
-          alt="Beauty studio styling session"
-          className="absolute inset-0 size-full object-cover opacity-45"
-        />
-        <div className="relative gn-container flex min-h-[80vh] flex-col justify-center py-24">
-          <p className="gn-eyebrow text-primary">Beauty, On Your Schedule</p>
-          <h1 className="mt-4 max-w-3xl font-display text-5xl leading-[0.95] sm:text-7xl">
-            Salon-Grade Glow, Booked in <span className="text-primary">Seconds</span>
-          </h1>
-          <p className="mt-5 max-w-xl text-base text-cream/80 leading-relaxed">
-            Compare verified beauty specialists and salons in Nepal. Choose a comfortable doorstep home visit or an in-store studio appointment.
-          </p>
+        {/* <div className="absolute inset-0">
+          <img
+            src={hero}
+            alt="Beauty studio styling session"
+            className="size-full object-cover opacity-45"
+          />
+        </div> */}
 
-          {/* Search Bar */}
-          <div className="mt-8 max-w-6xl">
-            <SearchBar onSearch={goSearch} submitLabel="Find Services" />
+        <div className="relative gn-container grid min-h-[70vh] items-center gap-8 py-10 lg:grid-cols-2 lg:gap-10">
+          <div className="relative z-10 max-w-xl">
+            <p className="gn-eyebrow text-primary">Beauty, On Your Schedule</p>
+            <h1 className="mt-4 font-display text-5xl leading-[0.95] sm:text-6xl lg:text-7xl">
+              Salon at your <span className="text-primary">Fingertips</span>
+            </h1>
+            <p className="mt-5 text-base text-cream/80 leading-relaxed">
+              Find trusted beauty experts and salons. Book at home or visit the studio.
+            </p>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link to="/services" className="gn-btn gn-btn-primary">
+                Browse All Services
+              </Link>
+              <Link to="/vendors" className="gn-btn gn-btn-cream">
+                Explore Salons
+              </Link>
+            </div>
           </div>
 
-          {/* Quick Action Buttons */}
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link to="/services" className="gn-btn gn-btn-primary">
-              Browse All Services
-            </Link>
-            <Link to="/vendors" className="gn-btn gn-btn-cream">
-              Explore Salons
-            </Link>
+          <div className="relative z-10">
+            <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 shadow-2xl shadow-black/30">
+              <img
+                src={hero}
+                alt="Professional beauty salon treatment"
+                className="h-[420px] w-full object-cover sm:h-[500px]"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -127,55 +126,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. How We Work Preview Section */}
-      <section className="gn-section">
-        <div className="gn-container">
-          <div className="text-center max-w-2xl mx-auto">
-            <p className="gn-eyebrow">Simple Booking</p>
-            <h2 className="mt-2 text-3xl sm:text-4xl font-display">How Glow Next Works</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Book top beauty specialists in 3 easy steps</p>
-          </div>
-
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {[
-              {
-                num: "1",
-                icon: "fa-solid fa-magnifying-glass",
-                title: "Choose Service",
-                desc: "Explore hair, makeup, skincare, spa, or nail treatments from top specialists.",
-              },
-              {
-                num: "2",
-                icon: "fa-solid fa-calendar-check",
-                title: "Pick Home or Salon",
-                desc: "Select a doorstep home visit or an in-salon appointment and enter your preferred time.",
-              },
-              {
-                num: "3",
-                icon: "fa-solid fa-sparkles",
-                title: "Glow & Pay Conveniently",
-                desc: "Relax during your session and pay effortlessly online with Khalti or via cash.",
-              },
-            ].map((step) => (
-              <div key={step.num} className="gn-card p-8 text-center border border-border hover:border-primary/50 transition-colors">
-                <div className="mx-auto size-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center text-2xl font-bold">
-                  <i className={step.icon} />
-                </div>
-                <h3 className="mt-5 text-xl font-bold">{step.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8 text-center">
-            <Link to="/how-we-work" className="gn-btn gn-btn-outline">
-              Learn More About How We Work &rarr;
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. About Us Highlight Section */}
+      {/* 3. About Us Highlight Section */}
       <section className="gn-section bg-ink text-cream">
         <div className="gn-container grid gap-10 lg:grid-cols-2 items-center">
           <div>
