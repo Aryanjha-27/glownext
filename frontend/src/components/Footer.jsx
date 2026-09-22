@@ -77,7 +77,7 @@ function Footer() {
       {/* Bottom Copyright Bar */}
       <div className="gn-container border-t border-cream/10 py-6 text-center text-xs text-cream/60 md:flex md:justify-between">
         <p>&copy; {currentYear} Glow Next. All rights reserved.</p>
-        <p className="mt-2 md:mt-0">Book trusted beauty professionals in a few taps.</p>
+        
       </div>
     </footer>
   );

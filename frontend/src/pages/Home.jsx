@@ -14,14 +14,11 @@ import catMakeup from "@/assets/cat-makeup.jpg";
 
 const fallbackCategoryArt = [catHair, catSpa, catMakeup];
 
-/**
- * Home Page Component - React + Vite + react-router-dom
- * Clean & beginner-friendly for 4th Sem BCA Project
- */
+
 export default function Home() {
   const navigate = useNavigate();
 
-  // State for Categories
+ 
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [categoriesError, setCategoriesError] = useState(null);
@@ -66,7 +63,7 @@ export default function Home() {
           </p>
 
           {/* Search Bar */}
-          <div className="mt-8 max-w-2xl">
+          <div className="mt-8 max-w-6xl">
             <SearchBar onSearch={goSearch} submitLabel="Find Services" />
           </div>
 

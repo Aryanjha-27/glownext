@@ -141,7 +141,7 @@ export default function Register() {
                 <input
                   id="full_name"
                   required
-                  placeholder="e.g. Ananya Sharma"
+                  placeholder="e.g. Aryan Jha"
                   value={form.full_name}
                   onChange={(e) => updateField("full_name", e.target.value)}
                   className="gn-input mt-1.5 w-full"
@@ -153,7 +153,7 @@ export default function Register() {
                 </label>
                 <input
                   id="username"
-                  placeholder="ananya_s"
+                  placeholder="aryan_jha"
                   value={form.username}
                   onChange={(e) => updateField("username", e.target.value)}
                   className="gn-input mt-1.5 w-full"
@@ -171,7 +171,7 @@ export default function Register() {
                   id="email"
                   type="email"
                   required
-                  placeholder="ananya@example.com"
+                  placeholder="aryan@example.com"
                   value={form.email}
                   onChange={(e) => updateField("email", e.target.value)}
                   className="gn-input mt-1.5 w-full"

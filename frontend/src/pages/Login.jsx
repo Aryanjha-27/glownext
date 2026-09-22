@@ -4,25 +4,22 @@ import { useAuth } from "@/hooks/useAuth";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { API_SERVER_URL } from "@/api/apiClient";
 
-/**
- * LoginPage Component for React + Vite
- * Login page with show/hide password visibility toggle.
- */
+
 export default function Login() {
   const { login, logout } = useAuth();
   const navigate = useNavigate();
 
-  // State variables for form input
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // Status & Error state
+
   const [busy, setBusy] = useState(false);
   const [clientError, setClientError] = useState("");
   const [apiError, setApiError] = useState(null);
 
-  // Form submission handler
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setClientError("");

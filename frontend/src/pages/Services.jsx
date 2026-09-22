@@ -7,10 +7,7 @@ import { SkeletonGrid } from "@/components/SkeletonCard";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { EmptyState } from "@/components/EmptyState";
 
-/**
- * Services Page - Browse all beauty services
- * Uses standard React useState/useEffect (no TanStack Query)
- */
+
 export default function Services() {
   const [searchParams] = useSearchParams();
   const initialSearch = searchParams.get("search") || "";
@@ -67,7 +64,7 @@ export default function Services() {
       </div>
 
       {/* Search Input */}
-      <div className="mt-8 max-w-2xl">
+      <div className="mt-8 max-w-6xl">
         <SearchBar
           initialQuery={search}
           onSearch={(q) => setSearch(q)}
