@@ -186,7 +186,7 @@ DATABASES = {
         "ENGINE": env.str("DB_ENGINE", "django.db.backends.mysql"),
         "NAME": env.str("DB_NAME", "glownext"),
         "USER": env.str("DB_USER", "root"),
-        "PASSWORD": env.str("DB_PASSWORD", "root"),
+        "PASSWORD": env.str("DB_PASSWORD", "itsmylife1234"),
         "HOST": env.str("DB_HOST", "127.0.0.1"),
         "PORT": env.int("DB_PORT", 3306),
     }

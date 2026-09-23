@@ -26,7 +26,7 @@ Glow_next_Project/
 - Node.js and npm
 - A virtual environment in `project/` or another Python virtual environment
 
-The active Django database is MySQL. The root `db.sqlite3` file is not the configured database when `DB_ENGINE` is set to MySQL in `.env`.
+The project uses MySQL exclusively. The database schema and data export are stored in `glownext.sql`; no SQLite database file is used.
 
 ## Environment setup
 
