@@ -73,8 +73,8 @@ export default function Home() {
       {/* 2. Categories Section */}
       <section className="gn-section">
         <div className="gn-container">
-          <p className="gn-eyebrow">Categories</p>
-          <h2 className="mt-2 text-3xl sm:text-4xl text-foreground font-display">Pick Your Treatment</h2>
+          <p className="gn-eyebrow">Service List</p>
+          <h2 className="mt-2 text-3xl sm:text-4xl text-foreground font-display">Pick Your Service</h2>
 
           {categoriesLoading ? (
             <div className="mt-8 grid grid-cols-2 gap-5 md:grid-cols-4">
@@ -124,14 +124,14 @@ export default function Home() {
           <div>
             <p className="gn-eyebrow text-primary">About Glow Next</p>
             <h2 className="mt-2 text-4xl font-display leading-tight text-foreground">
-              Connecting You with Nepal's Trusted Beauty Experts
+              Beauty care that feels easy and personal
             </h2>
             <p className="mt-4 text-sm text-muted-foreground sm:text-base leading-relaxed">
-              We empower verified beauty specialists and top-rated salons while offering clients a seamless, transparent booking platform with standardized quality and flexible scheduling.
+              Glow Next helps you discover trusted beauty professionals, book in minutes, and enjoy treatments that fit your routine and your comfort.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link to="/about" className="gn-btn gn-btn-primary">
-                About Us &amp; Our Mission
+                About Us
               </Link>
               <Link to="/vendors" className="gn-btn gn-btn-outline">
                 View Partner Salons
@@ -140,21 +140,25 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="gn-card p-6 bg-secondary border border-border text-center">
-              <p className="font-display text-4xl text-primary">500+</p>
-              <p className="mt-1 text-xs text-muted-foreground">Verified Stylists</p>
+            <div className="gn-card p-5 bg-secondary border border-border text-left">
+              <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-primary">Trusted</p>
+              <p className="mt-3 font-display text-2xl text-foreground">Beauty experts</p>
+              <p className="mt-2 text-xs text-muted-foreground">Verified professionals who care about your look and comfort.</p>
             </div>
-            <div className="gn-card p-6 bg-secondary border border-border text-center">
-              <p className="font-display text-4xl text-primary">10k+</p>
-              <p className="mt-1 text-xs text-muted-foreground">Completed Bookings</p>
+            <div className="gn-card p-5 bg-secondary border border-border text-left">
+              <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-primary">Easy</p>
+              <p className="mt-3 font-display text-2xl text-foreground">Booking</p>
+              <p className="mt-2 text-xs text-muted-foreground">Simple scheduling that fits your day without the stress.</p>
             </div>
-            <div className="gn-card p-6 bg-secondary border border-border text-center">
-              <p className="font-display text-4xl text-primary">4.9 ★</p>
-              <p className="mt-1 text-xs text-muted-foreground">Client Rating</p>
+            <div className="gn-card p-5 bg-secondary border border-border text-left">
+              <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-primary">Flexible</p>
+              <p className="mt-3 font-display text-2xl text-foreground">At home or salon</p>
+              <p className="mt-2 text-xs text-muted-foreground">Choose the experience that works best for you.</p>
             </div>
-            <div className="gn-card p-6 bg-secondary border border-border text-center">
-              <p className="font-display text-4xl text-primary">100%</p>
-              <p className="mt-1 text-xs text-muted-foreground">Satisfaction Guarantee</p>
+            <div className="gn-card p-5 bg-secondary border border-border text-left">
+              <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-primary">Friendly</p>
+              <p className="mt-3 font-display text-2xl text-foreground">Support</p>
+              <p className="mt-2 text-xs text-muted-foreground">Helpful guidance from start to finish, whenever you need it.</p>
             </div>
           </div>
         </div>
@@ -177,7 +181,7 @@ export default function Home() {
             {
               icon: "fa-solid fa-wallet",
               title: "Khalti or Cash",
-              body: "Flexible payment options — pay online digitally with Khalti or pay cash after treatment.",
+              body: "Flexible payment options, pay online digitally with Khalti or pay cash after treatment.",
             },
           ].map((f) => (
             <article key={f.title} className="gn-card p-8 border border-border">

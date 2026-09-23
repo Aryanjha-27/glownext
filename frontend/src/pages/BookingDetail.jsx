@@ -79,7 +79,7 @@ function BookingDetailContent() {
   return (
     <div className="gn-container py-12">
       <Link to="/bookings" className="text-sm font-semibold text-primary hover:underline">
-        &larr; Back to my bookings
+         Back to my bookings
       </Link>
 
       <div className="mt-6 mx-auto max-w-2xl">
@@ -290,7 +290,7 @@ function BookingDisputeSection({ booking, onDisputeCreated }) {
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Please provide full details of what occurred..."
+              placeholder="Please provide full details of what occurred."
               className="w-full rounded-lg border border-border bg-background p-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
               required
             />

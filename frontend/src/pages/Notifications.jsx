@@ -96,9 +96,8 @@ function NotificationsContent() {
               <div
                 key={item.id}
                 onClick={() => handleNotificationClick(item)}
-                className={`gn-card p-4 border transition-colors cursor-pointer ${
-                  item.seen ? "border-border bg-card opacity-80" : "border-primary/40 bg-secondary/20"
-                }`}
+                className={`gn-card p-4 border transition-colors cursor-pointer ${item.seen ? "border-border bg-card opacity-80" : "border-primary/40 bg-secondary/20"
+                  }`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
