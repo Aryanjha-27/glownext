@@ -37,22 +37,14 @@ export default function Home() {
   return (
     <>
       {/* 1. Hero Section */}
-      <section className="relative overflow-hidden bg-ink text-cream">
-        {/* <div className="absolute inset-0">
-          <img
-            src={hero}
-            alt="Beauty studio styling session"
-            className="size-full object-cover opacity-45"
-          />
-        </div> */}
-
+      <section className="relative overflow-hidden bg-transparent text-foreground">
         <div className="relative gn-container grid min-h-[70vh] items-center gap-8 py-10 lg:grid-cols-2 lg:gap-10">
           <div className="relative z-10 max-w-xl">
             <p className="gn-eyebrow text-primary">Beauty, On Your Schedule</p>
-            <h1 className="mt-4 font-display text-5xl leading-[0.95] sm:text-6xl lg:text-7xl">
+            <h1 className="mt-4 font-display text-5xl leading-[0.95] text-foreground sm:text-6xl lg:text-7xl">
               Salon at your <span className="text-primary">Fingertips</span>
             </h1>
-            <p className="mt-5 text-base text-cream/80 leading-relaxed">
+            <p className="mt-5 text-base leading-relaxed text-foreground/80">
               Find trusted beauty experts and salons. Book at home or visit the studio.
             </p>
 
@@ -127,42 +119,42 @@ export default function Home() {
       </section>
 
       {/* 3. About Us Highlight Section */}
-      <section className="gn-section bg-ink text-cream">
+      <section className="gn-section bg-transparent text-foreground">
         <div className="gn-container grid gap-10 lg:grid-cols-2 items-center">
           <div>
             <p className="gn-eyebrow text-primary">About Glow Next</p>
-            <h2 className="mt-2 text-4xl font-display leading-tight">
+            <h2 className="mt-2 text-4xl font-display leading-tight text-foreground">
               Connecting You with Nepal's Trusted Beauty Experts
             </h2>
-            <p className="mt-4 text-cream/80 text-sm sm:text-base leading-relaxed">
+            <p className="mt-4 text-sm text-muted-foreground sm:text-base leading-relaxed">
               We empower verified beauty specialists and top-rated salons while offering clients a seamless, transparent booking platform with standardized quality and flexible scheduling.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link to="/about" className="gn-btn gn-btn-primary">
                 About Us &amp; Our Mission
               </Link>
-              <Link to="/vendors" className="gn-btn gn-btn-cream">
+              <Link to="/vendors" className="gn-btn gn-btn-outline">
                 View Partner Salons
               </Link>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="gn-card p-6 bg-cream/5 border border-cream/10 text-center">
+            <div className="gn-card p-6 bg-secondary border border-border text-center">
               <p className="font-display text-4xl text-primary">500+</p>
-              <p className="mt-1 text-xs text-cream/70">Verified Stylists</p>
+              <p className="mt-1 text-xs text-muted-foreground">Verified Stylists</p>
             </div>
-            <div className="gn-card p-6 bg-cream/5 border border-cream/10 text-center">
+            <div className="gn-card p-6 bg-secondary border border-border text-center">
               <p className="font-display text-4xl text-primary">10k+</p>
-              <p className="mt-1 text-xs text-cream/70">Completed Bookings</p>
+              <p className="mt-1 text-xs text-muted-foreground">Completed Bookings</p>
             </div>
-            <div className="gn-card p-6 bg-cream/5 border border-cream/10 text-center">
+            <div className="gn-card p-6 bg-secondary border border-border text-center">
               <p className="font-display text-4xl text-primary">4.9 ★</p>
-              <p className="mt-1 text-xs text-cream/70">Client Rating</p>
+              <p className="mt-1 text-xs text-muted-foreground">Client Rating</p>
             </div>
-            <div className="gn-card p-6 bg-cream/5 border border-cream/10 text-center">
+            <div className="gn-card p-6 bg-secondary border border-border text-center">
               <p className="font-display text-4xl text-primary">100%</p>
-              <p className="mt-1 text-xs text-cream/70">Satisfaction Guarantee</p>
+              <p className="mt-1 text-xs text-muted-foreground">Satisfaction Guarantee</p>
             </div>
           </div>
         </div>
