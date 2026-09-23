@@ -71,7 +71,6 @@ function DisputesContent() {
         <DashboardNav />
       </div>
 
-      {/* Filter Tabs */}
       <div className="mt-6 flex flex-wrap gap-2">
         {["All", "Open", "Under Review", "Waiting for Vendor", "Resolved", "Rejected", "Closed"].map((f) => (
           <button

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { createCategory, vendorServiceApi, listCategories } from "@/api/serviceApi";
 import { getMyVendorProfile } from "@/api/vendorApi";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -12,11 +13,11 @@ export default function VendorServices() {
 }
 
 function VendorServicesContent() {
+  const navigate = useNavigate();
   const [services, setServices] = useState([]);
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [thumbnail, setThumbnail] = useState(null);
-  const [gallery, setGallery] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
@@ -64,7 +65,7 @@ function VendorServicesContent() {
       if (categoryImage) categoryPayload.append("image", categoryImage);
       const category = await createCategory(categoryPayload);
       setCategories((current) => [...current, category].sort((first, second) => first.title.localeCompare(second.title)));
-      setForm((current) => ({ ...current, category_id: String(category.id) }));
+      setForm((current) => ({ ...current, category_id: category.title }));
       setCategoryTitle("");
       setCategoryImage(null);
       setNotice("Category created successfully.");
@@ -89,7 +90,6 @@ function VendorServicesContent() {
       payload.append("service_type", form.service_type);
       payload.append("status", form.status);
       if (thumbnail) payload.append("thumbnail", thumbnail);
-      gallery.forEach((file) => payload.append("gallery", file));
       if (editingSid) {
         await vendorServiceApi.update(editingSid, payload);
       } else {
@@ -97,10 +97,9 @@ function VendorServicesContent() {
       }
       setForm(emptyForm);
       setThumbnail(null);
-      setGallery([]);
       setEditingSid(null);
-      setNotice(editingSid ? "Service updated successfully." : "Service saved successfully.");
-      await load();
+      window.alert(editingSid ? "Service updated successfully." : "Service created successfully.");
+      navigate("/vendor/dashboard");
     } catch (requestError) {
       if (requestError?.status === 403) {
         const message = "Your vendor account is not verified yet. Your service will be listed when your account is verified by the admin.";
@@ -142,7 +141,7 @@ function VendorServicesContent() {
           </div>
           <label className="gn-label">Service duration (minutes)<input required type="number" min="1" step="1" className="gn-input mt-1.5 w-full" value={form.duration_minutes} onChange={(event) => update("duration_minutes", event.target.value)} /></label>
           <div className="grid gap-3 sm:grid-cols-2">
-            <label className="gn-label">Category<select className="gn-input mt-1.5 w-full" value={form.category_id} onChange={(event) => update("category_id", event.target.value)}><option value="">Choose category</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.title}</option>)}</select></label>
+            <label className="gn-label">Category<select className="gn-input mt-1.5 w-full" value={form.category_id} onChange={(event) => update("category_id", event.target.value)}><option value="">Choose category</option>{categories.map((category) => <option key={category.id} value={category.title}>{category.title}</option>)}</select></label>
             <label className="gn-label">Service type<select className="gn-input mt-1.5 w-full" value={form.service_type} onChange={(event) => update("service_type", event.target.value)}><option value="Store">Store visit</option><option value="Home">Home visit</option><option value="Both">Home and store</option></select></label>
           </div>
           <div className="rounded-xl border border-border bg-secondary/20 p-3">
@@ -152,14 +151,13 @@ function VendorServicesContent() {
           </div>
           <label className="gn-label">Visibility<select className="gn-input mt-1.5 w-full" value={form.status} onChange={(event) => update("status", event.target.value)}><option value="Draft">Save as draft</option><option value="Published">Publish now</option></select></label>
           <label className="gn-label">Service thumbnail<input type="file" accept="image/*" className="gn-input mt-1.5 w-full" onChange={(event) => setThumbnail(event.target.files?.[0] ?? null)} /></label>
-          <label className="gn-label">Gallery photos<input type="file" accept="image/*" multiple className="gn-input mt-1.5 w-full" onChange={(event) => setGallery(Array.from(event.target.files ?? []))} /></label>
           <button disabled={busy} className="gn-btn gn-btn-primary w-full">{busy ? "Saving..." : editingSid ? "Update Service" : "Save Service"}</button>
         </form>
 
         <section>
           <h2 className="font-display text-2xl">Your services ({services.length})</h2>
           <div className="mt-4 space-y-3">
-            {services.map((service) => <article key={service.sid} className="gn-card flex flex-wrap items-center justify-between gap-4 border border-border p-5"><div className="min-w-0"><h3 className="truncate font-bold">{service.title}</h3><p className="mt-1 text-sm text-muted-foreground">{service.category_name || "Uncategorised"} · {service.duration_minutes ?? 60} minutes · Rs. {service.effective_price} · {service.booking_count ?? 0} bookings</p></div><div className="flex shrink-0 items-center gap-2"><span className="gn-badge bg-secondary text-secondary-foreground">{service.status}</span><button type="button" title={`Edit ${service.title}`} aria-label={`Edit ${service.title}`} onClick={() => { setEditingSid(service.sid); setForm({ title: service.title ?? "", description: service.description ?? "", price: service.price ?? "", duration_minutes: service.duration_minutes ?? 60, service_type: service.service_type ?? "Store", category_id: service.category?.id ?? "", status: service.status ?? "Draft" }); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-primary/30 text-primary transition hover:bg-primary hover:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"><i className="fa-solid fa-pen-to-square" aria-hidden="true" /></button><button type="button" title={`Delete ${service.title}`} aria-label={`Delete ${service.title}`} onClick={async () => { if (!window.confirm(`Delete ${service.title}? This cannot be undone.`)) return; try { await vendorServiceApi.remove(service.sid); await load(); } catch (requestError) { setError(requestError); } }} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 text-red-600 transition hover:bg-red-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-300"><i className="fa-solid fa-trash-can" aria-hidden="true" /></button></div></article>)}
+            {services.map((service) => <article key={service.sid} className="gn-card flex flex-wrap items-center justify-between gap-4 border border-border p-5"><div className="min-w-0"><h3 className="truncate font-bold">{service.title}</h3><p className="mt-1 text-sm text-muted-foreground">{service.category_name || "Uncategorised"} · {service.duration_minutes ?? 60} minutes · Rs. {service.effective_price} · {service.booking_count ?? 0} bookings</p></div><div className="flex shrink-0 items-center gap-2"><span className="gn-badge bg-secondary text-secondary-foreground">{service.status}</span><button type="button" title={`Edit ${service.title}`} aria-label={`Edit ${service.title}`} onClick={() => { setEditingSid(service.sid); setForm({ title: service.title ?? "", description: service.description ?? "", price: service.price ?? "", duration_minutes: service.duration_minutes ?? 60, service_type: service.service_type ?? "Store", category_id: service.category ?? "", status: service.status ?? "Draft" }); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-primary/30 text-primary transition hover:bg-primary hover:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"><i className="fa-solid fa-pen-to-square" aria-hidden="true" /></button><button type="button" title={`Delete ${service.title}`} aria-label={`Delete ${service.title}`} onClick={async () => { if (!window.confirm(`Delete ${service.title}? This cannot be undone.`)) return; try { await vendorServiceApi.remove(service.sid); await load(); } catch (requestError) { setError(requestError); } }} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 text-red-600 transition hover:bg-red-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-300"><i className="fa-solid fa-trash-can" aria-hidden="true" /></button></div></article>)}
             {!services.length ? <div className="gn-card border border-border p-8 text-center text-muted-foreground">Create your first service to start receiving bookings.</div> : null}
           </div>
         </section>

@@ -43,7 +43,6 @@ export default function SalonDetail() {
 
   return (
     <div>
-      {/* Banner */}
       <div className="relative h-64 sm:h-80 w-full bg-ink">
         {banner ? (
           <img
@@ -78,7 +77,6 @@ export default function SalonDetail() {
           </div>
         </div>
 
-        {/* Description & Info */}
         <div className="mt-8 max-w-3xl">
           <h2 className="font-bold text-lg text-foreground">About the Studio</h2>
           <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
@@ -86,7 +84,6 @@ export default function SalonDetail() {
           </p>
         </div>
 
-        {/* Offered Services */}
         <div className="mt-12">
           <h2 className="font-display text-3xl text-foreground">
             Services Offered ({services.length})

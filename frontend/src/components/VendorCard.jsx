@@ -2,10 +2,6 @@ import { Link } from "react-router-dom";
 import { imageUrl } from "@/utils/imageUrl";
 import { RatingStars } from "./RatingStars";
 
-/**
- * VendorCard Component
- * Displays a salon/vendor summary card for react-router-dom
- */
 function VendorCard({ vendor }) {
   const image = imageUrl(vendor.image);
   return (

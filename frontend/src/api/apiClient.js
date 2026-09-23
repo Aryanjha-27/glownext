@@ -5,7 +5,6 @@ const REFRESH_STORAGE_KEY = "glownext.refresh_token";
 class ApiError extends Error {
   status;
   kind;
-  /** DRF field errors, when provided. */
   fieldErrors;
   constructor(message, opts = {}) {
     super(message);
@@ -137,7 +136,6 @@ async function request(path, options = {}) {
             return request(path, { ...options, isRetry: true });
           }
         } catch {
-          // Fall through to the normal authentication failure below.
         }
         setTokens(null, null);
         if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent(UNAUTHORIZED_EVENT));

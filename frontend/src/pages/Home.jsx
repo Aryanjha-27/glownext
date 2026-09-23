@@ -36,7 +36,6 @@ export default function Home() {
 
   return (
     <>
-      {/* 1. Hero Section */}
       <section className="relative overflow-hidden bg-transparent text-foreground">
         <div className="relative gn-container grid min-h-[70vh] items-center gap-8 py-10 lg:grid-cols-2 lg:gap-10">
           <div className="relative z-10 max-w-xl">
@@ -70,7 +69,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 2. Categories Section */}
       <section className="gn-section">
         <div className="gn-container">
           <p className="gn-eyebrow">Service List</p>
@@ -118,7 +116,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. About Us Highlight Section */}
       <section className="gn-section bg-transparent text-foreground">
         <div className="gn-container grid gap-10 lg:grid-cols-2 items-center">
           <div>
@@ -164,7 +161,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. Features Grid */}
       <section className="gn-section">
         <div className="gn-container grid gap-6 md:grid-cols-3">
           {[

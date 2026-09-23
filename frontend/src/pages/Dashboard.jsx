@@ -30,7 +30,6 @@ function DashboardContent() {
 
   return (
     <div className="gn-container py-12">
-      {/* User Welcome Banner */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-6">
         <div>
           <span className="gn-eyebrow text-primary">Client Control Panel</span>
@@ -49,12 +48,10 @@ function DashboardContent() {
         </div>
       </div>
 
-      {/* Navigation Submenu */}
       <div className="mt-6">
         <DashboardNav />
       </div>
 
-      {/* Main Content Area */}
       {isLoading ? (
         <div className="mt-8">
           <SkeletonStats />
@@ -65,7 +62,6 @@ function DashboardContent() {
         </div>
       ) : (
         <>
-          {/* Booking Summary Stats */}
           <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
             {[
               { label: "Total Bookings", value: counts.total, icon: "fa-regular fa-calendar" },
@@ -83,7 +79,6 @@ function DashboardContent() {
             ))}
           </div>
 
-          {/* Recent Appointments List */}
           <div className="mt-10">
             <div className="flex items-center justify-between">
               <h2 className="font-display text-2xl text-foreground">Recent Appointments</h2>

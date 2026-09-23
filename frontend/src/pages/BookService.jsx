@@ -116,7 +116,6 @@ function BookingForm() {
         </p>
 
         <form className="gn-card mt-8 p-8 border border-border space-y-6" onSubmit={handleSubmit}>
-          {/* Summary Box */}
           <div className="flex items-center justify-between border-b border-border pb-4">
             <div>
               <h3 className="font-bold text-lg">{service.title}</h3>
@@ -127,7 +126,6 @@ function BookingForm() {
             </div>
           </div>
 
-          {/* Service Type Selection */}
           <div>
             <label className="gn-label block font-semibold mb-2">Location / Setting:</label>
             <div className="grid grid-cols-2 gap-3">
@@ -147,7 +145,6 @@ function BookingForm() {
             </div>
           </div>
 
-          {/* Address if Home Visit */}
           {serviceType === "Home" ? (
             <div>
               <label className="gn-label" htmlFor="address">
@@ -189,7 +186,6 @@ function BookingForm() {
             </p>
           </div>
 
-          {/* Date & Time */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="gn-label" htmlFor="date">
@@ -221,7 +217,6 @@ function BookingForm() {
             </div>
           </div>
 
-          {/* Notes */}
           <div>
             <label className="gn-label" htmlFor="notes">
               Special Requests / Instructions

@@ -9,9 +9,6 @@ import { listServiceReviews } from "@/api/reviewApi";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 
-/**
- * Service Detail Page - Shows full details for a single service
- */
 export default function ServiceDetail() {
   const { slug } = useParams();
 
@@ -52,7 +49,6 @@ export default function ServiceDetail() {
       </Link>
 
       <div className="mt-6 grid gap-10 lg:grid-cols-2">
-        {/* Thumbnail Image */}
         <div className="relative overflow-hidden rounded-3xl border border-border bg-secondary">
           {thumb ? (
             <img
@@ -67,7 +63,6 @@ export default function ServiceDetail() {
           )}
         </div>
 
-        {/* Details & Booking Sidebar */}
         <div className="flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between gap-4">

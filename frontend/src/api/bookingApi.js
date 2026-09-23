@@ -91,14 +91,6 @@ const vendorBookingApi = {
       throw error;
     }
   },
-  analytics: async (days = 30) => {
-    try {
-      return await apiClient.get(`/vendor/analytics/?days=${days}`);
-    } catch (error) {
-      if (missing(error)) return backendMissing("GET /api/vendor/analytics/");
-      throw error;
-    }
-  },
   payouts: async () => {
     try {
       const payload = await apiClient.get("/vendor/payouts/");

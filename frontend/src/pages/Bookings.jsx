@@ -32,7 +32,6 @@ function BookingsList() {
         <DashboardNav />
       </div>
 
-      {/* Filter Chips */}
       <div className="mt-6 flex flex-wrap gap-2">
         {["All", "Pending", "Confirmed", "Completed", "Cancelled"].map((f) => (
           <button

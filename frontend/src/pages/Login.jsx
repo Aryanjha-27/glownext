@@ -54,7 +54,6 @@ export default function Login() {
         </div>
 
         <form className="gn-card mt-8 space-y-5 p-8 border border-border" onSubmit={handleSubmit}>
-          {/* Email Field */}
           <div>
             <label className="gn-label flex items-center justify-between" htmlFor="email">
               <span>
@@ -72,7 +71,6 @@ export default function Login() {
             />
           </div>
 
-          {/* Password Field */}
           <div>
             <label className="gn-label flex items-center justify-between" htmlFor="password">
               <span>
@@ -89,7 +87,6 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="gn-input w-full pr-10"
               />
-              {/* Show/Hide Password Toggle */}
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
@@ -101,7 +98,6 @@ export default function Login() {
             </div>
           </div>
 
-          {/* Inline Validation Errors */}
           {clientError ? (
             <div className="p-3 text-xs font-semibold text-red-600 bg-red-50 dark:bg-red-950/40 rounded-xl border border-red-200">
               <i className="fa-solid fa-triangle-exclamation mr-1.5" />
@@ -111,7 +107,6 @@ export default function Login() {
 
           {apiError ? <ErrorMessage error={apiError} /> : null}
 
-          {/* Submit Button */}
           <button
             type="submit"
             className="gn-btn gn-btn-primary w-full py-3 text-base font-bold"
@@ -120,7 +115,6 @@ export default function Login() {
             {busy ? "Logging in..." : "Log In"}
           </button>
 
-          {/* Bottom Links */}
           <div className="flex justify-end pt-2 text-sm">
             <Link to="/register" className="font-semibold text-foreground hover:underline">
               Create an Account

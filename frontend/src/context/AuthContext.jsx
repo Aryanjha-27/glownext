@@ -28,6 +28,15 @@ function AuthProvider({ children }) {
   useEffect(() => {
     void loadUser();
   }, [loadUser]);
+
+  useEffect(() => {
+    if (!user) return undefined;
+    const refreshTimer = window.setInterval(() => {
+      void loadUser();
+    }, 30000);
+    return () => window.clearInterval(refreshTimer);
+  }, [user, loadUser]);
+
   useEffect(() => {
     const onUnauthorized = () => setUser(null);
     window.addEventListener(UNAUTHORIZED_EVENT, onUnauthorized);

@@ -7,9 +7,6 @@ import { SkeletonGrid } from "@/components/SkeletonCard";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { EmptyState } from "@/components/EmptyState";
 
-/**
- * Salons Page - Lists all partner salons/vendors
- */
 export default function Salons() {
   const [vendors, setVendors] = useState([]);
   const [isLoading, setIsLoading] = useState(true);

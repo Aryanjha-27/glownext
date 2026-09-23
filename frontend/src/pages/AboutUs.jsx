@@ -1,8 +1,5 @@
 import { Link } from "react-router-dom";
 
-/**
- * AboutUs Component - Information about Glow Next for BCA Project
- */
 export default function AboutUs() {
   const stats = [
     { label: "Verified Professionals", value: "500+" },
@@ -36,7 +33,6 @@ export default function AboutUs() {
 
   return (
     <div className="bg-background text-foreground py-12">
-      {/* Hero Header */}
       <section className="gn-container text-center max-w-3xl mx-auto py-10">
         <span className="gn-eyebrow">Our Story &amp; Mission</span>
         <h1 className="mt-3 text-4xl sm:text-6xl font-display leading-tight">
@@ -47,7 +43,6 @@ export default function AboutUs() {
         </p>
       </section>
 
-      {/* Stats Counter Bar */}
       <section className="gn-container py-8">
         <div className="gn-card bg-ink text-cream p-8 rounded-3xl grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {stats.map((s) => (
@@ -59,7 +54,6 @@ export default function AboutUs() {
         </div>
       </section>
 
-      {/* Mission & Vision Section */}
       <section className="gn-section">
         <div className="gn-container grid gap-12 lg:grid-cols-2 items-center">
           <div>
@@ -95,7 +89,6 @@ export default function AboutUs() {
         </div>
       </section>
 
-      {/* Core Values Section */}
       <section className="gn-section bg-secondary/20">
         <div className="gn-container">
           <div className="text-center max-w-2xl mx-auto">
@@ -117,7 +110,6 @@ export default function AboutUs() {
         </div>
       </section>
 
-      {/* Partner CTA Section */}
       <section className="gn-container py-12">
         <div className="gn-card p-10 sm:p-14 bg-background border border-border rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6">
           <div>

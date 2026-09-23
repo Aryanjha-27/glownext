@@ -17,15 +17,12 @@ export default function Services() {
   const [location, setLocation] = useState(initialLocation);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
 
-  // Services state
   const [services, setServices] = useState([]);
   const [servicesLoading, setServicesLoading] = useState(true);
   const [servicesError, setServicesError] = useState(null);
 
-  // Categories state
   const [categories, setCategories] = useState([]);
 
-  // Fetch services when search or category changes
   const fetchServices = useCallback(async () => {
     setServicesLoading(true);
     setServicesError(null);
@@ -43,7 +40,6 @@ export default function Services() {
     fetchServices();
   }, [fetchServices]);
 
-  // Fetch categories once on mount
   useEffect(() => {
     listCategories()
       .then((data) => setCategories(data))
@@ -53,7 +49,7 @@ export default function Services() {
   return (
     <div className="gn-container py-12">
       <div className="max-w-3xl">
-        <span className="gn-eyebrow text-primary">Catalog</span>
+        {/* <span className="gn-eyebrow text-primary">List</span> */}
         <h1 className="mt-1 font-display text-4xl sm:text-5xl text-foreground">
           Beauty Services &amp; Treatments
         </h1>
@@ -103,7 +99,6 @@ export default function Services() {
         </div>
       </form>
 
-      {/* Category Filter Chips */}
       {categories && categories.length > 0 ? (
         <div className="mt-6 flex flex-wrap gap-2">
           <button
@@ -129,7 +124,6 @@ export default function Services() {
         </div>
       ) : null}
 
-      {/* Results Grid */}
       <div className="mt-10">
         {servicesLoading ? (
           <SkeletonGrid count={6} />

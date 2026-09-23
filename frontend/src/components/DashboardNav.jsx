@@ -5,7 +5,6 @@ const items = [
   { to: "/bookings", label: "My Bookings", icon: "fa-regular fa-calendar-check" },
   { to: "/disputes", label: "Disputes", icon: "fa-solid fa-scale-balanced" },
   { to: "/reviews", label: "Reviews", icon: "fa-regular fa-star" },
-  { to: "/notifications", label: "Notifications", icon: "fa-regular fa-bell" },
   { to: "/profile", label: "Profile", icon: "fa-regular fa-user" },
 ];
 

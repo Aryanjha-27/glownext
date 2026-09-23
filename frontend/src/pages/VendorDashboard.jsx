@@ -16,21 +16,17 @@ export default function VendorDashboard() {
 
 function VendorDashboardContent() {
   const [stats, setStats] = useState(null);
-  const [analytics, setAnalytics] = useState(null);
   const [payouts, setPayouts] = useState([]);
-  const [period, setPeriod] = useState(30);
   const [error, setError] = useState(null);
 
   const loadStats = async () => {
     setError(null);
     try {
-      const [dashboard, chart, payoutData] = await Promise.all([
+      const [dashboard, payoutData] = await Promise.all([
         vendorBookingApi.stats(),
-        vendorBookingApi.analytics(period),
         vendorBookingApi.payouts(),
       ]);
       setStats(dashboard);
-      setAnalytics(chart);
       setPayouts(payoutData);
     } catch (requestError) {
       setError(requestError);
@@ -39,12 +35,10 @@ function VendorDashboardContent() {
 
   useEffect(() => {
     loadStats();
-  }, [period]);
+  }, []);
 
   if (error) return <div className="gn-container py-12"><ErrorMessage error={error} onRetry={loadStats} /></div>;
-  if (!stats || !analytics) return <LoadingSpinner label="Loading vendor dashboard..." />;
-
-  const chartMax = Math.max(...(analytics.bookings ?? []).map((item) => item.count), 1);
+  if (!stats) return <LoadingSpinner label="Loading vendor dashboard..." />;
   const cards = [
     ["Total Services", stats.total_services, "fa-scissors"],
     ["Published Services", stats.published_services, "fa-eye"],
@@ -71,13 +65,6 @@ function VendorDashboardContent() {
         {stats.verification_status === "Rejected" ? (
           <Link to="/vendor/profile" className="gn-btn gn-btn-outline text-sm">Try again</Link>
         ) : !stats.is_verified ? <Link to="/vendor/profile" className="gn-btn gn-btn-outline text-sm">Complete verification steps</Link> : null}
-        <div className="flex gap-2">
-          {[7, 30, 180].map((days) => (
-            <button key={days} type="button" onClick={() => setPeriod(days)} className={`gn-chip ${period === days ? "bg-primary text-primary-foreground font-bold" : ""}`}>
-              {days === 180 ? "6 months" : `${days} days`}
-            </button>
-          ))}
-        </div>
       </div>
 
       <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -91,18 +78,6 @@ function VendorDashboardContent() {
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.5fr_1fr]">
-        <section className="gn-card border border-border p-6">
-          <h2 className="font-display text-2xl text-foreground">Bookings over time</h2>
-          <div className="mt-6 space-y-4">
-            {(analytics.bookings ?? []).slice(0, 14).map((item) => (
-              <div key={item.date}>
-                <div className="flex justify-between text-sm font-semibold"><span>{item.date}</span><span>{item.count}</span></div>
-                <div className="mt-2 h-3 rounded-full bg-secondary"><div className="h-3 rounded-full bg-primary" style={{ width: `${(item.count / chartMax) * 100}%` }} /></div>
-              </div>
-            ))}
-            {!analytics.bookings?.length ? <p className="text-sm text-muted-foreground">No bookings yet.</p> : null}
-          </div>
-        </section>
         <section className="gn-card border border-border p-6">
           <h2 className="font-display text-2xl text-foreground">Earnings and payouts</h2>
           <div className="mt-5 space-y-3 text-sm text-muted-foreground">

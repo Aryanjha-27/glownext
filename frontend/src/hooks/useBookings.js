@@ -1,10 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { listBookings } from "@/api/bookingApi";
 
-/**
- * Custom Hook for Fetching User Bookings - Standard React state/effect
- * Clean, beginner-friendly for 4th Sem BCA project
- */
 export function useBookings(status = "All") {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);

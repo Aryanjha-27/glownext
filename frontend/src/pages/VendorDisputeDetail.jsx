@@ -1,12 +1,11 @@
 import { Link, useParams } from "react-router-dom";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { disputeApi } from "@/api/disputeApi";
 import { formatDate } from "@/utils/formatDate";
 import { formatPrice } from "@/utils/formatPrice";
-import { useAuth } from "@/hooks/useAuth";
 
 export default function VendorDisputeDetail() {
   return (
@@ -18,24 +17,16 @@ export default function VendorDisputeDetail() {
 
 function VendorDisputeDetailContent() {
   const { id } = useParams();
-  const { user } = useAuth();
 
   const [dispute, setDispute] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Vendor formal response form state
   const [vendorResponseText, setVendorResponseText] = useState("");
   const [isSubmittingResponse, setIsSubmittingResponse] = useState(false);
   const [responseError, setResponseError] = useState(null);
   const [responseSuccess, setResponseSuccess] = useState(false);
 
-  // Thread chat message state
-  const [message, setMessage] = useState("");
-  const [isSending, setIsSending] = useState(false);
-  const [sendError, setSendError] = useState(null);
-
-  const messagesEndRef = useRef(null);
 
   const fetchDispute = useCallback(async () => {
     setIsLoading(true);
@@ -57,10 +48,6 @@ function VendorDisputeDetailContent() {
     fetchDispute();
   }, [fetchDispute]);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [dispute?.messages]);
-
   const handleFormalResponse = async (e) => {
     e.preventDefault();
     if (!vendorResponseText.trim()) return;
@@ -78,23 +65,6 @@ function VendorDisputeDetailContent() {
     }
   };
 
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!message.trim()) return;
-
-    setIsSending(true);
-    setSendError(null);
-    try {
-      await disputeApi.sendVendorMessage(id, { message });
-      setMessage("");
-      await fetchDispute();
-    } catch (err) {
-      setSendError(err);
-    } finally {
-      setIsSending(false);
-    }
-  };
-
   if (isLoading) return <LoadingSpinner label="Loading dispute details..." />;
   if (error) return <ErrorMessage error={error} onRetry={fetchDispute} />;
   if (!dispute) return null;
@@ -109,7 +79,6 @@ function VendorDisputeDetailContent() {
 
       <div className="mt-6 grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
-          {/* Dispute info card */}
           <div className="gn-card p-6 border border-border">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-4">
               <div>
@@ -145,7 +114,6 @@ function VendorDisputeDetailContent() {
                 </div>
               ) : null}
 
-              {/* Vendor's formal response */}
               <div className="pt-3 border-t border-border/50">
                 <div className="flex items-center justify-between">
                   <strong className="text-foreground">Your Official Statement:</strong>
@@ -189,7 +157,6 @@ function VendorDisputeDetailContent() {
                 )}
               </div>
 
-              {/* Resolution Decision */}
               {dispute.admin_response || dispute.resolution ? (
                 <div className="pt-3 border-t border-border/50 bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/20">
                   <strong className="text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
@@ -210,71 +177,8 @@ function VendorDisputeDetailContent() {
             </div>
           </div>
 
-          {/* Discussion Thread */}
-          <div className="gn-card p-6 border border-border">
-            <h2 className="font-display text-xl text-foreground mb-4">Messages &amp; Dialogue</h2>
-
-            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
-              {dispute.messages && dispute.messages.length > 0 ? (
-                dispute.messages.map((msg) => {
-                  const isMe = msg.sender_id === user?.user_id || msg.sender_username === user?.username;
-                  return (
-                    <div
-                      key={msg.id}
-                      className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}
-                    >
-                      <div
-                        className={`max-w-[85%] rounded-2xl p-4 text-sm ${
-                          isMe
-                            ? "bg-primary text-primary-foreground rounded-br-none"
-                            : "bg-muted text-foreground border border-border rounded-bl-none"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-3 text-xs mb-1 opacity-80">
-                          <span className="font-semibold">{msg.sender_display || msg.sender_username || "User"}</span>
-                          <span>{formatDate(msg.created_at)}</span>
-                        </div>
-                        <p className="whitespace-pre-wrap">{msg.message}</p>
-                      </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <p className="text-sm text-muted-foreground italic text-center py-4">
-                  No threaded messages yet.
-                </p>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {!isClosed ? (
-              <form onSubmit={handleSendMessage} className="mt-6 pt-4 border-t border-border">
-                {sendError ? <ErrorMessage error={sendError} /> : null}
-                <div className="space-y-3">
-                  <textarea
-                    rows={2}
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Send a message to the customer and mediator..."
-                    className="w-full rounded-xl border border-border bg-background p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                    required
-                  />
-                  <div className="flex justify-end">
-                    <button
-                      type="submit"
-                      disabled={isSending || !message.trim()}
-                      className="gn-btn bg-primary text-primary-foreground text-xs"
-                    >
-                      {isSending ? "Sending..." : "Send Message"}
-                    </button>
-                  </div>
-                </div>
-              </form>
-            ) : null}
-          </div>
         </div>
 
-        {/* Right column */}
         <div className="space-y-6">
           <div className="gn-card p-6 border border-border">
             <h3 className="font-display text-lg text-foreground mb-4">Booking Reference</h3>

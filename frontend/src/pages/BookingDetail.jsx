@@ -160,7 +160,7 @@ function BookingDetailContent() {
             </div>
           ) : null}
 
-          {booking.booking_status === "Completed" && !booking.has_review && booking.service ? (
+          {(booking.booking_status === "Completed" || booking.booking_status === "Confirmed") && !booking.has_review && booking.service ? (
             <div className="mt-8 border-t border-border pt-6">
               <ReviewForm
                 sid={booking.service.slug}
@@ -169,13 +169,12 @@ function BookingDetailContent() {
               />
             </div>
           ) : null}
-          {booking.booking_status === "Completed" && booking.has_review ? (
+          {(booking.booking_status === "Completed" || booking.booking_status === "Confirmed") && booking.has_review ? (
             <p className="mt-8 border-t border-border pt-6 text-sm font-semibold text-muted-foreground">
-              You have already reviewed this completed appointment.
+              You have already reviewed this service.
             </p>
           ) : null}
 
-          {/* Dispute / Issue resolution section */}
           <BookingDisputeSection booking={booking} onDisputeCreated={fetchBooking} />
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getMyVendorProfile, updateMyVendorProfile } from "@/api/vendorApi";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ErrorMessage } from "@/components/ErrorMessage";
@@ -18,6 +19,7 @@ export default function VendorProfile() {
 }
 
 function VendorProfileContent() {
+  const navigate = useNavigate();
   const [form, setForm] = useState(emptyForm);
   const [profileImage, setProfileImage] = useState(null);
   const [verificationDocument, setVerificationDocument] = useState(null);
@@ -55,7 +57,8 @@ function VendorProfileContent() {
       await updateMyVendorProfile(payload);
       setProfileImage(null);
       setVerificationDocument(null);
-      setNotice(wasRejected ? "Updated verification form submitted for admin review." : "Store profile and verification details updated.");
+      alert("Verification request sent successfully. An admin will review your store details and certificate.");
+      navigate("/vendor/dashboard");
     } catch (requestError) {
       setError(requestError);
     } finally {
@@ -92,7 +95,7 @@ function VendorProfileContent() {
         <label className="gn-label">Country<input className="gn-input mt-1.5 w-full" value={form.country || ""} onChange={(event) => update("country", event.target.value)} /></label>
         <label className="gn-label">Company register certificate<input type="file" accept="image/*" required={!form.is_verified} className="gn-input mt-1.5 w-full" onChange={(event) => setVerificationDocument(event.target.files?.[0] ?? null)} /></label>
         <label className="gn-label">Store photo<input type="file" accept="image/*" className="gn-input mt-1.5 w-full" onChange={(event) => setProfileImage(event.target.files?.[0] ?? null)} /></label>
-        <button disabled={busy} className="gn-btn gn-btn-primary">{busy ? "Saving..." : "Save Store Profile"}</button>
+        <button disabled={busy} className="gn-btn gn-btn-primary">{busy ? "Sending..." : "Send Verification Request"}</button>
       </form>
     </div>
   );

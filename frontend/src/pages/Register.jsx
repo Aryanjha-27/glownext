@@ -3,14 +3,9 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { ErrorMessage } from "@/components/ErrorMessage";
 
-/**
- * RegisterPage Component for React + Vite
- * Features required asterisks (*), 8+ char password security checks, and password match validation.
- */
 export default function Register() {
   const { register } = useAuth();
 
-  // Form State
   const [form, setForm] = useState({
     full_name: "",
     username: "",
@@ -21,41 +16,29 @@ export default function Register() {
     user_type: "Customer", // 'Customer' or 'Vendor'
   });
 
-  // UI state for password visibility
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
 
-  // Status & Error States
   const [busy, setBusy] = useState(false);
   const [clientError, setClientError] = useState("");
   const [apiError, setApiError] = useState(null);
   const [done, setDone] = useState(false);
 
-  // Helper function to update form state
   const updateField = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setClientError("");
   };
 
-  // Submit Handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setClientError("");
     setApiError(null);
 
-    // 1. Required field checks
     if (!form.full_name.trim() || !form.username.trim() || !form.email.trim() || !form.mobile.trim()) {
       setClientError("Please fill out all required fields marked with *.");
       return;
     }
 
-    // 2. Password Length Check (Must be at least 8 characters)
-    if (form.password.length < 8) {
-      setClientError("Security requirement: Password must be at least 8 characters long.");
-      return;
-    }
-
-    // 3. Password Confirmation Check
     if (form.password !== form.password2) {
       setClientError("Passwords do not match. Please check and try again.");
       return;
@@ -71,9 +54,6 @@ export default function Register() {
       setBusy(false);
     }
   };
-
-  const isMinLength = form.password.length >= 8;
-  const isMatch = form.password.length > 0 && form.password === form.password2;
 
   return (
     <div className="gn-container py-16">
@@ -101,7 +81,6 @@ export default function Register() {
           </div>
         ) : (
           <form className="gn-card mt-8 space-y-5 p-8 border border-border" onSubmit={handleSubmit}>
-            {/* Account Type Selection */}
             <div>
               <label className="gn-label block font-semibold mb-2">
                 I want to join as: <span className="text-red-500">*</span>
@@ -132,7 +111,6 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Full Name & Username */}
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="gn-label" htmlFor="full_name">
@@ -161,7 +139,6 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Email & Mobile */}
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="gn-label" htmlFor="email">
@@ -193,9 +170,7 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Passwords Section */}
             <div className="grid gap-4 sm:grid-cols-2">
-              {/* Password */}
               <div>
                 <label className="gn-label" htmlFor="password">
                   Password <span className="text-red-500">*</span>
@@ -205,8 +180,7 @@ export default function Register() {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     required
-                    minLength={8}
-                    placeholder="Min. 8 characters"
+                    placeholder="Enter a password"
                     autoComplete="new-password"
                     value={form.password}
                     onChange={(e) => updateField("password", e.target.value)}
@@ -223,7 +197,6 @@ export default function Register() {
                 </div>
               </div>
 
-              {/* Confirm Password */}
               <div>
                 <label className="gn-label" htmlFor="password2">
                   Confirm Password <span className="text-red-500">*</span>
@@ -233,7 +206,6 @@ export default function Register() {
                     id="password2"
                     type={showPassword2 ? "text" : "password"}
                     required
-                    minLength={8}
                     placeholder="Re-enter password"
                     autoComplete="new-password"
                     value={form.password2}
@@ -252,32 +224,6 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Password Security Checklist */}
-            <div className="p-3.5 bg-secondary/30 rounded-xl border border-border text-xs space-y-1.5">
-              <p className="font-bold text-foreground">Password Security Requirements:</p>
-              <div className="flex items-center gap-2">
-                <i
-                  className={`fa-solid ${
-                    isMinLength ? "fa-circle-check text-emerald-500" : "fa-circle-xmark text-muted-foreground"
-                  }`}
-                />
-                <span className={isMinLength ? "text-emerald-600 font-semibold" : "text-muted-foreground"}>
-                  At least 8 characters long
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <i
-                  className={`fa-solid ${
-                    isMatch ? "fa-circle-check text-emerald-500" : "fa-circle-xmark text-muted-foreground"
-                  }`}
-                />
-                <span className={isMatch ? "text-emerald-600 font-semibold" : "text-muted-foreground"}>
-                  Passwords match
-                </span>
-              </div>
-            </div>
-
-            {/* Validation Error Banners */}
             {clientError ? (
               <div className="p-3.5 text-xs font-semibold text-red-600 bg-red-50 dark:bg-red-950/40 rounded-xl border border-red-200">
                 <i className="fa-solid fa-triangle-exclamation mr-1.5" />
@@ -287,7 +233,6 @@ export default function Register() {
 
             {apiError ? <ErrorMessage error={apiError} /> : null}
 
-            {/* Submit Button */}
             <button
               type="submit"
               className="gn-btn gn-btn-primary w-full py-3 text-base font-bold"
@@ -296,7 +241,6 @@ export default function Register() {
               {busy ? "Creating Account..." : "Create Account"}
             </button>
 
-            {/* Already registered */}
             <p className="text-center text-sm text-muted-foreground pt-2">
               Already have an account?{" "}
               <Link to="/login" className="font-semibold text-primary hover:underline">

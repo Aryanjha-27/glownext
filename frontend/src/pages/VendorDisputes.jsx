@@ -63,7 +63,6 @@ function VendorDisputesContent() {
       <h1 className="mt-1 font-display text-4xl text-foreground">Disputes &amp; Claims</h1>
 
 
-      {/* Filter Chips */}
       <div className="mt-6 flex flex-wrap gap-2">
         {["All", "Open", "Waiting for Vendor", "Under Review", "Resolved", "Rejected"].map((f) => (
           <button

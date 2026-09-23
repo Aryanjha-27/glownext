@@ -1,6 +1,3 @@
-/**
- * Footer Component - Bottom footer for Glow Next
- */
 function Footer() {
   return (
     <footer className="mt-20 border-t border-border bg-ink text-cream">

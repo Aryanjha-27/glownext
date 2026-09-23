@@ -1,8 +1,5 @@
 import { Link } from "react-router-dom";
 
-/**
- * HowWeWork Component - Simple step-by-step guide for BCA Project
- */
 export default function HowWeWork() {
   const steps = [
     {
@@ -72,7 +69,6 @@ export default function HowWeWork() {
 
   return (
     <div className="bg-background text-foreground py-12">
-      {/* Hero Header */}
       <section className="gn-container text-center max-w-3xl mx-auto py-10">
         <span className="gn-eyebrow">Seamless & Simple</span>
         <h1 className="mt-3 text-4xl sm:text-6xl font-display leading-tight">
@@ -83,7 +79,6 @@ export default function HowWeWork() {
         </p>
       </section>
 
-      {/* 3 Step Process Grid */}
       <section className="gn-container py-12">
         <div className="grid gap-8 md:grid-cols-3">
           {steps.map((step) => (
@@ -108,7 +103,6 @@ export default function HowWeWork() {
         </div>
       </section>
 
-      {/* Benefits Section */}
       <section className="gn-section bg-secondary/30 my-12">
         <div className="gn-container">
           <div className="text-center max-w-2xl mx-auto">
@@ -130,7 +124,6 @@ export default function HowWeWork() {
         </div>
       </section>
 
-      {/* Frequently Asked Questions */}
       <section className="gn-container py-12 max-w-4xl mx-auto">
         <div className="text-center">
           <span className="gn-eyebrow">Got Questions?</span>
@@ -152,7 +145,6 @@ export default function HowWeWork() {
         </div>
       </section>
 
-      {/* Call To Action Banner */}
       <section className="gn-container py-12">
         <div className="gn-card bg-ink text-cream p-10 sm:p-14 text-center rounded-3xl relative overflow-hidden">
           <h2 className="text-3xl sm:text-5xl font-display">Ready for Your Next Glow Up?</h2>
