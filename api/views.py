@@ -9,7 +9,6 @@ from django.contrib.auth import authenticate, login as django_login
 from django.db.models import Avg, Count, Q, Sum
 from django.db.models.functions import TruncDate
 from django.db import transaction
-from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
 from django.utils.text import slugify
@@ -19,34 +18,23 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from customer.models import Address as CustomerAddress, Notifications as CustomerNotification
 from store.models import (
-    Category,
     Service,
-    ServiceGallery,
     ServiceReview,
-    Notification,
     Booking,
 )
 from vendor.models import (
-    Dispute, DisputeMessage, DisputeAuditLog,
-    Payout, Notifications as VendorNotifications, vendor as VendorModel, DISPUTE_REASON,
+    Dispute, Payout, vendor as VendorModel, DISPUTE_REASON,
 )
-from userauth.models import profile as ProfileModel, user as UserModel
+from userauth.models import profile as ProfileModel, user as UserModel, Notification
 from .serializers import (
-    CategorySerializer,
-    CustomerAddressSerializer,
-    CustomerNotificationSerializer,
     DisputeSerializer,
-    DisputeMessageSerializer,
-    NotificationSerializer,
     BookingSerializer,
     ServiceReviewSerializer,
     ServiceSerializer,
     UserSerializer,
     PublicVendorSerializer,
     VendorSerializer,
-    VendorTransactionSerializer,
     PayoutSerializer,
 )
 
@@ -72,49 +60,29 @@ class RegisterAPI(APIView):
         password2 = data.get("password2") or ""
         full_name = (data.get("full_name") or "").strip()
         user_type = data.get("user_type") or "Customer"
-
         errors = {}
         if not email:
             errors["email"] = ["Email is required."]
         if not username:
             errors["username"] = ["Username is required."]
-        if len(password) < 8:
-            errors["password"] = ["Password must be at least 8 characters long."]
         if password != password2:
             errors["password2"] = ["Passwords do not match."]
         if user_type not in {"Customer", "Vendor"}:
             errors["user_type"] = ["User type must be Customer or Vendor."]
         if UserModel.objects.filter(email__iexact=email).exists():
             errors["email"] = ["An account with this email already exists."]
-
         if errors:
             return Response(errors, status=status.HTTP_400_BAD_REQUEST)
-
         with transaction.atomic():
-            user = UserModel.objects.create_user(
-                email=email,
-                username=username,
-                password=password,
-            )
-            ProfileModel.objects.create(
-                user=user,
-                full_name=full_name or username,
-                mobile=data.get("mobile") or "",
-                user_type=user_type,
-            )
+            user = UserModel.objects.create_user( email=email,username=username,password=password,)
+            ProfileModel.objects.create(user=user,full_name=full_name or username,mobile=data.get("mobile") or "",user_type=user_type,)
             if user_type == "Vendor":
-                VendorModel.objects.create(
-                    user=user,
-                    store_name=full_name or username,
-                    email=email,
-                )
-
+                VendorModel.objects.create(user=user,store_name=full_name or username,email=email,)
         return Response({"user": user_payload(user)}, status=status.HTTP_201_CREATED)
 
 
 class LoginAPI(APIView):
     permission_classes = [AllowAny]
-
     def post(self, request):
         email = (request.data.get("email") or "").strip().lower()
         password = request.data.get("password") or ""
@@ -124,7 +92,6 @@ class LoginAPI(APIView):
                 {"detail": "Invalid email or password."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-
         django_login(request, user)
         refresh = RefreshToken.for_user(user)
         return Response({
@@ -164,9 +131,8 @@ class LogoutAPI(APIView):
 
 class CategoriesAPI(APIView):
     def get(self, request):
-        categories = Category.objects.all().order_by("title")
-        serializer = CategorySerializer(categories, many=True)
-        return Response(serializer.data)
+        categories = Service.objects.exclude(category="").values_list("category", flat=True).distinct().order_by("category")
+        return Response([{"id": slugify(title), "title": title, "slug": slugify(title), "image": None} for title in categories])
 
     def post(self, request):
         if not request.user.is_authenticated:
@@ -176,36 +142,19 @@ class CategoriesAPI(APIView):
         title = (request.data.get("title") or "").strip()
         if not title:
             return Response({"title": ["Category title is required."]}, status=status.HTTP_400_BAD_REQUEST)
-        payload = {"title": title, "slug": slugify(title)}
-        if request.FILES.get("image"):
-            payload["image"] = request.FILES["image"]
-        serializer = CategorySerializer(data=payload)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            category = serializer.save()
-        except IntegrityError:
-            return Response({"title": ["A category with this name already exists."]}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(CategorySerializer(category).data, status=status.HTTP_201_CREATED)
+        return Response({"id": slugify(title), "title": title, "slug": slugify(title), "image": None}, status=status.HTTP_201_CREATED)
 
 
 def category_filter_queryset(queryset, request):
     category_value = request.query_params.get("category")
     if not category_value:
         return queryset
-    category = None
-    if category_value.isdigit():
-        category = Category.objects.filter(pk=int(category_value)).first()
-    if category is None:
-        category = Category.objects.filter(slug=category_value).first()
-    if category is None:
-        return queryset.none()
-    return queryset.filter(category=category)
+    return queryset.filter(category__iexact=category_value.replace("-", " "))
 
 
 class ServicesAPI(APIView):
     def get(self, request):
-        services = Service.objects.filter(status="Published", vendor__is_verified=True).select_related("vendor", "category").prefetch_related("gallery")
+        services = Service.objects.filter(status="Published", vendor__is_verified=True).select_related("vendor")
         services = category_filter_queryset(services, request)
         search = request.query_params.get("search")
         if search:
@@ -274,7 +223,7 @@ class VendorServicesAPI(APIView):
         vendor, error = require_vendor(request)
         if error is not None:
             return error
-        services = Service.objects.filter(vendor=vendor).select_related("category").order_by("-date")
+        services = Service.objects.filter(vendor=vendor).order_by("-date")
         return Response(ServiceSerializer(services, many=True).data)
 
     def post(self, request):
@@ -287,10 +236,11 @@ class VendorServicesAPI(APIView):
                 {"detail": "Your vendor account is not verified. Services can be listed after your account is verified."},
                 status=status.HTTP_403_FORBIDDEN,
             )
-        category = None
-        category_id = request.data.get("category_id")
-        if category_id:
-            category = get_object_or_404(Category, pk=category_id)
+        category = request.data.get("category") or request.data.get("category_id") or ""
+        if isinstance(category, str) and category:
+            category = category.strip()
+            if category.lower().replace("-", " ") in {item.lower().replace("-", " ") for item in (vendor.categories or [])}:
+                category = next(item for item in (vendor.categories or []) if item.lower().replace("-", " ") == category.lower().replace("-", " "))
 
         service = Service(
             vendor=vendor,
@@ -309,8 +259,6 @@ class VendorServicesAPI(APIView):
         try:
             service.full_clean(exclude=["slug"])
             service.save()
-            for file in request.FILES.getlist("gallery"):
-                ServiceGallery.objects.create(service=service, image=file)
         except Exception as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
         return Response(ServiceSerializer(service).data, status=status.HTTP_201_CREATED)
@@ -329,8 +277,13 @@ class VendorServicesAPI(APIView):
         for field in ("title", "description", "price", "duration_minutes", "service_type", "status"):
             if field in request.data:
                 setattr(service, field, request.data[field])
-        if "category_id" in request.data:
-            service.category = get_object_or_404(Category, pk=request.data["category_id"])
+        if "category" in request.data or "category_id" in request.data:
+            category = request.data.get("category") or request.data.get("category_id") or ""
+            if isinstance(category, str) and category:
+                category = category.strip()
+                if category.lower().replace("-", " ") in {item.lower().replace("-", " ") for item in (vendor.categories or [])}:
+                    category = next(item for item in (vendor.categories or []) if item.lower().replace("-", " ") == category.lower().replace("-", " "))
+            service.category = category
         if "thumbnail" in request.FILES:
             service.thumbnail = request.FILES["thumbnail"]
         try:
@@ -338,8 +291,6 @@ class VendorServicesAPI(APIView):
             service.save()
         except Exception as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
-        for file in request.FILES.getlist("gallery"):
-            ServiceGallery.objects.create(service=service, image=file)
         return Response(ServiceSerializer(service).data)
 
     def delete(self, request, sid):
@@ -359,7 +310,7 @@ class VendorBookingsAPI(APIView):
         if error is not None:
             return error
         bookings = Booking.objects.filter(service__vendor=vendor).select_related(
-            "customer", "service", "service__category"
+            "customer", "service"
         ).order_by("-scheduled_date", "-scheduled_time", "-date")
         booking_status = request.query_params.get("booking_status")
         if booking_status and booking_status != "All":
@@ -382,6 +333,12 @@ class VendorBookingsAPI(APIView):
         elif action == "decline" and booking.booking_status in {"Pending", "Confirmed"}:
             booking.booking_status = "Declined"
             booking.decline_reason = request.data.get("decline_reason", "")
+            create_user_notification(
+                booking.customer,
+                f"Your booking request for {booking.service.title} was declined by the vendor{f'. Reason: {booking.decline_reason}' if booking.decline_reason else '.'}",
+                notification_type="Booking",
+                booking=booking,
+            )
         elif action == "complete" and booking.booking_status == "Confirmed":
             booking.booking_status = "Completed"
             create_user_notification(
@@ -475,38 +432,6 @@ class VendorDashboardAPI(APIView):
                 {"label": item["booking_status"], "value": item["total"]}
                 for item in status_data
             ],
-        })
-
-
-class VendorAnalyticsAPI(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        vendor, error = require_vendor(request)
-        if error is not None:
-            return error
-        try:
-            days = int(request.query_params.get("days", 30))
-        except (TypeError, ValueError):
-            days = 30
-        days = days if days in {7, 30, 180} else 30
-        start = timezone.localdate() - timedelta(days=days - 1)
-        bookings = Booking.objects.filter(service__vendor=vendor, scheduled_date__gte=start)
-        booking_rows = {
-            row["scheduled_date"]: row["count"]
-            for row in bookings.values("scheduled_date").annotate(count=Count("id")).order_by("scheduled_date")
-        }
-        earnings_rows = {
-            row["scheduled_date"]: float(row["amount"] or 0)
-            for row in bookings.filter(payment_status="Paid", booking_status="Completed")
-            .values("scheduled_date")
-            .annotate(amount=Sum("vendor_amount"))
-        }
-        dates = [timezone.localdate() - timedelta(days=index) for index in range(days)]
-        return Response({
-            "period_days": days,
-            "bookings": [{"date": day.isoformat(), "count": booking_rows.get(day, 0)} for day in dates],
-            "earnings": [{"date": day.isoformat(), "amount": earnings_rows.get(day, 0)} for day in dates],
         })
 
 
@@ -655,6 +580,14 @@ class VendorProfileAPI(APIView):
     def patch(self, request):
         vendor = current_vendor(request)
         resubmitting = vendor.verification_status == "Rejected"
+        store_name = (request.data.get("store_name") or vendor.store_name or "").strip()
+        document = request.FILES.get("document")
+        if not store_name:
+            return Response({"store_name": ["Store name is required."]}, status=status.HTTP_400_BAD_REQUEST)
+        has_real_document = vendor.document and vendor.document.name != "default-document.jpg"
+        if not vendor.is_verified and not document and not has_real_document:
+            return Response({"document": ["Verification certificate is required."]}, status=status.HTTP_400_BAD_REQUEST)
+        vendor.store_name = store_name
         for field in ("store_name", "description", "email", "country", "city"):
             if field in request.data:
                 setattr(vendor, field, request.data[field])
@@ -720,7 +653,6 @@ class VendorVerificationAPI(APIView):
                 vendor.user,
                 "Your vendor profile has been approved. You can now publish services and receive bookings.",
                 notification_type="General",
-                title="Vendor approved",
             )
         elif action in ["reject", "decline", "deny"]:
             vendor.is_verified = False
@@ -730,7 +662,6 @@ class VendorVerificationAPI(APIView):
                 vendor.user,
                 "Your vendor verification was rejected. Please fill in the vendor profile form again, upload the corrected certificate, and submit it for review.",
                 notification_type="General",
-                title="Verification rejected",
             )
         else:
             return Response({"error": "action must be verify or reject."}, status=status.HTTP_400_BAD_REQUEST)
@@ -753,7 +684,7 @@ class BookingsAPI(APIView):
             return error
         if bid is not None:
             return Response({"detail": "Use POST to cancel a booking."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        bookings = Booking.objects.filter(customer=request.user).select_related("customer", "service", "service__vendor", "service__category").order_by("-scheduled_date", "-scheduled_time", "-date")
+        bookings = Booking.objects.filter(customer=request.user).select_related("customer", "service", "service__vendor").order_by("-scheduled_date", "-scheduled_time", "-date")
         booking_status = request.query_params.get("booking_status")
         if booking_status and booking_status != "All":
             bookings = bookings.filter(booking_status=booking_status)
@@ -818,8 +749,9 @@ class ReviewsAPI(APIView):
             bid=request.data.get("booking"),
             customer=request.user,
             service=service,
-            booking_status="Completed",
         )
+        if booking.booking_status not in {"Completed", "Confirmed"}:
+            return Response({"detail": "Only completed or confirmed bookings can be reviewed."}, status=status.HTTP_400_BAD_REQUEST)
         if ServiceReview.objects.filter(booking=booking).exists():
             return Response({"detail": "This booking has already been reviewed."}, status=status.HTTP_400_BAD_REQUEST)
         review = ServiceReview.objects.create(
@@ -841,37 +773,33 @@ class MyReviewsAPI(APIView):
         return Response(ServiceReviewSerializer(reviews, many=True).data)
 
 
-def create_user_notification(user, message, notification_type="General", booking=None, title=None):
+def create_user_notification(user, message, notification_type="General", booking=None):
     if user is None:
+        return None
+    if not getattr(user, "is_authenticated", False) and user.pk is None:
         return None
     return Notification.objects.create(
         user=user,
-        booking=booking,
-        type=notification_type,
         message=message,
+        notification_type=notification_type,
+        booking=booking,
     )
 
 
 def create_booking_notification(user, booking, message, *, notification_type="Booking", vendor_type=None):
     if user is None or booking is None:
         return None
+    if not getattr(user, "is_authenticated", False) and user.pk is None:
+        return None
     notification = Notification.objects.create(
         user=user,
-        booking=booking,
-        type=notification_type,
         message=message,
+        notification_type=notification_type,
+        booking=booking,
     )
-
-    if booking.service and booking.service.vendor and booking.service.vendor.user_id == getattr(user, "id", None):
-        try:
-            VendorNotifications.objects.create(
-                user=user,
-                booking=booking,
-                type=vendor_type or "New Order",
-            )
-        except Exception:
-            pass
-
+    if vendor_type:
+        notification.message = f"{vendor_type}: {message}"
+        notification.save(update_fields=["message"])
     return notification
 
 
@@ -879,69 +807,77 @@ class NotificationsAPI(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        notifications = Notification.objects.filter(user=request.user).select_related("user", "booking").order_by("-date")
-        serializer = NotificationSerializer(notifications, many=True)
-        return Response(serializer.data)
+        notifications = Notification.objects.filter(user=request.user).order_by("-created_at")
+        payload = [
+            {
+                "id": item.id,
+                "message": item.message,
+                "notification_type": item.notification_type,
+                "read": item.read,
+                "booking_id": item.booking_id if item.booking else None,
+                "created_at": item.created_at.isoformat() if item.created_at else None,
+            }
+            for item in notifications
+        ]
+        return Response(payload)
 
-    def post(self, request, pk=None):
-        notifications = Notification.objects.filter(user=request.user)
-        if pk is not None:
-            notification = get_object_or_404(notifications, pk=pk)
-            notification.seen = True
-            notification.save(update_fields=["seen"])
-            return Response(NotificationSerializer(notification).data)
-        notifications.update(seen=True)
-        return Response({"detail": "Notifications marked as read."})
-
-
-class CustomerNotificationsAPI(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        notifications = Notification.objects.filter(user=request.user).select_related("user", "booking").order_by("-date")
-        serializer = NotificationSerializer(notifications, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, pk=None):
-        notifications = Notification.objects.filter(user=request.user)
-        if pk is not None:
-            notification = get_object_or_404(notifications, pk=pk)
-            notification.seen = True
-            notification.save(update_fields=["seen"])
-            return Response(NotificationSerializer(notification).data)
-        notifications.update(seen=True)
-        return Response({"detail": "Notifications marked as read."})
+    def patch(self, request, pk=None):
+        if pk is None:
+            pk = request.data.get("id")
+        notification = get_object_or_404(Notification, id=pk, user=request.user)
+        notification.read = request.data.get("read", True)
+        notification.save(update_fields=["read", "updated_at"])
+        return Response({
+            "id": notification.id,
+            "message": notification.message,
+            "notification_type": notification.notification_type,
+            "read": notification.read,
+            "booking_id": notification.booking_id if notification.booking else None,
+            "created_at": notification.created_at.isoformat() if notification.created_at else None,
+        })
 
 
 class CustomerAddressAPI(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        addresses = CustomerAddress.objects.filter(user=request.user).order_by("id")
-        serializer = CustomerAddressSerializer(addresses, many=True)
-        return Response(serializer.data)
+        profile, _ = ProfileModel.objects.get_or_create(user=request.user)
+        return Response([self.as_address(profile)])
 
     def post(self, request):
-        data = request.data.copy()
-        if data.get("title") and not data.get("full_name"):
-            data["full_name"] = data["title"]
-        serializer = CustomerAddressSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save(user=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        profile, _ = ProfileModel.objects.get_or_create(user=request.user)
+        self.update_profile(profile, request.data)
+        return Response(self.as_address(profile), status=status.HTTP_201_CREATED)
 
     def patch(self, request, pk):
-        address = get_object_or_404(CustomerAddress, pk=pk, user=request.user)
-        serializer = CustomerAddressSerializer(address, data=request.data, partial=True)
-        if serializer.is_valid():
-            return Response(serializer.data if serializer.save() else serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        profile = get_object_or_404(ProfileModel, pk=pk, user=request.user)
+        self.update_profile(profile, request.data)
+        return Response(self.as_address(profile))
 
     def delete(self, request, pk):
-        address = get_object_or_404(CustomerAddress, pk=pk, user=request.user)
-        address.delete()
+        profile = get_object_or_404(ProfileModel, pk=pk, user=request.user)
+        profile.address = ""
+        profile.save(update_fields=["address"])
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @staticmethod
+    def update_profile(profile, data):
+        for field in ("full_name", "mobile", "address"):
+            if field in data:
+                setattr(profile, field, data[field])
+        profile.save(update_fields=["full_name", "mobile", "address"])
+
+    @staticmethod
+    def as_address(profile):
+        return {
+            "id": profile.id,
+            "full_name": profile.full_name,
+            "mobile": profile.mobile,
+            "email": profile.user.email,
+            "country": "",
+            "city": "",
+            "address": profile.address,
+        }
 
 
 class AdminDashboardAPI(APIView):
@@ -1131,7 +1067,6 @@ class CustomerDisputeListCreateAPI(APIView):
         disputes = (
             Dispute.objects.filter(customer=request.user)
             .select_related("vendor", "booking", "booking__service")
-            .prefetch_related("messages", "audit_logs")
             .order_by("-date")
         )
         serializer = DisputeSerializer(disputes, many=True, context={"request": request})
@@ -1201,13 +1136,6 @@ class CustomerDisputeListCreateAPI(APIView):
             dispute.attachment = request.FILES["attachment"]
             dispute.save(update_fields=["attachment"])
 
-        DisputeAuditLog.objects.create(
-            dispute=dispute,
-            changed_by=request.user,
-            action="Dispute created by customer",
-            new_status="Open",
-        )
-
         for admin_user in UserModel.objects.filter(is_staff=True):
             create_user_notification(
                 admin_user,
@@ -1249,45 +1177,6 @@ class CustomerDisputeDetailAPI(APIView):
         return Response(serializer.data)
 
 
-class CustomerDisputeMessageAPI(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, pk):
-        dispute = get_dispute_by_lookup(pk, customer=request.user)
-        if not dispute:
-            return Response({"detail": "Dispute not found."}, status=status.HTTP_404_NOT_FOUND)
-        if dispute.status in ("Resolved", "Rejected", "Closed"):
-            return Response(
-                {"detail": "This dispute is already closed and cannot receive new messages."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        message_text = (request.data.get("message") or "").strip()
-        if not message_text:
-            return Response({"message": ["Message cannot be empty."]}, status=status.HTTP_400_BAD_REQUEST)
-
-        msg = DisputeMessage.objects.create(
-            dispute=dispute,
-            sender=request.user,
-            message=message_text,
-            is_internal=False,
-        )
-
-        if dispute.status == "Waiting for Customer":
-            old_status = dispute.status
-            dispute.status = "Under Review"
-            dispute.save(update_fields=["status", "updated"])
-            DisputeAuditLog.objects.create(
-                dispute=dispute,
-                changed_by=request.user,
-                action="Customer added information",
-                previous_status=old_status,
-                new_status="Under Review",
-            )
-
-        serializer = DisputeMessageSerializer(msg)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
 class VendorDisputeListAPI(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1298,7 +1187,6 @@ class VendorDisputeListAPI(APIView):
         disputes = (
             Dispute.objects.filter(vendor=vendor)
             .select_related("customer", "booking", "booking__service")
-            .prefetch_related("messages")
             .order_by("-date")
         )
         serializer = DisputeSerializer(disputes, many=True, context={"request": request})
@@ -1349,21 +1237,6 @@ class VendorDisputeResponseAPI(APIView):
         dispute.status = "Under Review"
         dispute.save(update_fields=["vendor_response", "vendor_responded_at", "status", "updated"])
 
-        DisputeMessage.objects.create(
-            dispute=dispute,
-            sender=request.user,
-            message=vendor_response_text,
-            is_internal=False,
-        )
-
-        DisputeAuditLog.objects.create(
-            dispute=dispute,
-            changed_by=request.user,
-            action="Vendor submitted response",
-            previous_status=old_status,
-            new_status="Under Review",
-        )
-
         if dispute.customer:
             create_user_notification(
                 dispute.customer,
@@ -1376,39 +1249,10 @@ class VendorDisputeResponseAPI(APIView):
         return Response(serializer.data)
 
 
-class VendorTransactionsAPI(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        vendor = current_vendor(request)
-        if not vendor:
-            return Response({"detail": "Vendor profile not found."}, status=status.HTTP_404_NOT_FOUND)
-
-        transactions = (
-            Booking.objects.filter(
-                service__vendor=vendor,
-                payment_status="Paid",
-            )
-            .select_related("service")
-            .order_by("-date")
-        )
-
-        booking_status_filter = request.query_params.get("booking_status")
-        if booking_status_filter and booking_status_filter != "All":
-            transactions = transactions.filter(booking_status=booking_status_filter)
-
-        serializer = VendorTransactionSerializer(transactions, many=True)
-        return Response(serializer.data)
-
-
 class AdminAnalyticsAPI(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
-        from decimal import Decimal as D
-        from datetime import timedelta
-        from django.db.models.functions import TruncDate
-
         today = timezone.localdate()
         thirty_days_ago = today - timedelta(days=30)
 
@@ -1488,7 +1332,6 @@ class AdminDisputeListAPI(APIView):
         disputes = (
             Dispute.objects.all()
             .select_related("vendor", "booking", "booking__service", "customer", "resolved_by")
-            .prefetch_related("messages", "audit_logs")
             .order_by("-date")
         )
 
@@ -1524,7 +1367,7 @@ class AdminDisputeDetailAPI(APIView):
         dispute = get_object_or_404(
             Dispute.objects.select_related(
                 "vendor", "booking", "booking__service", "customer", "resolved_by"
-            ).prefetch_related("messages", "audit_logs"),
+            ),
             pk=pk,
         )
         serializer = DisputeSerializer(dispute, context={"request": request})
@@ -1559,15 +1402,6 @@ class AdminDisputeDetailAPI(APIView):
             action_parts.append("Admin response updated")
         if "resolution" in request.data:
             action_parts.append("Resolution recorded")
-
-        DisputeAuditLog.objects.create(
-            dispute=dispute,
-            changed_by=request.user,
-            action=" | ".join(action_parts) or "Admin updated dispute",
-            previous_status=old_status,
-            new_status=new_status,
-            comment=request.data.get("admin_response", ""),
-        )
 
         if old_status != new_status and dispute.customer:
             create_user_notification(

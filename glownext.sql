@@ -24,20 +24,11 @@ DROP TABLE IF EXISTS `auth_group`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `auth_group` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(150) NOT NULL,
+  `name` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `auth_group`
---
-
-LOCK TABLES `auth_group` WRITE;
-/*!40000 ALTER TABLE `auth_group` DISABLE KEYS */;
-/*!40000 ALTER TABLE `auth_group` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `auth_group_permissions`
@@ -55,17 +46,8 @@ CREATE TABLE `auth_group_permissions` (
   KEY `auth_group_permissio_permission_id_84c5c92e_fk_auth_perm` (`permission_id`),
   CONSTRAINT `auth_group_permissio_permission_id_84c5c92e_fk_auth_perm` FOREIGN KEY (`permission_id`) REFERENCES `auth_permission` (`id`),
   CONSTRAINT `auth_group_permissions_group_id_b120cbf9_fk_auth_group_id` FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `auth_group_permissions`
---
-
-LOCK TABLES `auth_group_permissions` WRITE;
-/*!40000 ALTER TABLE `auth_group_permissions` DISABLE KEYS */;
-/*!40000 ALTER TABLE `auth_group_permissions` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `auth_permission`
@@ -76,85 +58,14 @@ DROP TABLE IF EXISTS `auth_permission`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `auth_permission` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `content_type_id` int NOT NULL,
-  `codename` varchar(100) NOT NULL,
+  `codename` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `auth_permission_content_type_id_codename_01ab375a_uniq` (`content_type_id`,`codename`),
   CONSTRAINT `auth_permission_content_type_id_2f476e4b_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=105 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `auth_permission`
---
-
-LOCK TABLES `auth_permission` WRITE;
-/*!40000 ALTER TABLE `auth_permission` DISABLE KEYS */;
-INSERT INTO `auth_permission` VALUES (1,'Can add log entry',1,'add_logentry'),(2,'Can change log entry',1,'change_logentry'),(3,'Can delete log entry',1,'delete_logentry'),(4,'Can view log entry',1,'view_logentry'),(5,'Can add permission',3,'add_permission'),(6,'Can change permission',3,'change_permission'),(7,'Can delete permission',3,'delete_permission'),(8,'Can view permission',3,'view_permission'),(9,'Can add group',2,'add_group'),(10,'Can change group',2,'change_group'),(11,'Can delete group',2,'delete_group'),(12,'Can view group',2,'view_group'),(13,'Can add content type',4,'add_contenttype'),(14,'Can change content type',4,'change_contenttype'),(15,'Can delete content type',4,'delete_contenttype'),(16,'Can view content type',4,'view_contenttype'),(17,'Can add session',5,'add_session'),(18,'Can change session',5,'change_session'),(19,'Can delete session',5,'delete_session'),(20,'Can view session',5,'view_session'),(21,'Can add user',7,'add_user'),(22,'Can change user',7,'change_user'),(23,'Can delete user',7,'delete_user'),(24,'Can view user',7,'view_user'),(25,'Can add profile',6,'add_profile'),(26,'Can change profile',6,'change_profile'),(27,'Can delete profile',6,'delete_profile'),(28,'Can view profile',6,'view_profile'),(29,'Can add address',8,'add_address'),(30,'Can change address',8,'change_address'),(31,'Can delete address',8,'delete_address'),(32,'Can view address',8,'view_address'),(33,'Can add notifications',9,'add_notifications'),(34,'Can change notifications',9,'change_notifications'),(35,'Can delete notifications',9,'delete_notifications'),(36,'Can view notifications',9,'view_notifications'),(37,'Can add wishlist',10,'add_wishlist'),(38,'Can change wishlist',10,'change_wishlist'),(39,'Can delete wishlist',10,'delete_wishlist'),(40,'Can view wishlist',10,'view_wishlist'),(41,'Can add notifications',12,'add_notifications'),(42,'Can change notifications',12,'change_notifications'),(43,'Can delete notifications',12,'delete_notifications'),(44,'Can view notifications',12,'view_notifications'),(45,'Can add vendor',14,'add_vendor'),(46,'Can change vendor',14,'change_vendor'),(47,'Can delete vendor',14,'delete_vendor'),(48,'Can view vendor',14,'view_vendor'),(49,'Can add payout',13,'add_payout'),(50,'Can change payout',13,'change_payout'),(51,'Can delete payout',13,'delete_payout'),(52,'Can view payout',13,'view_payout'),(53,'Can add bank account',11,'add_bankaccount'),(54,'Can change bank account',11,'change_bankaccount'),(55,'Can delete bank account',11,'delete_bankaccount'),(56,'Can view bank account',11,'view_bankaccount'),(57,'Can add booking',15,'add_booking'),(58,'Can change booking',15,'change_booking'),(59,'Can delete booking',15,'delete_booking'),(60,'Can view booking',15,'view_booking'),(61,'Can add category',16,'add_category'),(62,'Can change category',16,'change_category'),(63,'Can delete category',16,'delete_category'),(64,'Can view category',16,'view_category'),(65,'Can add notification',17,'add_notification'),(66,'Can change notification',17,'change_notification'),(67,'Can delete notification',17,'delete_notification'),(68,'Can view notification',17,'view_notification'),(69,'Can add service',18,'add_service'),(70,'Can change service',18,'change_service'),(71,'Can delete service',18,'delete_service'),(72,'Can view service',18,'view_service'),(73,'Can add service availability',19,'add_serviceavailability'),(74,'Can change service availability',19,'change_serviceavailability'),(75,'Can delete service availability',19,'delete_serviceavailability'),(76,'Can view service availability',19,'view_serviceavailability'),(77,'Can add service gallery',20,'add_servicegallery'),(78,'Can change service gallery',20,'change_servicegallery'),(79,'Can delete service gallery',20,'delete_servicegallery'),(80,'Can view service gallery',20,'view_servicegallery'),(81,'Can add service review',21,'add_servicereview'),(82,'Can change service review',21,'change_servicereview'),(83,'Can delete service review',21,'delete_servicereview'),(84,'Can view service review',21,'view_servicereview'),(85,'Can add tag',22,'add_tag'),(86,'Can change tag',22,'change_tag'),(87,'Can delete tag',22,'delete_tag'),(88,'Can view tag',22,'view_tag'),(89,'Can add wishlist',23,'add_wishlist'),(90,'Can change wishlist',23,'change_wishlist'),(91,'Can delete wishlist',23,'delete_wishlist'),(92,'Can view wishlist',23,'view_wishlist'),(93,'Can add dispute',24,'add_dispute'),(94,'Can change dispute',24,'change_dispute'),(95,'Can delete dispute',24,'delete_dispute'),(96,'Can view dispute',24,'view_dispute'),(97,'Can add Dispute Audit Log',25,'add_disputeauditlog'),(98,'Can change Dispute Audit Log',25,'change_disputeauditlog'),(99,'Can delete Dispute Audit Log',25,'delete_disputeauditlog'),(100,'Can view Dispute Audit Log',25,'view_disputeauditlog'),(101,'Can add Dispute Message',26,'add_disputemessage'),(102,'Can change Dispute Message',26,'change_disputemessage'),(103,'Can delete Dispute Message',26,'delete_disputemessage'),(104,'Can view Dispute Message',26,'view_disputemessage');
-/*!40000 ALTER TABLE `auth_permission` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `customer_address`
---
-
-DROP TABLE IF EXISTS `customer_address`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `customer_address` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `full_name` varchar(200) DEFAULT NULL,
-  `mobile` varchar(14) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `country` varchar(100) DEFAULT NULL,
-  `city` varchar(100) DEFAULT NULL,
-  `address` varchar(100) DEFAULT NULL,
-  `user_id` bigint DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `customer_address_user_id_a05f8db3_fk_userauth_user_id` (`user_id`),
-  CONSTRAINT `customer_address_user_id_a05f8db3_fk_userauth_user_id` FOREIGN KEY (`user_id`) REFERENCES `userauth_user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `customer_address`
---
-
-LOCK TABLES `customer_address` WRITE;
-/*!40000 ALTER TABLE `customer_address` DISABLE KEYS */;
-INSERT INTO `customer_address` VALUES (1,'customer',NULL,NULL,NULL,NULL,NULL,2),(5,'Test','9828115573','test@gmail.com','Nepal','kathmandu','kathmandu',7);
-/*!40000 ALTER TABLE `customer_address` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `customer_notifications`
---
-
-DROP TABLE IF EXISTS `customer_notifications`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `customer_notifications` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `type` varchar(100) NOT NULL,
-  `seen` tinyint(1) NOT NULL,
-  `date` date NOT NULL,
-  `user_id` bigint DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `customer_notifications_user_id_2fcb37af_fk_userauth_user_id` (`user_id`),
-  CONSTRAINT `customer_notifications_user_id_2fcb37af_fk_userauth_user_id` FOREIGN KEY (`user_id`) REFERENCES `userauth_user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `customer_notifications`
---
-
-LOCK TABLES `customer_notifications` WRITE;
-/*!40000 ALTER TABLE `customer_notifications` DISABLE KEYS */;
-INSERT INTO `customer_notifications` VALUES (1,'Beautician Assigned',1,'2026-09-11',10);
-/*!40000 ALTER TABLE `customer_notifications` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `django_admin_log`
@@ -166,10 +77,10 @@ DROP TABLE IF EXISTS `django_admin_log`;
 CREATE TABLE `django_admin_log` (
   `id` int NOT NULL AUTO_INCREMENT,
   `action_time` datetime(6) NOT NULL,
-  `object_id` longtext,
-  `object_repr` varchar(200) NOT NULL,
+  `object_id` longtext COLLATE utf8mb4_unicode_ci,
+  `object_repr` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
   `action_flag` smallint unsigned NOT NULL,
-  `change_message` longtext NOT NULL,
+  `change_message` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `content_type_id` int DEFAULT NULL,
   `user_id` bigint NOT NULL,
   PRIMARY KEY (`id`),
@@ -178,18 +89,8 @@ CREATE TABLE `django_admin_log` (
   CONSTRAINT `django_admin_log_content_type_id_c4bce8eb_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`),
   CONSTRAINT `django_admin_log_user_id_c564eba6_fk_userauth_user_id` FOREIGN KEY (`user_id`) REFERENCES `userauth_user` (`id`),
   CONSTRAINT `django_admin_log_chk_1` CHECK ((`action_flag` >= 0))
-) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `django_admin_log`
---
-
-LOCK TABLES `django_admin_log` WRITE;
-/*!40000 ALTER TABLE `django_admin_log` DISABLE KEYS */;
-INSERT INTO `django_admin_log` VALUES (1,'2026-08-07 02:18:06.455017','2','customer@gmail.com',1,'[{\"added\": {}}]',7,1),(2,'2026-08-07 02:18:36.927168','1','customer',1,'[{\"added\": {}}]',8,1),(3,'2026-08-07 15:36:01.925881','3','nakaliuser@gmail.com',1,'[{\"added\": {}}]',7,1),(4,'2026-08-07 15:37:03.111444','4','nakaliuser1@gmail.com',1,'[{\"added\": {}}]',7,1),(5,'2026-08-07 15:37:24.234929','3','nakali user',1,'[{\"added\": {}}]',8,1),(6,'2026-08-07 15:40:51.191161','5','nakali2@gmail.com',1,'[{\"added\": {}}]',7,1),(7,'2026-08-07 15:41:33.247011','5','nakali2@gmail.com',2,'[{\"changed\": {\"fields\": [\"User permissions\"]}}]',7,1),(8,'2026-08-07 15:43:43.622977','6','nakalilast@gmail.com',1,'[{\"added\": {}}]',7,1),(9,'2026-08-07 15:48:03.781767','6','nakalilast@gmail.com',3,'',7,1),(10,'2026-08-07 15:48:30.270468','5','nakali2@gmail.com',3,'',7,1),(11,'2026-08-07 15:52:18.344268','7','test@gmail.com',1,'[{\"added\": {}}, {\"added\": {\"name\": \"profile\", \"object\": \"Customer\"}}]',7,1),(12,'2026-08-07 15:52:31.815238','7','test@gmail.com',2,'[]',7,1),(13,'2026-08-07 15:58:07.016869','4','nakaliuser1@gmail.com',3,'',7,1),(14,'2026-08-07 15:58:07.016938','3','nakaliuser@gmail.com',3,'',7,1),(15,'2026-08-07 16:57:18.649786','2','customer@gmail.com',2,'[{\"added\": {\"name\": \"profile\", \"object\": \"customer\"}}]',7,1),(16,'2026-08-07 16:57:58.992837','1','None',1,'[{\"added\": {}}]',14,1),(17,'2026-08-07 16:58:11.934170','1','None',3,'',14,1),(18,'2026-08-10 15:10:37.519982','2','Barber',1,'[{\"added\": {}}]',14,1),(19,'2026-08-10 15:10:50.430359','1','hair cut',1,'[{\"added\": {}}]',16,1),(20,'2026-08-10 15:11:17.027065','1','hair cut',1,'[{\"added\": {}}]',18,1),(21,'2026-08-10 15:15:51.572846','8','vendor2@gmail.com',1,'[{\"added\": {}}]',7,1),(22,'2026-08-10 15:17:00.269634','8','vendor2@gmail.com',2,'[{\"added\": {\"name\": \"profile\", \"object\": \"Vendor\"}}]',7,1),(23,'2026-08-11 03:13:57.932720','5','Test',1,'[{\"added\": {}}]',8,1),(24,'2026-08-11 03:22:47.767244','1','Booking 0949856453 — hair cut',1,'[{\"added\": {}}]',15,1),(25,'2026-08-21 14:47:58.817893','9','vendor3@gmail.com',1,'[{\"added\": {}}, {\"added\": {\"name\": \"profile\", \"object\": \"Vendor\"}}]',7,1),(26,'2026-08-21 14:49:04.234360','3','Tilak Services',1,'[{\"added\": {}}]',14,1),(27,'2026-08-21 14:49:46.390747','2','Bridal Makeup',1,'[{\"added\": {}}]',16,1),(28,'2026-08-21 14:50:02.119654','1','bridalmakeup',1,'[{\"added\": {}}]',22,1),(29,'2026-08-21 14:51:46.507201','2','Bridal Makeup',1,'[{\"added\": {}}, {\"added\": {\"name\": \"service gallery\", \"object\": \"Gallery \\u2014 Bridal Makeup\"}}]',18,1),(30,'2026-08-21 15:20:22.870457','1','hair cut',2,'[{\"changed\": {\"fields\": [\"Description\", \"Thumbnail\"]}}]',18,1),(31,'2026-08-21 15:28:44.157079','1','hair cut',2,'[{\"changed\": {\"fields\": [\"Description\"]}}]',18,1),(32,'2026-08-21 15:50:38.993845','2','Bridal Makeup',2,'[{\"changed\": {\"fields\": [\"Status\"]}}]',18,1),(33,'2026-08-21 15:51:01.633017','2','Bridal Makeup',2,'[{\"changed\": {\"fields\": [\"Status\", \"Featured\"]}}]',18,1),(34,'2026-08-21 15:52:27.828741','1','5★ — Bridal Makeup',1,'[{\"added\": {}}]',21,1),(35,'2026-08-25 15:52:13.586598','2','1★ — Bridal Makeup',1,'[{\"added\": {}}]',21,1),(36,'2026-08-25 15:55:54.541106','3','4★ — Bridal Makeup',1,'[{\"added\": {}}]',21,1),(37,'2026-08-26 02:59:13.258529','10','ananda@gmail.com',1,'[{\"added\": {}}, {\"added\": {\"name\": \"profile\", \"object\": \"Ananda\"}}]',7,1),(38,'2026-08-26 03:00:29.193013','2','Booking 0462575173 — Bridal Makeup',1,'[{\"added\": {}}]',15,1),(39,'2026-08-26 03:02:00.349898','4','4★ — Bridal Makeup',1,'[{\"added\": {}}]',21,1),(40,'2026-08-26 16:13:23.204485','1','Tilak Services',1,'[{\"added\": {}}]',13,1),(41,'2026-09-10 15:58:27.268280','3','Tilak Services',2,'[{\"changed\": {\"fields\": [\"Verification status\"]}}]',14,1),(42,'2026-09-10 15:58:52.822002','3','Tilak Services',2,'[{\"changed\": {\"fields\": [\"Verification status\"]}}]',14,1),(43,'2026-09-10 16:00:23.651153','3','Tilak Services',2,'[{\"changed\": {\"fields\": [\"Verification status\", \"Verified at\"]}}]',14,1),(44,'2026-09-10 16:01:24.512105','3','Tilak Services',2,'[{\"changed\": {\"fields\": [\"Verification status\", \"Is verified\", \"Verified at\"]}}]',14,1),(45,'2026-09-10 16:02:24.820745','2','Barber',2,'[{\"changed\": {\"fields\": [\"Verification status\"]}}]',14,1),(46,'2026-09-10 16:02:35.935062','2','Barber',2,'[{\"changed\": {\"fields\": [\"Is verified\"]}}]',14,1),(47,'2026-09-10 16:02:44.987603','2','Barber',2,'[]',14,1),(48,'2026-09-11 13:19:25.604557','1','Beautician Assigned',1,'[{\"added\": {}}]',12,1),(49,'2026-09-11 13:24:53.957804','1','Beautician Assigned',1,'[{\"added\": {}}]',9,1),(50,'2026-09-18 09:01:57.136272','8','Booking 9948331408 — Bridal Makeup',2,'[{\"changed\": {\"fields\": [\"Booking status\"]}}]',15,1),(51,'2026-09-18 09:04:34.436159','8','Booking 9948331408 — Bridal Makeup',2,'[{\"changed\": {\"fields\": [\"Booking status\"]}}]',15,1),(52,'2026-09-19 15:49:47.104665','3','Tilak Services',2,'[]',14,1),(53,'2026-09-19 16:35:54.135989','4','Vendortest',2,'[{\"changed\": {\"fields\": [\"Verification status\"]}}]',14,1),(54,'2026-09-20 15:37:45.866542','1','Tilak Services',2,'[{\"changed\": {\"fields\": [\"Gross amount\", \"Status\"]}}]',13,1),(55,'2026-09-20 15:45:21.370818','1','Tilak Services',2,'[{\"changed\": {\"fields\": [\"Commission amount\", \"Net amount\"]}}]',13,1),(56,'2026-09-20 16:43:13.827717','2','Payout PO-1488269181 — Tilak Services [Pending]',2,'[]',13,1),(57,'2026-09-20 16:43:21.482960','2','Payout PO-1488269181 — Tilak Services [Paid]',2,'[{\"changed\": {\"fields\": [\"Status\"]}}]',13,1),(58,'2026-09-20 17:58:27.265766','10','Vendor Test',2,'[{\"changed\": {\"fields\": [\"Verification status\"]}}]',14,1),(59,'2026-09-20 17:59:26.113970','10','Vendor Test',2,'[{\"changed\": {\"fields\": [\"Verification status\", \"Is verified\"]}}]',14,1),(60,'2026-09-20 18:01:23.707168','10','Vendor Test',2,'[{\"changed\": {\"fields\": [\"Verification status\"]}}]',14,1),(61,'2026-09-20 18:01:32.170590','10','Vendor Test',2,'[{\"changed\": {\"fields\": [\"Verification status\", \"Is verified\"]}}]',14,1),(62,'2026-09-20 18:17:00.308724','1','Dispute DIS-0902291331 — Service quality issue [Under Review]',2,'[{\"changed\": {\"fields\": [\"Admin response\"]}}]',24,1),(63,'2026-09-20 18:18:18.220242','1','Dispute DIS-0902291331 — Service quality issue [Resolved]',2,'[{\"changed\": {\"fields\": [\"Status\"]}}]',24,1),(64,'2026-09-21 16:55:04.146485','1','Gallery — Bridal Makeup',2,'[{\"changed\": {\"fields\": [\"Image\"]}}]',20,1),(65,'2026-09-21 16:55:50.232967','2','Bridal Makeup',2,'[{\"changed\": {\"fields\": [\"Description\", \"Thumbnail\"]}}]',18,1),(66,'2026-09-21 16:59:03.350647','2','Bridal Makeup',2,'[{\"changed\": {\"fields\": [\"Image\"]}}]',16,1);
-/*!40000 ALTER TABLE `django_admin_log` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `django_content_type`
@@ -200,22 +101,12 @@ DROP TABLE IF EXISTS `django_content_type`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `django_content_type` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `app_label` varchar(100) NOT NULL,
-  `model` varchar(100) NOT NULL,
+  `app_label` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `model` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `django_content_type_app_label_model_76bd3d3b_uniq` (`app_label`,`model`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `django_content_type`
---
-
-LOCK TABLES `django_content_type` WRITE;
-/*!40000 ALTER TABLE `django_content_type` DISABLE KEYS */;
-INSERT INTO `django_content_type` VALUES (1,'admin','logentry'),(2,'auth','group'),(3,'auth','permission'),(4,'contenttypes','contenttype'),(8,'customer','address'),(9,'customer','notifications'),(10,'customer','wishlist'),(5,'sessions','session'),(15,'store','booking'),(16,'store','category'),(17,'store','notification'),(18,'store','service'),(19,'store','serviceavailability'),(20,'store','servicegallery'),(21,'store','servicereview'),(22,'store','tag'),(23,'store','wishlist'),(6,'userauth','profile'),(7,'userauth','user'),(11,'vendor','bankaccount'),(24,'vendor','dispute'),(25,'vendor','disputeauditlog'),(26,'vendor','disputemessage'),(12,'vendor','notifications'),(13,'vendor','payout'),(14,'vendor','vendor');
-/*!40000 ALTER TABLE `django_content_type` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `django_migrations`
@@ -226,22 +117,12 @@ DROP TABLE IF EXISTS `django_migrations`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `django_migrations` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `app` varchar(255) NOT NULL,
-  `name` varchar(255) NOT NULL,
+  `app` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `applied` datetime(6) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `django_migrations`
---
-
-LOCK TABLES `django_migrations` WRITE;
-/*!40000 ALTER TABLE `django_migrations` DISABLE KEYS */;
-INSERT INTO `django_migrations` VALUES (1,'contenttypes','0001_initial','2026-08-06 15:14:13.954421'),(2,'contenttypes','0002_remove_content_type_name','2026-08-06 15:14:14.093969'),(3,'auth','0001_initial','2026-08-06 15:14:14.507938'),(4,'auth','0002_alter_permission_name_max_length','2026-08-06 15:14:14.604766'),(5,'auth','0003_alter_user_email_max_length','2026-08-06 15:14:14.617441'),(6,'auth','0004_alter_user_username_opts','2026-08-06 15:14:14.631537'),(7,'auth','0005_alter_user_last_login_null','2026-08-06 15:14:14.648135'),(8,'auth','0006_require_contenttypes_0002','2026-08-06 15:14:14.656281'),(9,'auth','0007_alter_validators_add_error_messages','2026-08-06 15:14:14.676442'),(10,'auth','0008_alter_user_username_max_length','2026-08-06 15:14:14.698319'),(11,'auth','0009_alter_user_last_name_max_length','2026-08-06 15:14:14.717602'),(12,'auth','0010_alter_group_name_max_length','2026-08-06 15:14:14.758516'),(13,'auth','0011_update_proxy_permissions','2026-08-06 15:14:14.779637'),(14,'auth','0012_alter_user_first_name_max_length','2026-08-06 15:14:14.795468'),(15,'userauth','0001_initial','2026-08-06 15:14:15.420942'),(16,'admin','0001_initial','2026-08-06 15:14:15.655335'),(17,'admin','0002_logentry_remove_auto_add','2026-08-06 15:14:15.674923'),(18,'admin','0003_logentry_add_action_flag_choices','2026-08-06 15:14:15.694625'),(19,'store','0001_initial','2026-08-06 15:14:16.029645'),(20,'customer','0001_initial','2026-08-06 15:14:16.114408'),(21,'customer','0002_initial','2026-08-06 15:14:16.506587'),(22,'sessions','0001_initial','2026-08-06 15:14:16.565136'),(23,'vendor','0001_initial','2026-08-06 15:14:17.318194'),(24,'store','0002_initial','2026-08-06 15:14:19.341353'),(25,'customer','0003_alter_wishlist_options_alter_wishlist_service','2026-08-07 16:55:29.419308'),(26,'userauth','0002_alter_profile_user_alter_profile_user_type','2026-08-07 16:55:29.461498'),(27,'customer','0004_alter_address_options','2026-08-21 15:56:57.331270'),(28,'vendor','0002_alter_vendor_vendor_id','2026-08-21 16:20:20.416792'),(29,'userauth','0003_remove_profile_image_profile_address_profile_profile_and_more','2026-08-26 15:47:05.557976'),(30,'userauth','0004_rename_profile_profile_photo','2026-08-26 15:47:05.591221'),(31,'userauth','0005_rename_photo_profile_image','2026-08-26 15:47:05.631723'),(32,'vendor','0003_vendor_is_verified_vendor_verification_status_and_more','2026-09-10 15:45:16.418413'),(33,'customer','0005_delete_wishlist','2026-09-19 19:51:54.521553'),(34,'store','0003_booking_finance_fields','2026-09-19 19:51:55.080077'),(35,'store','0004_delete_wishlist','2026-09-19 19:51:55.118743'),(36,'vendor','0004_payout_commission_amount_payout_gross_amount_and_more','2026-09-19 19:51:55.670146'),(37,'vendor','0005_alter_dispute_options_dispute_admin_response_and_more','2026-09-20 15:30:12.267879'),(38,'vendor','0006_alter_payout_options_payout_admin_note_payout_amount_and_more','2026-09-20 15:48:27.491902'),(39,'store','0005_service_duration_minutes','2026-09-20 17:08:24.213496'),(40,'store','0006_remove_service_featured_and_discount_price','2026-09-21 17:15:32.175144'),(41,'store','0007_delete_serviceavailability','2026-09-21 17:28:55.443805'),(42,'store','0008_remove_service_tags_delete_tag','2026-09-21 17:44:32.814482'),(43,'vendor','0007_alter_dispute_reason','2026-09-23 15:07:38.153777');
-/*!40000 ALTER TABLE `django_migrations` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `django_session`
@@ -251,23 +132,13 @@ DROP TABLE IF EXISTS `django_session`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `django_session` (
-  `session_key` varchar(40) NOT NULL,
-  `session_data` longtext NOT NULL,
+  `session_key` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `session_data` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `expire_date` datetime(6) NOT NULL,
   PRIMARY KEY (`session_key`),
   KEY `django_session_expire_date_a5c62663` (`expire_date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `django_session`
---
-
-LOCK TABLES `django_session` WRITE;
-/*!40000 ALTER TABLE `django_session` DISABLE KEYS */;
-INSERT INTO `django_session` VALUES ('0v6blxi7808omp6q51az2j4ktcyljeg5','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8LRH:oB3-cxNoRf6p1mL9Czr-XATA1pu4dbfRuggGm8DbEvg','2026-10-04 17:34:55.600275'),('1x11atcwxqhl3jp6c7o0y4ydpdj6tz8q','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8LDp:4MFecSgJ9JS8HEinumMnSfF-ZdONAd3U7dEJWOInY1g','2026-10-04 17:21:01.428750'),('33iam3rjeaqpfw7h3pq6s96hpuf3575h','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1wytLO:nhC--YMnp9aUUP40mGB9d_60FGlJGcuiczsAAqdJUxY','2026-09-08 15:45:46.088497'),('36thwqx2vq25j7fgkqqal6xj418dr4gz','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8LNZ:21ZG8_C7KZfMsHNBaRHRv75tVBInT7pWZudkYcKqNr4','2026-10-04 17:31:05.891406'),('4os9wpi3j8vo94mmmpblnpkb495nqmov','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8Ltu:A9dgYnRRX-258KvTArsMfunsWMuWPvZg8_Ag27rfqM8','2026-10-04 18:04:30.714110'),('6adavvr0zbibpf8e27rbpe8a2ev64n4s','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8LdE:OMU2GngW6SrpB7wAQVJinSTNosdEtNQC1-HK1jOKDNQ','2026-10-04 17:47:16.293374'),('91uhuid3xnu7ffe5yar4bbjcq4wmpxkc','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8LEh:3HVhTO6WwMwuNPSEgnPgTvFzV3TgA5hil2RDRSEAAIE','2026-10-04 17:21:55.164179'),('b4utnhkcybfzlqe6fsmwujfwiez5qedp','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8Lap:JSxT8UESWqxgxGZSraN9XgRDMfIpSBlT7FqjrmAeAZM','2026-10-04 17:44:47.468090'),('byvl2v84x2u9aqtr2qi0od28g3uz8vo7','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8iK3:kRCs4GwQxi5pTx6AO2UQfg3FeMy_oYttJkps0gbvNbA','2026-10-05 18:00:59.058653'),('ezxuifw0hzc0bnfkt5iqmqwycydaga27','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8LXN:IwJtAus_DHV1UZdbllNu3FbEXl16uc7tb3OfBjRM9Fc','2026-10-04 17:41:13.159709'),('g5nfjmbaab7bddtc7t069q0azg1igfc3','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8iDT:bNKjEjs1S9vFITIzQYsXsDUJFaMgfe4G5eMlhY44-Vk','2026-10-05 17:54:11.436546'),('gnkegxoyt8ftqnxvcm9spg1v9snaeoy0','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8Lic:Xyb-QuwoHqi6QWvv6NxTwLCfCL9UAbUbjcYQbYsyX8U','2026-10-04 17:52:50.334984'),('haahmwwim9fmn8lbq461y8mjpmvc6c9o','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8oZG:NjgiYO1FYNgeMLSKNPzQ9eIs3-u3e-yqvKAc4jiky40','2026-10-06 00:41:06.285705'),('k67gn3pop8z8ohajtwrvmm5k3m4ys7z2','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8iKN:j9P7pSVUa_X8oXUmqMQN76U2GJMcXsC2FaC6i0Z3GOM','2026-10-05 18:01:19.889799'),('lsn3xq2y5j7jf19a6zqy99nbqv5qehwh','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8LdS:Gpt_c09r2fmSxPJ-siQ5VumzreJHoEHHIfMmxiLFMkk','2026-10-04 17:47:30.280976'),('ogtb9v7hqm0v8cmgl8y4gzyarc6xmkxh','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8iJ9:jgCev9vv3z3C9usG0oELTAwi4-NOphhJKW9g0EFWumY','2026-10-05 18:00:03.213550'),('oisagy7uf26xd7g4cp11m2kngwegqexx','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8iFe:fHcr-rOv5J9fwKMllklV9p9DKGcLVffKxRBpFf7YQQo','2026-10-05 17:56:26.103906'),('ox28cy416nm2itqh6x01wqk7gzut3a3q','.eJxVjDEOgzAMAP_iuYqAJA5h7N43RLZxGtoKJAJT1b9XSAztene6NyTat5L2qmuaRhigtXD5hUzy1Pkw44Pm-2Jkmbd1YnMk5rTV3JZRX9ez_RsUqgUGcBK63jorwtZr5hiYg0cR12VsfAzoOsoNRh-sWGpQM5IPqi72LbKDzxcAeje6:1x8pMR:DRI8A3OIIpMC4BoJzQHonLzXwRuZ5JmLkwceCvuxlNo','2026-10-06 01:31:55.138329'),('pakpp3neaibzd26th9ir536ewsocpf95','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8LLU:FwpsVe9ozM9bqgMBKNEVUVNexsS-UFqCX1Lw0YjiVmo','2026-10-04 17:28:56.039249'),('povuz33eqjxlhdae7eplr7bb16vvqpaj','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8iOv:G16_OypHtP2CB_fohpLqToP3CRigrrG_8jR1ovGWtjE','2026-10-05 18:06:01.946515'),('ppa5u9u2rdgujso04cadn2je9kxw9a4f','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8Lqg:tUTjK8XfT7xle2izq25ggKxApYdEwKDaat9BCvf0CbE','2026-10-04 18:01:10.733261'),('q4216lhmzxqfiwiyxbad58dm7ldxrp7j','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8LhM:wKecSxvy_8Xeg6d7hFRFOMCmPnUeyxhGodFCqASaaFA','2026-10-04 17:51:32.894992'),('qx4ejjkou4zdecwq41jxygki9pfuh1au','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8LoP:jEQabADJhj2JFivcmTIvJf4dF98Qe45D1Ut70J2_maE','2026-10-04 17:58:49.154912'),('symwbqfbwggdwbm7nv002oa18cxjwh1g','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8LLK:tj8b5l5rTeRduYc3A9HUJhokjKh28wpFq_uHY3uVYbk','2026-10-04 17:28:46.334813'),('ww1lrkspcjk6li9tmqxtilcmm1taxr95','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1wsNrz:ezLKJy0fuMpez0TiXTpqxBvOMZN07BLUhu77zE9LA00','2026-08-21 16:56:31.248035'),('wz81nkb4ifdccel8k8qayg18737p7v6c','.eJxVjDsOAiEUAO9CbQj_j6X9noE84CGrBpJltzLe3ZBsoe3MZN4kwLHXcAzcwprJlXhy-WUR0hPbFPkB7d5p6m3f1khnQk876NIzvm5n-zeoMOrcGqaE9sxnnZSOiSmMNkvriuZeFiEddyKD8AVtAgNcInKUiEKzZBSSzxfLYTew:1x8iPE:7G0z3J4_9jLke5Ayg9UkTprgpi9WslvHKDHWyJvh33U','2026-10-05 18:06:20.413793'),('x59bxkwk9hkrc0e9ts9kv9og3ygxrc11','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8LGm:uiCsZ7hw0zZM43ebnmvJTY8D4zGkbWGJMlToeQDyDWU','2026-10-04 17:24:04.813150'),('xszl7uhul38iynenurqr9334hghx2p0b','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8i72:iRwsZ1CSYpSU7JAiYnC0TWvxIZFjzMWEdpStVTI_2QQ','2026-10-05 17:47:32.099638'),('ya156iaxuji2ewuns3zy6wfffmfxdqs0','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8LUR:SVkxVn7ybO3vwcTQvQtX11urqWNNz7A406Z4F3ZCsMQ','2026-10-04 17:38:11.488440'),('zc8k2xkmxhcfx6xzvpl8e74h3pklnyrg','.eJxVjLsOwjAMAP_FM4ritHWdjux8Q2XHES2gROpjQvw7qtQB1rvTvWGUfZvGfc3LOBsMgHD5ZSrpmcsh7CHlXl2qZVtmdUfiTru6W7X8up7t32CSdYIBOgshEvnITa-k3KJyRi9REwlJw0xIoU3oUaIGTGxdb33O3jM1ovD5ArkUNww:1x8i7F:3MQkMHjEmOZ_VVmJuktox_SyMrnIsc3isDUI__pYyL4','2026-10-05 17:47:45.574188');
-/*!40000 ALTER TABLE `django_session` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `store_booking`
@@ -278,19 +149,19 @@ DROP TABLE IF EXISTS `store_booking`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `store_booking` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `bid` varchar(20) NOT NULL,
-  `service_type` varchar(10) NOT NULL,
-  `address` longtext,
+  `bid` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `service_type` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `address` longtext COLLATE utf8mb4_unicode_ci,
   `scheduled_date` date NOT NULL,
   `scheduled_time` time(6) NOT NULL,
-  `note` longtext,
-  `booking_status` varchar(20) NOT NULL,
-  `decline_reason` longtext,
-  `payment_method` varchar(20) NOT NULL,
-  `payment_status` varchar(20) NOT NULL,
+  `note` longtext COLLATE utf8mb4_unicode_ci,
+  `booking_status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `decline_reason` longtext COLLATE utf8mb4_unicode_ci,
+  `payment_method` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payment_status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   `total` decimal(8,2) NOT NULL,
-  `khalti_pidx` varchar(200) DEFAULT NULL,
-  `khalti_txn_id` varchar(200) DEFAULT NULL,
+  `khalti_pidx` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `khalti_txn_id` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `date` datetime(6) NOT NULL,
   `updated` datetime(6) NOT NULL,
   `customer_id` bigint DEFAULT NULL,
@@ -304,80 +175,8 @@ CREATE TABLE `store_booking` (
   KEY `store_booking_service_id_2db1e59f_fk_store_service_id` (`service_id`),
   CONSTRAINT `store_booking_customer_id_e95ed499_fk_userauth_user_id` FOREIGN KEY (`customer_id`) REFERENCES `userauth_user` (`id`),
   CONSTRAINT `store_booking_service_id_2db1e59f_fk_store_service_id` FOREIGN KEY (`service_id`) REFERENCES `store_service` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `store_booking`
---
-
-LOCK TABLES `store_booking` WRITE;
-/*!40000 ALTER TABLE `store_booking` DISABLE KEYS */;
-INSERT INTO `store_booking` VALUES (1,'0949856453','Home','ratopul','2026-08-04','00:00:00.000000','','Pending','','Khalti','Processing',799.00,NULL,NULL,'2026-08-11 03:22:47.743450','2026-08-11 03:22:47.763346',7,1,10.00,79.90,719.10),(2,'0462575173','Home','swyombhu','2026-08-26','12:00:00.000000','please send handsome men','Completed','','Khalti','Processing',799.00,NULL,NULL,'2026-08-26 03:00:29.167088','2026-09-18 10:00:57.641157',10,2,10.00,79.90,719.10),(4,'5410489237','Home','RATOPUL, KATHMANDU','2026-09-20','10:00:00.000000','','Cancelled',NULL,'Khalti','Processing',0.00,NULL,NULL,'2026-09-18 07:53:57.941897','2026-09-18 08:04:58.094283',13,1,10.00,0.00,0.00),(5,'0182385589','Home','RATOPUL, KATHMANDU','2026-09-28','10:00:00.000000','','Cancelled',NULL,'Khalti','Paid',7899.00,'nYR3b484kKaNAATPah4rwS',NULL,'2026-09-18 08:19:33.695338','2026-09-18 08:57:41.730250',13,2,10.00,789.90,7109.10),(6,'5465965938','Home','RATOPUL, KATHMANDU','2026-09-25','10:00:00.000000','','Cancelled',NULL,'Khalti','Paid',799.00,'ngZ5Gt5vUhupGTZjc53Syz',NULL,'2026-09-18 08:29:13.163023','2026-09-18 08:30:10.278773',14,1,10.00,79.90,719.10),(7,'6899002428','Home','RATOPUL, KATHMANDU','2026-09-19','22:03:00.000000','','Declined','Declined by vendor','Khalti','Processing',7899.00,'DKYy4dZmfT3AHGSJiB2Xcy',NULL,'2026-09-18 08:59:03.668699','2026-09-18 10:00:51.116612',13,2,10.00,789.90,7109.10),(8,'9948331408','Home','RATOPUL, KATHMANDU','2026-09-19','22:03:00.000000','','Completed','','Khalti','Paid',7899.00,'SB2Jmi7mWuCzgnRgCv9beW',NULL,'2026-09-18 09:00:41.897385','2026-09-18 09:04:34.434173',13,2,10.00,789.90,7109.10),(9,'2599753295','Home','house no.12, kalanki, kathmandu','2026-09-17','09:00:00.000000','i have sensitive skin. i want light makeup. i\'d prefer if you could use my makeup','Completed',NULL,'Khalti','Processing',7899.00,'XWZLAiCh7XqTVAtZqr8kJP',NULL,'2026-09-19 15:07:12.830459','2026-09-19 15:10:25.620658',22,2,10.00,789.90,7109.10),(10,'7166644098','Home','house no.12, kalanki, kathmandu','2026-09-21','10:00:00.000000','','Pending',NULL,'Khalti','Processing',799.00,'YRQAS9pEudK4eFiA2fg3KJ',NULL,'2026-09-19 15:16:18.793299','2026-09-19 15:16:18.793933',22,1,10.00,79.90,719.10),(11,'8225164967','Home','RATOPUL, KATHMANDU','2026-09-19','10:00:00.000000','bring nice girls','Completed',NULL,'Khalti','Paid',7899.00,'GzwusBvVPTMSjnTMtRSk4j',NULL,'2026-09-19 16:32:40.864933','2026-09-19 16:33:39.794532',13,2,10.00,789.90,7109.10),(12,'4760351159','Home','RATOPUL, KATHMANDU','2026-09-28','10:00:00.000000','','Completed',NULL,'Khalti','Processing',7899.00,'ntcUes8DU7UBsGFTBRoSM7',NULL,'2026-09-20 01:15:48.975888','2026-09-20 18:12:17.894838',13,2,10.00,789.90,7109.10),(13,'5782404981','Home','RATOPUL, KATHMANDU','2026-09-21','03:03:00.000000','','Completed',NULL,'Khalti','Paid',7899.00,'U6QDHwWdKy3sKXfoPniXYW',NULL,'2026-09-20 16:44:36.934721','2026-09-20 18:12:24.650137',13,2,10.00,789.90,7109.10),(14,'5649713221','Home','RATOPUL, KATHMANDU','2026-09-21','16:53:00.000000','','Pending',NULL,'Khalti','Paid',799.00,'YhA8mr5dS9AH2uX8Tmy2PJ',NULL,'2026-09-20 18:09:26.399945','2026-09-20 18:09:44.267075',13,1,10.00,79.90,719.10),(15,'7414916049','Store','','2026-10-02','10:00:00.000000','','Pending',NULL,'COD','Processing',799.00,NULL,NULL,'2026-09-20 18:10:11.110658','2026-09-20 18:10:11.111356',13,1,10.00,79.90,719.10),(16,'4483626937','Store','','2026-09-25','10:00:00.000000','','Completed',NULL,'COD','Paid',7899.00,NULL,NULL,'2026-09-20 18:11:37.700873','2026-09-20 18:13:21.290287',13,2,10.00,789.90,7109.10);
-/*!40000 ALTER TABLE `store_booking` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `store_category`
---
-
-DROP TABLE IF EXISTS `store_category`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `store_category` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) NOT NULL,
-  `image` varchar(100) DEFAULT NULL,
-  `slug` varchar(50) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `slug` (`slug`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `store_category`
---
-
-LOCK TABLES `store_category` WRITE;
-/*!40000 ALTER TABLE `store_category` DISABLE KEYS */;
-INSERT INTO `store_category` VALUES (1,'hair cut','','hair-cut'),(2,'Bridal Makeup','category/download_LpMfiWq.png','bridal-makeup');
-/*!40000 ALTER TABLE `store_category` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `store_notification`
---
-
-DROP TABLE IF EXISTS `store_notification`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `store_notification` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `nid` varchar(20) NOT NULL,
-  `type` varchar(20) NOT NULL,
-  `message` longtext NOT NULL,
-  `seen` tinyint(1) NOT NULL,
-  `date` datetime(6) NOT NULL,
-  `booking_id` bigint DEFAULT NULL,
-  `user_id` bigint NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `nid` (`nid`),
-  KEY `store_notification_booking_id_42257a0e_fk_store_booking_id` (`booking_id`),
-  KEY `store_notification_user_id_19e577b8_fk_userauth_user_id` (`user_id`),
-  CONSTRAINT `store_notification_booking_id_42257a0e_fk_store_booking_id` FOREIGN KEY (`booking_id`) REFERENCES `store_booking` (`id`),
-  CONSTRAINT `store_notification_user_id_19e577b8_fk_userauth_user_id` FOREIGN KEY (`user_id`) REFERENCES `userauth_user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `store_notification`
---
-
-LOCK TABLES `store_notification` WRITE;
-/*!40000 ALTER TABLE `store_notification` DISABLE KEYS */;
-INSERT INTO `store_notification` VALUES (1,'1970957253','Booking','New booking received for Bridal Makeup. Please confirm the appointment.',1,'2026-09-20 01:15:48.996979',12,9),(2,'7825019427','General','New payout request of Rs. 21327.00 from Tilak Services (ID: PO-1488269181).',0,'2026-09-20 16:28:36.519950',NULL,1),(3,'2207631813','Booking','New booking received for Bridal Makeup. Please confirm the appointment.',1,'2026-09-20 16:44:36.956537',13,9),(4,'8866865438','Payment','Your payment of Rs. 7899.00 for Bridal Makeup was successful. Booking ID: 5782404981.',0,'2026-09-20 16:44:54.646148',13,13),(5,'1885082172','Payment','Payment received for booking 5782404981. Your earnings are Rs. 7109.10.',1,'2026-09-20 16:44:54.656684',13,9),(6,'2113306214','Booking','Your beautician has been assigned for Bridal Makeup. Your booking is confirmed.',0,'2026-09-20 16:45:28.233582',12,13),(7,'1369217231','Booking','New booking received for hair cut. Please confirm the appointment.',0,'2026-09-20 18:09:26.422163',14,2),(8,'6368919359','Payment','Your payment of Rs. 799.00 for hair cut was successful. Booking ID: 5649713221.',0,'2026-09-20 18:09:44.284658',14,13),(9,'7047804667','Payment','Payment received for booking 5649713221. Your earnings are Rs. 719.10.',0,'2026-09-20 18:09:44.294831',14,2),(10,'2976674846','Booking','New booking received for hair cut. Please confirm the appointment.',0,'2026-09-20 18:10:11.130831',15,2),(11,'9081571189','Booking','New booking received for Bridal Makeup. Please confirm the appointment.',0,'2026-09-20 18:11:37.720264',16,9),(12,'4770322931','Booking','Your service for booking 4760351159 has been completed. Please confirm your cash payment.',0,'2026-09-20 18:12:17.883971',12,13),(13,'1245375690','Booking','Your beautician has been assigned for Bridal Makeup. Your booking is confirmed.',0,'2026-09-20 18:12:20.763021',16,13),(14,'9121822100','Booking','Your service for booking 4483626937 has been completed. Please confirm your cash payment.',1,'2026-09-20 18:12:22.335384',16,13),(15,'0299682603','Booking','Your beautician has been assigned for Bridal Makeup. Your booking is confirmed.',0,'2026-09-20 18:12:23.516743',13,13),(16,'7871180219','Booking','Your service for booking 5782404981 has been completed. Please confirm your cash payment.',1,'2026-09-20 18:12:24.639922',13,13),(17,'5759996495','Payment','Your cash payment of Rs. 7899.00 for booking 4483626937 was recorded successfully.',0,'2026-09-20 18:13:21.294206',16,13),(18,'6239067902','Payment','Customer confirmed cash payment for booking 4483626937. Amount: Rs. 7899.00. GlowNext commission: Rs. 789.90. Your earnings: Rs. 7109.10.',0,'2026-09-20 18:13:21.296873',16,9),(19,'9651349049','General','New dispute raised by finaltest@gmail.com for booking 4483626937. Reason: Service quality issue.',0,'2026-09-20 18:13:47.735047',NULL,1),(20,'4614210953','General','A customer has raised a dispute for booking 4483626937 (Bridal Makeup). Reason: Service quality issue. Please check your dispute panel.',0,'2026-09-20 18:13:47.743449',NULL,9),(21,'7858545764','General','The vendor has responded to your dispute (ID: DIS-0902291331). Admin is reviewing the case.',1,'2026-09-20 18:14:56.711944',NULL,13);
-/*!40000 ALTER TABLE `store_notification` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `store_service`
@@ -388,70 +187,27 @@ DROP TABLE IF EXISTS `store_service`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `store_service` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `sid` varchar(20) NOT NULL,
-  `title` varchar(255) NOT NULL,
-  `description` longtext,
-  `slug` varchar(50) NOT NULL,
+  `sid` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` longtext COLLATE utf8mb4_unicode_ci,
+  `slug` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `price` decimal(8,2) NOT NULL,
-  `service_type` varchar(10) NOT NULL,
-  `thumbnail` varchar(100) DEFAULT NULL,
-  `status` varchar(20) NOT NULL,
+  `service_type` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `thumbnail` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   `date` datetime(6) NOT NULL,
   `updated` datetime(6) NOT NULL,
-  `category_id` bigint DEFAULT NULL,
+  `category` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `vendor_id` bigint NOT NULL,
   `duration_minutes` int unsigned NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `sid` (`sid`),
   UNIQUE KEY `slug` (`slug`),
-  KEY `store_service_category_id_7ea1b32f_fk_store_category_id` (`category_id`),
   KEY `store_service_vendor_id_43b32b3d_fk_vendor_vendor_id` (`vendor_id`),
-  CONSTRAINT `store_service_category_id_7ea1b32f_fk_store_category_id` FOREIGN KEY (`category_id`) REFERENCES `store_category` (`id`),
   CONSTRAINT `store_service_vendor_id_43b32b3d_fk_vendor_vendor_id` FOREIGN KEY (`vendor_id`) REFERENCES `vendor_vendor` (`id`),
   CONSTRAINT `store_service_chk_1` CHECK ((`duration_minutes` >= 0))
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `store_service`
---
-
-LOCK TABLES `store_service` WRITE;
-/*!40000 ALTER TABLE `store_service` DISABLE KEYS */;
-INSERT INTO `store_service` VALUES (1,'6906949140','hair cut','<p>Best haircut in town</p>','hair-cut',799.00,'Both','service/thumbnail/client-doing-hair-cut-barber-shop-salon_1303-20861.avif','Published','2026-08-10 15:11:16.991750','2026-08-21 15:28:44.152332',1,2,60),(2,'1203460788','Bridal Makeup','<p>Best Bridal Makeup Services</p>','bridal-makeup',7999.00,'Both','service/thumbnail/download_rgEvCNt.png','Published','2026-08-21 14:51:46.455546','2026-09-21 16:55:50.227206',2,3,60);
-/*!40000 ALTER TABLE `store_service` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `store_servicegallery`
---
-
-DROP TABLE IF EXISTS `store_servicegallery`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `store_servicegallery` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `gid` varchar(20) NOT NULL,
-  `image` varchar(100) NOT NULL,
-  `caption` varchar(200) DEFAULT NULL,
-  `date` datetime(6) NOT NULL,
-  `service_id` bigint NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `gid` (`gid`),
-  KEY `store_servicegallery_service_id_8815d8d8_fk_store_service_id` (`service_id`),
-  CONSTRAINT `store_servicegallery_service_id_8815d8d8_fk_store_service_id` FOREIGN KEY (`service_id`) REFERENCES `store_service` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `store_servicegallery`
---
-
-LOCK TABLES `store_servicegallery` WRITE;
-/*!40000 ALTER TABLE `store_servicegallery` DISABLE KEYS */;
-INSERT INTO `store_servicegallery` VALUES (1,'6244637975','service/gallery/download_pnsd7Vw.png','bridal makeup','2026-08-21 14:51:46.503898',2);
-/*!40000 ALTER TABLE `store_servicegallery` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `store_servicereview`
@@ -462,9 +218,9 @@ DROP TABLE IF EXISTS `store_servicereview`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `store_servicereview` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `rid` varchar(20) NOT NULL,
+  `rid` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   `rating` int DEFAULT NULL,
-  `review` longtext,
+  `review` longtext COLLATE utf8mb4_unicode_ci,
   `is_verified` tinyint(1) NOT NULL,
   `active` tinyint(1) NOT NULL,
   `date` datetime(6) NOT NULL,
@@ -479,18 +235,8 @@ CREATE TABLE `store_servicereview` (
   CONSTRAINT `store_servicereview_booking_id_e5caea8a_fk_store_booking_id` FOREIGN KEY (`booking_id`) REFERENCES `store_booking` (`id`),
   CONSTRAINT `store_servicereview_service_id_88574209_fk_store_service_id` FOREIGN KEY (`service_id`) REFERENCES `store_service` (`id`),
   CONSTRAINT `store_servicereview_user_id_84092f81_fk_userauth_user_id` FOREIGN KEY (`user_id`) REFERENCES `userauth_user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `store_servicereview`
---
-
-LOCK TABLES `store_servicereview` WRITE;
-/*!40000 ALTER TABLE `store_servicereview` DISABLE KEYS */;
-INSERT INTO `store_servicereview` VALUES (1,'3276802194',5,'',0,1,'2026-08-21 15:52:27.826116',NULL,2,2),(2,'3534217878',1,'good',1,1,'2026-08-25 15:52:13.583628',1,2,9),(3,'5812945507',4,'bad',1,1,'2026-08-25 15:55:54.538809',NULL,2,9),(4,'8726366912',4,'service was good',1,1,'2026-08-26 03:02:00.348089',2,2,10),(5,'3207070204',4,'good service',1,1,'2026-09-18 09:09:51.922125',8,2,13);
-/*!40000 ALTER TABLE `store_servicereview` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `userauth_profile`
@@ -501,27 +247,17 @@ DROP TABLE IF EXISTS `userauth_profile`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `userauth_profile` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `full_name` varchar(255) DEFAULT NULL,
-  `mobile` varchar(255) DEFAULT NULL,
-  `user_type` varchar(255) DEFAULT NULL,
+  `full_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mobile` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `user_id` bigint NOT NULL,
-  `address` varchar(255) DEFAULT NULL,
-  `image` varchar(100) DEFAULT NULL,
+  `address` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `image` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`),
   CONSTRAINT `userauth_profile_user_id_7b8dd0b9_fk_userauth_user_id` FOREIGN KEY (`user_id`) REFERENCES `userauth_user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `userauth_profile`
---
-
-LOCK TABLES `userauth_profile` WRITE;
-/*!40000 ALTER TABLE `userauth_profile` DISABLE KEYS */;
-INSERT INTO `userauth_profile` VALUES (1,'Customer','9828115573','Customer',7,NULL,'default-user.jpeg'),(2,'customer',NULL,'Vendor',2,NULL,'default-user.jpeg'),(3,'Vendor',NULL,'Vendor',8,NULL,'default-user.jpeg'),(4,'Vendor','980000000','Vendor',9,NULL,'default-user.jpeg'),(5,'Ananda','9800000000','Customer',10,NULL,'default-user.jpeg'),(8,'FinalTest','9828115573','Customer',13,NULL,'default-user.jpeg'),(9,'Vendortest','9828115573','Vendor',14,NULL,'default-user.jpeg'),(16,'Vendor Test','9828115573','Vendor',21,NULL,'default-user.jpeg'),(17,'sam sam','9812121212','Customer',22,NULL,'default-user.jpeg'),(18,'admin',NULL,NULL,1,NULL,'default-user.jpeg');
-/*!40000 ALTER TABLE `userauth_profile` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `userauth_user`
@@ -532,30 +268,20 @@ DROP TABLE IF EXISTS `userauth_user`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `userauth_user` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `password` varchar(128) NOT NULL,
+  `password` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL,
   `last_login` datetime(6) DEFAULT NULL,
   `is_superuser` tinyint(1) NOT NULL,
-  `first_name` varchar(150) NOT NULL,
-  `last_name` varchar(150) NOT NULL,
+  `first_name` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `last_name` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
   `is_staff` tinyint(1) NOT NULL,
   `is_active` tinyint(1) NOT NULL,
   `date_joined` datetime(6) NOT NULL,
-  `username` varchar(255) DEFAULT NULL,
-  `email` varchar(254) NOT NULL,
+  `username` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(254) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `userauth_user`
---
-
-LOCK TABLES `userauth_user` WRITE;
-/*!40000 ALTER TABLE `userauth_user` DISABLE KEYS */;
-INSERT INTO `userauth_user` VALUES (1,'pbkdf2_sha256$1200000$LAy4knpocptEYayF1mmaGP$d/BfXCGr/QKO/+OWz0w5wSiMJRZEvQeCDITfniFOVCM=','2026-09-22 00:41:06.271962',1,'','',1,1,'2026-08-06 15:15:00.060050','admin','admin@gmail.com'),(2,'1122',NULL,0,'customer','',0,1,'2026-08-07 02:17:37.000000','customer','customer@gmail.com'),(7,'pbkdf2_sha256$1200000$HmibKsWv3OY6RC4BUrQJNm$Wx5i/fSkT9EAWs7L5RBqdmJUw7n3bODxah+o+HVgWqU=',NULL,0,'','',0,1,'2026-08-07 15:52:17.600916','Customer1','test@gmail.com'),(8,'pbkdf2_sha256$1200000$fdH2dX565eqWHJjzJIniDG$3a9n5eg9k8L7XfZz0VxPZ/U9IlpDnAJEkSxdizcnk2w=',NULL,0,'','',0,1,'2026-08-10 15:15:50.739378','Vendor','vendor2@gmail.com'),(9,'pbkdf2_sha256$1200000$22GGL09YGl8FALpBxMr3t5$KdiEUqW3aOH2wUPsIp7QdD0Df1m1FsY/82dXemOCHNs=','2026-09-21 18:06:20.404659',0,'','',0,1,'2026-08-21 14:47:57.877666','Vendor3','vendor3@gmail.com'),(10,'pbkdf2_sha256$1200000$EKcAplxrMNzsrluhYKews8$kdPkP4OP+CxRZ6/n/LLe6GNu1x1zZf1IMbsZwdqzcGs=',NULL,0,'','',0,1,'2026-08-26 02:59:12.044416','ananda','ananda@gmail.com'),(13,'pbkdf2_sha256$1200000$kSNbNUyMisQ75zVELXhoh4$pOIB2ycqIePdbE2mXCjSmaK9oz5G8ECT5vwVD3K18bY=','2026-09-22 01:31:55.124870',0,'','',0,1,'2026-09-18 06:38:08.413916','FinalTest','finaltest@gmail.com'),(14,'pbkdf2_sha256$1200000$lgYhk2ox2cTSfaoab8ORTa$P0j/LmQSUrF6LvkiHvQw6kn3BE+s2RhGdK2CZ1NHKqs=',NULL,0,'','',0,1,'2026-09-18 06:41:32.267634','vendortest','vendortest@gmail.com'),(21,'pbkdf2_sha256$1200000$w9IJtgtsW3vZ5e6luVo6g1$npPkGQn0xuINIGjTUxr1bmfdUSLvsnTfmkXu26IQIjc=',NULL,0,'','',0,1,'2026-09-18 07:55:35.073640','Vendor Test','vendortest2@gmail.com'),(22,'pbkdf2_sha256$1200000$qXy14AyFSAxawzLMoF6CsF$BpiWrzWX+fhm86VpWVPTsp4eGUB2HEtHslKYHKap5L4=',NULL,0,'','',0,1,'2026-09-19 15:03:24.905192','samsam','samsam@gmail.com');
-/*!40000 ALTER TABLE `userauth_user` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `userauth_user_groups`
@@ -573,17 +299,8 @@ CREATE TABLE `userauth_user_groups` (
   KEY `userauth_user_groups_group_id_248add28_fk_auth_group_id` (`group_id`),
   CONSTRAINT `userauth_user_groups_group_id_248add28_fk_auth_group_id` FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`),
   CONSTRAINT `userauth_user_groups_user_id_4e653733_fk_userauth_user_id` FOREIGN KEY (`user_id`) REFERENCES `userauth_user` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `userauth_user_groups`
---
-
-LOCK TABLES `userauth_user_groups` WRITE;
-/*!40000 ALTER TABLE `userauth_user_groups` DISABLE KEYS */;
-/*!40000 ALTER TABLE `userauth_user_groups` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `userauth_user_user_permissions`
@@ -601,47 +318,8 @@ CREATE TABLE `userauth_user_user_permissions` (
   KEY `userauth_user_user_p_permission_id_f1415beb_fk_auth_perm` (`permission_id`),
   CONSTRAINT `userauth_user_user_p_permission_id_f1415beb_fk_auth_perm` FOREIGN KEY (`permission_id`) REFERENCES `auth_permission` (`id`),
   CONSTRAINT `userauth_user_user_p_user_id_e644b2fd_fk_userauth_` FOREIGN KEY (`user_id`) REFERENCES `userauth_user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `userauth_user_user_permissions`
---
-
-LOCK TABLES `userauth_user_user_permissions` WRITE;
-/*!40000 ALTER TABLE `userauth_user_user_permissions` DISABLE KEYS */;
-/*!40000 ALTER TABLE `userauth_user_user_permissions` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `vendor_bankaccount`
---
-
-DROP TABLE IF EXISTS `vendor_bankaccount`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `vendor_bankaccount` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `account_type` varchar(50) DEFAULT NULL,
-  `bank_name` varchar(500) NOT NULL,
-  `account_number` varchar(100) NOT NULL,
-  `account_name` varchar(100) NOT NULL,
-  `khalti_id` varchar(100) DEFAULT NULL,
-  `vendor_id` bigint DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `vendor_id` (`vendor_id`),
-  CONSTRAINT `vendor_bankaccount_vendor_id_09249edd_fk_vendor_vendor_id` FOREIGN KEY (`vendor_id`) REFERENCES `vendor_vendor` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `vendor_bankaccount`
---
-
-LOCK TABLES `vendor_bankaccount` WRITE;
-/*!40000 ALTER TABLE `vendor_bankaccount` DISABLE KEYS */;
-/*!40000 ALTER TABLE `vendor_bankaccount` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `vendor_dispute`
@@ -652,25 +330,25 @@ DROP TABLE IF EXISTS `vendor_dispute`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `vendor_dispute` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `reason` varchar(50) NOT NULL,
-  `notes` longtext NOT NULL,
+  `reason` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `notes` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `amount` decimal(10,2) NOT NULL,
-  `status` varchar(25) NOT NULL,
+  `status` varchar(25) COLLATE utf8mb4_unicode_ci NOT NULL,
   `date` datetime(6) NOT NULL,
   `booking_id` bigint DEFAULT NULL,
   `customer_id` bigint DEFAULT NULL,
   `vendor_id` bigint NOT NULL,
-  `admin_response` longtext,
-  `attachment` varchar(100) DEFAULT NULL,
-  `description` longtext NOT NULL,
-  `did` varchar(30) DEFAULT NULL,
-  `resolution` longtext,
+  `admin_response` longtext COLLATE utf8mb4_unicode_ci,
+  `attachment` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `did` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `resolution` longtext COLLATE utf8mb4_unicode_ci,
   `resolved_at` datetime(6) DEFAULT NULL,
   `resolved_by_id` bigint DEFAULT NULL,
-  `subject` varchar(255) DEFAULT NULL,
+  `subject` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `updated` datetime(6) NOT NULL,
   `vendor_responded_at` datetime(6) DEFAULT NULL,
-  `vendor_response` longtext,
+  `vendor_response` longtext COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`id`),
   UNIQUE KEY `did` (`did`),
   KEY `vendor_dispute_booking_id_d451bc4f_fk_store_booking_id` (`booking_id`),
@@ -681,116 +359,8 @@ CREATE TABLE `vendor_dispute` (
   CONSTRAINT `vendor_dispute_customer_id_0c8a96c1_fk_userauth_user_id` FOREIGN KEY (`customer_id`) REFERENCES `userauth_user` (`id`),
   CONSTRAINT `vendor_dispute_resolved_by_id_dcd989e4_fk_userauth_user_id` FOREIGN KEY (`resolved_by_id`) REFERENCES `userauth_user` (`id`),
   CONSTRAINT `vendor_dispute_vendor_id_6721b72d_fk_vendor_vendor_id` FOREIGN KEY (`vendor_id`) REFERENCES `vendor_vendor` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `vendor_dispute`
---
-
-LOCK TABLES `vendor_dispute` WRITE;
-/*!40000 ALTER TABLE `vendor_dispute` DISABLE KEYS */;
-INSERT INTO `vendor_dispute` VALUES (1,'Service quality issue','',7899.00,'Resolved','2026-09-20 18:13:47.716881',16,13,3,'we will look into it','','bad service','DIS-0902291331','','2026-09-20 18:18:18.216349',1,'bad service','2026-09-20 18:18:18.212001','2026-09-20 18:14:56.688721','sorry for the issue');
-/*!40000 ALTER TABLE `vendor_dispute` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `vendor_disputeauditlog`
---
-
-DROP TABLE IF EXISTS `vendor_disputeauditlog`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `vendor_disputeauditlog` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `action` varchar(150) NOT NULL,
-  `previous_status` varchar(25) DEFAULT NULL,
-  `new_status` varchar(25) DEFAULT NULL,
-  `comment` longtext,
-  `timestamp` datetime(6) NOT NULL,
-  `changed_by_id` bigint DEFAULT NULL,
-  `dispute_id` bigint NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `vendor_disputeauditl_changed_by_id_e79fecca_fk_userauth_` (`changed_by_id`),
-  KEY `vendor_disputeauditlog_dispute_id_3c116d2e_fk_vendor_dispute_id` (`dispute_id`),
-  CONSTRAINT `vendor_disputeauditl_changed_by_id_e79fecca_fk_userauth_` FOREIGN KEY (`changed_by_id`) REFERENCES `userauth_user` (`id`),
-  CONSTRAINT `vendor_disputeauditlog_dispute_id_3c116d2e_fk_vendor_dispute_id` FOREIGN KEY (`dispute_id`) REFERENCES `vendor_dispute` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `vendor_disputeauditlog`
---
-
-LOCK TABLES `vendor_disputeauditlog` WRITE;
-/*!40000 ALTER TABLE `vendor_disputeauditlog` DISABLE KEYS */;
-INSERT INTO `vendor_disputeauditlog` VALUES (1,'Dispute created by customer',NULL,'Open',NULL,'2026-09-20 18:13:47.727963',13,1),(2,'Vendor submitted response','Open','Under Review',NULL,'2026-09-20 18:14:56.704573',9,1),(3,'Status changed','Under Review','Resolved','Changed by admin: admin@gmail.com','2026-09-20 18:18:18.214799',1,1);
-/*!40000 ALTER TABLE `vendor_disputeauditlog` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `vendor_disputemessage`
---
-
-DROP TABLE IF EXISTS `vendor_disputemessage`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `vendor_disputemessage` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `message` longtext NOT NULL,
-  `is_internal` tinyint(1) NOT NULL,
-  `created_at` datetime(6) NOT NULL,
-  `dispute_id` bigint NOT NULL,
-  `sender_id` bigint DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `vendor_disputemessage_dispute_id_8c9aa799_fk_vendor_dispute_id` (`dispute_id`),
-  KEY `vendor_disputemessage_sender_id_16044d69_fk_userauth_user_id` (`sender_id`),
-  CONSTRAINT `vendor_disputemessage_dispute_id_8c9aa799_fk_vendor_dispute_id` FOREIGN KEY (`dispute_id`) REFERENCES `vendor_dispute` (`id`),
-  CONSTRAINT `vendor_disputemessage_sender_id_16044d69_fk_userauth_user_id` FOREIGN KEY (`sender_id`) REFERENCES `userauth_user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `vendor_disputemessage`
---
-
-LOCK TABLES `vendor_disputemessage` WRITE;
-/*!40000 ALTER TABLE `vendor_disputemessage` DISABLE KEYS */;
-INSERT INTO `vendor_disputemessage` VALUES (1,'sorry for the issue',0,'2026-09-20 18:14:56.700127',1,9);
-/*!40000 ALTER TABLE `vendor_disputemessage` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `vendor_notifications`
---
-
-DROP TABLE IF EXISTS `vendor_notifications`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `vendor_notifications` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `type` varchar(100) NOT NULL,
-  `seen` tinyint(1) NOT NULL,
-  `date` date NOT NULL,
-  `booking_id` bigint DEFAULT NULL,
-  `user_id` bigint DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `vendor_notifications_booking_id_38afe600_fk_store_booking_id` (`booking_id`),
-  KEY `vendor_notifications_user_id_5ba77fdc_fk_userauth_user_id` (`user_id`),
-  CONSTRAINT `vendor_notifications_booking_id_38afe600_fk_store_booking_id` FOREIGN KEY (`booking_id`) REFERENCES `store_booking` (`id`),
-  CONSTRAINT `vendor_notifications_user_id_5ba77fdc_fk_userauth_user_id` FOREIGN KEY (`user_id`) REFERENCES `userauth_user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `vendor_notifications`
---
-
-LOCK TABLES `vendor_notifications` WRITE;
-/*!40000 ALTER TABLE `vendor_notifications` DISABLE KEYS */;
-INSERT INTO `vendor_notifications` VALUES (1,'Beautician Assigned',0,'2026-09-11',1,10),(2,'New Order',0,'2026-09-20',12,9),(3,'New Order',0,'2026-09-20',13,9),(4,'New Order',0,'2026-09-20',14,2),(5,'New Order',0,'2026-09-20',15,2),(6,'New Order',0,'2026-09-20',16,9);
-/*!40000 ALTER TABLE `vendor_notifications` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `vendor_payout`
@@ -807,11 +377,11 @@ CREATE TABLE `vendor_payout` (
   `commission_amount` decimal(10,2) NOT NULL,
   `gross_amount` decimal(10,2) NOT NULL,
   `net_amount` decimal(10,2) NOT NULL,
-  `status` varchar(20) NOT NULL,
-  `admin_note` longtext,
+  `status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `admin_note` longtext COLLATE utf8mb4_unicode_ci,
   `amount` decimal(10,2) NOT NULL,
-  `payment_reference` varchar(200) DEFAULT NULL,
-  `pid` varchar(30) DEFAULT NULL,
+  `payment_reference` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pid` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `processed_at` datetime(6) DEFAULT NULL,
   `processed_by_id` bigint DEFAULT NULL,
   `requested_at` datetime(6) NOT NULL,
@@ -823,18 +393,8 @@ CREATE TABLE `vendor_payout` (
   CONSTRAINT `vendor_payout_item_id_43a28a21_fk_store_booking_id` FOREIGN KEY (`item_id`) REFERENCES `store_booking` (`id`),
   CONSTRAINT `vendor_payout_processed_by_id_1eefc9ed_fk_userauth_user_id` FOREIGN KEY (`processed_by_id`) REFERENCES `userauth_user` (`id`),
   CONSTRAINT `vendor_payout_vendor_id_9b447cb5_fk_vendor_vendor_id` FOREIGN KEY (`vendor_id`) REFERENCES `vendor_vendor` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `vendor_payout`
---
-
-LOCK TABLES `vendor_payout` WRITE;
-/*!40000 ALTER TABLE `vendor_payout` DISABLE KEYS */;
-INSERT INTO `vendor_payout` VALUES (1,'2026-08-26 16:13:23.195792',2,3,20.00,100.00,90.00,'Paid',NULL,0.00,NULL,NULL,NULL,NULL,'2026-09-20 15:48:27.391471'),(2,'2026-09-20 16:28:36.512393',NULL,3,0.00,0.00,21327.00,'Paid','',21327.00,NULL,'PO-1488269181','2026-09-20 16:43:21.480095',1,'2026-09-20 16:28:36.511683');
-/*!40000 ALTER TABLE `vendor_payout` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `vendor_vendor`
@@ -845,41 +405,27 @@ DROP TABLE IF EXISTS `vendor_vendor`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `vendor_vendor` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `image` varchar(100) NOT NULL,
-  `store_name` varchar(100) DEFAULT NULL,
-  `description` varchar(200) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `country` varchar(100) DEFAULT NULL,
-  `city` varchar(100) DEFAULT NULL,
-  `document` varchar(100) NOT NULL,
-  `vendor_id` varchar(20) DEFAULT NULL,
+  `image` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `store_name` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `country` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `city` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `document` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `vendor_id` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `date` date NOT NULL,
-  `slug` varchar(50) DEFAULT NULL,
+  `slug` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `user_id` bigint DEFAULT NULL,
   `is_verified` tinyint(1) NOT NULL,
-  `verification_status` varchar(20) NOT NULL,
+  `verification_status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   `verified_at` datetime(6) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `vendor_id` (`vendor_id`),
   UNIQUE KEY `user_id` (`user_id`),
   KEY `vendor_vendor_slug_e7b8f5a5` (`slug`),
   CONSTRAINT `vendor_vendor_user_id_424f99f3_fk_userauth_user_id` FOREIGN KEY (`user_id`) REFERENCES `userauth_user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `vendor_vendor`
---
-
-LOCK TABLES `vendor_vendor` WRITE;
-/*!40000 ALTER TABLE `vendor_vendor` DISABLE KEYS */;
-INSERT INTO `vendor_vendor` VALUES (2,'images/Screenshot_2026-06-10_223507.png','Barber',NULL,NULL,NULL,NULL,'images/Screenshot_2026-06-08_212604_RdUDa9V.png','stRPc9rjhMtzrmFetjvc','2026-08-10','barber',2,1,'Verified','2026-09-10 16:02:35.000000'),(3,'shop-image.jpg','Tilak Services','Bridal Makeup Services','vendor3@gmail.com','Nepal','kathmandu','images/Screenshot_2026-06-08_212604_202r4C5.png','4594627257','2026-08-21','tilak-services',9,1,'Verified','2026-09-10 16:01:22.000000'),(4,'shop-image.jpg','Vendortest',NULL,'vendortest@gmail.com',NULL,NULL,'default-document.jpg','9298414068','2026-09-18','vendortest',14,0,'Pending',NULL),(10,'shop-image.jpg','Vendor Test',NULL,'vendortest2@gmail.com',NULL,NULL,'default-document.jpg','6467899463','2026-09-18','vendor-test',21,0,'Rejected',NULL);
-/*!40000 ALTER TABLE `vendor_vendor` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping routines for database 'glownext'
---
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -890,4 +436,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-09-23 20:52:52
+-- Dump completed on 2026-09-23 23:25:04

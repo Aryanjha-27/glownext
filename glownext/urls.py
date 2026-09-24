@@ -19,7 +19,6 @@ from django.urls import path, include
 from django.conf import settings 
 from django.conf.urls.static import static
 
-# Registers admin, API, editor, media, and static-file routes.
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("api.urls")),

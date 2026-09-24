@@ -1,37 +1,9 @@
 {% extends "admin/base_site.html" %}
-{% block extrahead %}
-{{ block.super }}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-{% endblock %}
 
 {% block content %}
 {% if analytics %}
 <div class="row mb-4">
-  <div class="col-lg-6 mb-4 mb-lg-0">
-    <div class="card card-outline card-info h-100 shadow-sm">
-      <div class="card-header"><h3 class="card-title">Orders</h3><span class="float-right text-muted small">Last 14 scheduled dates</span></div>
-      <div class="card-body">
-        <canvas id="orders-chart" height="130" aria-label="Orders over the last 14 scheduled dates"></canvas>
-      </div>
-    </div>
-  </div>
-  <div class="col-lg-6">
-    <div class="card card-outline card-success h-100 shadow-sm">
-      <div class="card-header"><h3 class="card-title">Revenue</h3><span class="float-right text-muted small">Paid bookings · last 14 dates</span></div>
-      <div class="card-body">
-        <canvas id="revenue-chart" height="130" aria-label="Revenue over the last 14 scheduled dates"></canvas>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="row mb-4">
-  <div class="col-lg-6 mb-4 mb-lg-0">
-    <div class="card card-outline card-warning h-100 shadow-sm">
-      <div class="card-header"><h3 class="card-title">Khalti vs Cash</h3><span class="float-right text-muted small">Paid payments · last 30 days</span></div>
-      <div class="card-body"><canvas id="payment-method-chart" height="170" aria-label="Khalti versus cash payments"></canvas></div>
-    </div>
-  </div>
-  <div class="col-lg-6">
+  <div class="col-lg-12">
     <div class="card card-outline card-primary h-100 shadow-sm">
       <div class="card-header"><h3 class="card-title">Top 5 Performing Vendors</h3><span class="float-right text-muted small">Paid earnings</span></div>
       <div class="card-body">
@@ -50,27 +22,4 @@
 </div>
 {% endif %}
 {{ block.super }}
-{% endblock %}
-
-{% block footer %}
-{{ block.super }}
-{{ analytics.orders_chart_labels|json_script:"orders-chart-labels" }}
-{{ analytics.orders_chart_values|json_script:"orders-chart-values" }}
-{{ analytics.revenue_chart_values|json_script:"revenue-chart-values" }}
-{{ analytics.payment_method_labels|json_script:"payment-method-labels" }}
-{{ analytics.payment_method_values|json_script:"payment-method-values" }}
-<script>
-  window.addEventListener("DOMContentLoaded", function () {
-    if (!window.Chart) return;
-    const labels = JSON.parse(document.getElementById("orders-chart-labels").textContent);
-    const orders = JSON.parse(document.getElementById("orders-chart-values").textContent);
-    const revenue = JSON.parse(document.getElementById("revenue-chart-values").textContent);
-    const paymentLabels = JSON.parse(document.getElementById("payment-method-labels").textContent);
-    const paymentValues = JSON.parse(document.getElementById("payment-method-values").textContent);
-    const options = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } };
-    new Chart(document.getElementById("orders-chart"), { type: "line", data: { labels, datasets: [{ label: "Orders", data: orders, borderColor: "#17a2b8", backgroundColor: "rgba(23,162,184,.12)", fill: true, tension: .35, pointRadius: 3 }] }, options });
-    new Chart(document.getElementById("revenue-chart"), { type: "line", data: { labels, datasets: [{ label: "Revenue", data: revenue, borderColor: "#28a745", backgroundColor: "rgba(40,167,69,.12)", fill: true, tension: .35, pointRadius: 3 }] }, options });
-    new Chart(document.getElementById("payment-method-chart"), { type: "doughnut", data: { labels: paymentLabels, datasets: [{ data: paymentValues, backgroundColor: ["#7c3aed", "#f59e0b"], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" } } } });
-  });
-</script>
 {% endblock %}

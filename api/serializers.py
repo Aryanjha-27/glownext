@@ -5,50 +5,59 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from store.models import (
-    Category,
     Service,
-    ServiceGallery,
     Booking,
     ServiceReview,
-    Notification,
 )
-from userauth.models import user as UserModel, profile as ProfileModel
-from vendor.models import vendor as VendorModel, Dispute, DisputeMessage, DisputeAuditLog, Payout
-from customer.models import Address as CustomerAddress, Notifications as CustomerNotification
+from userauth.models import user as UserModel, profile as ProfileModel, Notification
+from vendor.models import vendor as VendorModel, Dispute, Payout
 
 
-
-# Converts category model records into API JSON.
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ["id", "title", "slug", "image"]
-
-
-# Converts gallery image records into API JSON.
-class ServiceGallerySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ServiceGallery
-        fields = ["id", "image", "caption", "date"]
-
-
-# Converts a user profile into API JSON.
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProfileModel
         fields = ["id", "full_name", "image", "address", "mobile", "user_type"]
 
 
-# Converts the custom user and its profile into API JSON.
+class NotificationSerializer(serializers.ModelSerializer):
+    booking_id = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Notification
+        fields = [
+            "id",
+            "message",
+            "notification_type",
+            "read",
+            "booking_id",
+            "created_at",
+        ]
+
+    def get_booking_id(self, obj):
+        return obj.booking_id if obj.booking else None
+
+
 class UserSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer(read_only=True)
+    notifications = serializers.SerializerMethodField()
 
     class Meta:
         model = UserModel
-        fields = ["id", "email", "username", "is_staff", "is_superuser", "profile"]
+        fields = [
+            "id",
+            "email",
+            "username",
+            "is_staff",
+            "is_superuser",
+            "profile",
+            "notifications",
+        ]
+
+    def get_notifications(self, obj):
+        qs = obj.notifications.order_by("-created_at")[:10]
+        return NotificationSerializer(qs, many=True).data
 
 
-# Converts complete vendor data, including verification documents for staff.
 class VendorSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
 
@@ -71,7 +80,6 @@ class VendorSerializer(serializers.ModelSerializer):
         ]
 
 
-# Removes the private verification document from public vendor responses.
 class PublicVendorSerializer(VendorSerializer):
     services = serializers.SerializerMethodField()
     reviews = serializers.SerializerMethodField()
@@ -93,8 +101,7 @@ class PublicVendorSerializer(VendorSerializer):
     def get_services(self, obj):
         services = (
             obj.services.filter(status="Published")
-            .select_related("vendor", "category")
-            .prefetch_related("gallery")
+            .select_related("vendor")
             .order_by("-date")
         )
         return ServiceSerializer(services, many=True).data
@@ -120,13 +127,10 @@ class PublicVendorSerializer(VendorSerializer):
         return ServiceReview.objects.filter(service__vendor=obj, active=True).count()
 
 
-# Builds the nested public JSON representation of a service.
 class ServiceSerializer(serializers.ModelSerializer):
     vendor = VendorSerializer(read_only=True)
-    category = CategorySerializer(read_only=True)
-    gallery = ServiceGallerySerializer(many=True, read_only=True)
     vendor_name = serializers.SerializerMethodField()
-    category_name = serializers.SerializerMethodField()
+    category_name = serializers.CharField(source="category", read_only=True)
     effective_price = serializers.ReadOnlyField()
     average_rating = serializers.ReadOnlyField()
     review_count = serializers.ReadOnlyField()
@@ -150,27 +154,19 @@ class ServiceSerializer(serializers.ModelSerializer):
             "updated",
             "vendor",
             "vendor_name",
-            "category",
             "category_name",
-            "gallery",
             "average_rating",
             "review_count",
             "booking_count",
         ]
 
-    # Return the vendor's display name for clients that need a flat value.
     def get_vendor_name(self, obj):
         return obj.vendor.store_name if obj.vendor else None
-
-    # Return the category title for clients that need a flat value.
-    def get_category_name(self, obj):
-        return obj.category.title if obj.category else None
 
     def get_booking_count(self, obj):
         return obj.bookings.count()
 
 
-# Serializes bookings and accepts related objects through their ID fields.
 class BookingSerializer(serializers.ModelSerializer):
     customer = UserSerializer(read_only=True)
     service = ServiceSerializer(read_only=True)
@@ -215,7 +211,7 @@ class BookingSerializer(serializers.ModelSerializer):
         ]
 
     def get_has_review(self, obj):
-        return hasattr(obj, "review")
+        return ServiceReview.objects.filter(booking=obj).exists()
 
     def validate(self, attrs):
         scheduled_date = attrs.get("scheduled_date")
@@ -233,7 +229,6 @@ class BookingSerializer(serializers.ModelSerializer):
         return super().validate(attrs)
 
 
-# Converts service review records into API JSON.
 class ServiceReviewSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     service = ServiceSerializer(read_only=True)
@@ -253,89 +248,6 @@ class ServiceReviewSerializer(serializers.ModelSerializer):
         ]
 
 
-# Converts store notification records into API JSON.
-class NotificationSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-    booking = BookingSerializer(read_only=True)
-    title = serializers.SerializerMethodField()
-    created_at = serializers.DateTimeField(source="date", read_only=True)
-
-    class Meta:
-        model = Notification
-        fields = ["id", "nid", "user", "booking", "type", "title", "message", "seen", "date", "created_at"]
-
-    def get_title(self, obj):
-        return obj.type or "Update"
-
-
-# Converts customer notification records into API JSON.
-class CustomerNotificationSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-    booking = BookingSerializer(read_only=True)
-    title = serializers.SerializerMethodField()
-    created_at = serializers.DateTimeField(source="date", read_only=True)
-
-    class Meta:
-        model = CustomerNotification
-        fields = ["id", "user", "type", "title", "message", "seen", "date", "created_at", "booking"]
-
-    def get_title(self, obj):
-        return obj.type or "Update"
-
-
-# Converts customer address records into API JSON.
-class CustomerAddressSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomerAddress
-        fields = [
-            "id",
-            "full_name",
-            "mobile",
-            "email",
-            "country",
-            "city",
-            "address",
-        ]
-
-
-# Converts dispute message records into API JSON.
-class DisputeMessageSerializer(serializers.ModelSerializer):
-    sender_email = serializers.SerializerMethodField()
-    sender_name = serializers.SerializerMethodField()
-
-    class Meta:
-        model = DisputeMessage
-        fields = ["id", "sender", "sender_email", "sender_name", "message", "is_internal", "created_at"]
-        read_only_fields = ["sender", "sender_email", "sender_name", "is_internal", "created_at"]
-
-    def get_sender_email(self, obj):
-        return obj.sender.email if obj.sender else None
-
-    def get_sender_name(self, obj):
-        if obj.sender is None:
-            return None
-        profile = getattr(obj.sender, "profile", None)
-        return getattr(profile, "full_name", None) or obj.sender.username
-
-
-# Converts dispute audit log entries into API JSON.
-class DisputeAuditLogSerializer(serializers.ModelSerializer):
-    changed_by_email = serializers.SerializerMethodField()
-
-    class Meta:
-        model = DisputeAuditLog
-        fields = [
-            "id", "changed_by", "changed_by_email",
-            "action", "previous_status", "new_status",
-            "comment", "timestamp",
-        ]
-        read_only_fields = fields
-
-    def get_changed_by_email(self, obj):
-        return obj.changed_by.email if obj.changed_by else "System"
-
-
-# Converts dispute records into full API JSON for customers, vendors, and admin.
 class DisputeSerializer(serializers.ModelSerializer):
     customer_email = serializers.SerializerMethodField()
     customer_name = serializers.SerializerMethodField()
@@ -346,8 +258,6 @@ class DisputeSerializer(serializers.ModelSerializer):
     booking_total = serializers.SerializerMethodField()
     booking_commission = serializers.SerializerMethodField()
     booking_vendor_amount = serializers.SerializerMethodField()
-    messages = serializers.SerializerMethodField()
-    audit_logs = serializers.SerializerMethodField()
     resolved_by_email = serializers.SerializerMethodField()
 
     class Meta:
@@ -383,14 +293,12 @@ class DisputeSerializer(serializers.ModelSerializer):
             "notes",
             "date",
             "updated",
-            "messages",
-            "audit_logs",
         ]
         read_only_fields = [
             "did", "status", "admin_response", "resolution",
             "resolved_by", "resolved_by_email", "resolved_at",
             "vendor_response", "vendor_responded_at",
-            "date", "updated", "messages", "audit_logs",
+            "date", "updated",
         ]
 
     def get_customer_email(self, obj):
@@ -428,63 +336,8 @@ class DisputeSerializer(serializers.ModelSerializer):
     def get_resolved_by_email(self, obj):
         return obj.resolved_by.email if obj.resolved_by else None
 
-    def get_messages(self, obj):
-        # External viewers see only non-internal messages.
-        request = self.context.get("request")
-        qs = obj.messages.all()
-        if request and not (request.user.is_staff or request.user.is_superuser):
-            qs = qs.filter(is_internal=False)
-        return DisputeMessageSerializer(qs, many=True).data
-
-    def get_audit_logs(self, obj):
-        # Audit logs are visible to admin only.
-        request = self.context.get("request")
-        if request and (request.user.is_staff or request.user.is_superuser):
-            return DisputeAuditLogSerializer(obj.audit_logs.all(), many=True).data
-        return []
 
 
-# Converts a single paid booking into a vendor transaction record showing commission breakdown.
-class VendorTransactionSerializer(serializers.ModelSerializer):
-    customer_name = serializers.SerializerMethodField()
-    gross_amount = serializers.DecimalField(source="total", max_digits=8, decimal_places=2, read_only=True)
-    net_amount = serializers.DecimalField(source="vendor_amount", max_digits=8, decimal_places=2, read_only=True)
-    commission_rate = serializers.DecimalField(max_digits=5, decimal_places=2, read_only=True)
-    service_title = serializers.SerializerMethodField()
-    commission_percent = serializers.DecimalField(source="commission_rate", max_digits=5, decimal_places=2, read_only=True)
-
-    class Meta:
-        model = Booking
-        fields = [
-            "id",
-            "bid",
-            "customer_name",
-            "service_title",
-            "scheduled_date",
-            "booking_status",
-            "payment_status",
-            "total",
-            "gross_amount",
-            "commission_percent",
-            "commission_rate",
-            "commission_amount",
-            "vendor_amount",
-            "net_amount",
-            "date",
-        ]
-        read_only_fields = fields
-
-    def get_service_title(self, obj):
-        return obj.service.title if obj.service else "N/A"
-
-    def get_customer_name(self, obj):
-        if not obj.customer:
-            return "Customer"
-        profile = getattr(obj.customer, "profile", None)
-        return getattr(profile, "full_name", None) or obj.customer.username
-
-
-# Serializes vendor payout request records for vendor finance management.
 class PayoutSerializer(serializers.ModelSerializer):
     vendor_store_name = serializers.ReadOnlyField(source="vendor.store_name")
     processed_by_email = serializers.ReadOnlyField(source="processed_by.email")

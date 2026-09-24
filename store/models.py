@@ -65,26 +65,6 @@ DAY_CHOICES = (
 )
 
 
-# Stores the categories used to group beauty services.
-class Category(models.Model):
-    title = models.CharField(max_length=255)
-    image = models.FileField(upload_to="category", null=True, blank=True)
-    slug  = models.SlugField(unique=True)
-
-    def __str__(self):
-        return self.title
-
-    class Meta:
-        verbose_name_plural = "Categories"
-        ordering = ['title']
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.title)
-        super().save(*args, **kwargs)
-
-
-# Stores a vendor's beauty service and its publication settings.
 class Service(models.Model):
 
     sid = ShortUUIDField(
@@ -102,13 +82,7 @@ class Service(models.Model):
     )
 
     
-    category = models.ForeignKey(
-        Category,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="services",
-    )
+    category = models.CharField(max_length=255, blank=True, default="")
 
   
     title       = models.CharField(max_length=255)
@@ -147,7 +121,6 @@ class Service(models.Model):
         verbose_name_plural = "Services"
 
     def save(self, *args, **kwargs):
-        # Enforce verification for public listings while allowing vendor drafts.
         if self._state.adding and self.vendor_id:
             vendor = self.vendor if hasattr(self, "vendor") else vendor_models.vendor.objects.get(pk=self.vendor_id)
             if not vendor.is_verified and self.status != "Draft":
@@ -187,34 +160,6 @@ class Service(models.Model):
         return self.service_type in ("Store", "Both")
 
 
-# Stores additional images belonging to a service.
-class ServiceGallery(models.Model):
-
-    gid = ShortUUIDField(
-        unique=True,
-        length=10,
-        max_length=20,
-        alphabet="1234567890",
-    )
-    service = models.ForeignKey(
-        Service,
-        on_delete=models.CASCADE,
-        related_name="gallery",
-    )
-    image   = models.FileField(upload_to="service/gallery")
-    caption = models.CharField(max_length=200, null=True, blank=True)
-    date    = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Gallery — {self.service.title}"
-
-    class Meta:
-        verbose_name_plural = "Service Gallery"
-        ordering = ["date"]
-
-
-# Stores the days and hours when a service can be booked.
-# Stores customer booking, schedule, status, and payment information.
 class Booking(models.Model):
 
     bid = ShortUUIDField(
@@ -285,7 +230,6 @@ class Booking(models.Model):
         verbose_name_plural = "Bookings"
 
 
-# Stores a customer's rating and review for a service.
 class ServiceReview(models.Model):
 
     rid = ShortUUIDField(
@@ -329,43 +273,3 @@ class ServiceReview(models.Model):
         verbose_name_plural = "Service Reviews"
 
 
-# Stores booking, payment, and general messages for users.
-class Notification(models.Model):
-
-    NOTIFICATION_TYPE = (
-        ("Booking",  "Booking"),
-        ("Payment",  "Payment"),
-        ("Review",   "Review"),
-        ("General",  "General"),
-    )
-
-    nid = ShortUUIDField(
-        unique=True,
-        length=10,
-        max_length=20,
-        alphabet="1234567890",
-    )
-    user = models.ForeignKey(
-        user_models.user,
-        on_delete=models.CASCADE,
-        related_name="notifications",
-    )
-    booking = models.ForeignKey(
-        Booking,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="notifications",
-    )
-    type    = models.CharField(max_length=20, choices=NOTIFICATION_TYPE, default="General")
-    message = models.TextField()
-
-    seen    = models.BooleanField(default=False)
-    date    = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.type} — {self.user} — {'Seen' if self.seen else 'Unseen'}"
-
-    class Meta:
-        ordering = ["-date"]
-        verbose_name_plural = "Notifications"

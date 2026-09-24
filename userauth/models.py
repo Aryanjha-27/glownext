@@ -7,7 +7,6 @@ USER_TYPE = (
 )
 
 
-# Defines the project's custom email-based user account.
 class user(AbstractUser):
     username = models.CharField(
         max_length=255,
@@ -26,14 +25,12 @@ class user(AbstractUser):
         return self.email
 
     def save(self, *args, **kwargs):
-        # Use the email prefix as a username when one was not provided.
         if self.email and not self.username:
             self.username = self.email.split("@")[0]
 
         super().save(*args, **kwargs)
 
 
-# Stores profile information associated with one user account.
 class profile(models.Model):
     user = models.OneToOneField(
         user,
@@ -54,9 +51,9 @@ class profile(models.Model):
         
     )
     address= models.CharField(
-            max_length=255,
-            null=True,
-        )
+        max_length=255,
+        null=True,
+    )
 
     mobile = models.CharField(
         max_length=255,
@@ -77,8 +74,45 @@ class profile(models.Model):
         return self.full_name or self.user.username
 
     def save(self, *args, **kwargs):
-        # Use the account username as a fallback display name.
         if not self.full_name:
             self.full_name = self.user.username
 
         super().save(*args, **kwargs)
+
+
+class Notification(models.Model):
+    NOTIFICATION_TYPE_CHOICES = (
+        ("General", "General"),
+        ("Booking", "Booking"),
+        ("Payment", "Payment"),
+    )
+
+    user = models.ForeignKey(
+        user,
+        on_delete=models.CASCADE,
+        related_name="notifications",
+        null=True,
+        blank=True,
+    )
+    message = models.TextField()
+    notification_type = models.CharField(
+        max_length=20,
+        choices=NOTIFICATION_TYPE_CHOICES,
+        default="General",
+    )
+    booking = models.ForeignKey(
+        "store.Booking",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="notifications",
+    )
+    read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user} - {self.notification_type}: {self.message[:60]}"

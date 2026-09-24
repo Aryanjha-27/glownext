@@ -27,28 +27,18 @@ KHALTI_RETURN_URL = env.str(
 WEBSITE_URL = env.str("WEBSITE_URL", "http://localhost:8000")
 FRONTEND_URL = env.str("FRONTEND_URL", "http://localhost:5173")
 
-# Platform commission percentage deducted from each successful booking payment.
-# Vendors receive (100 - PLATFORM_COMMISSION_PERCENT)% of the booking total.
 PLATFORM_COMMISSION_PERCENT = env.int("PLATFORM_COMMISSION_PERCENT", 10)
 
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-*@kr8y)wbx48u7&q9fx*td&j6tj8al@_aa+y*w0q5(uaym3w-i'
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "testserver"]
 
-
-# Application definition
 
 INSTALLED_APPS = [
     'jazzmin',
@@ -85,13 +75,6 @@ JAZZMIN_SETTINGS = {
 
     "copyright": "GlowNext",
 
-    #"search_model": [
-       # "userauth.user",
-      #  "vendor.vendor",
-     #   "store.Service",
-    #    "store.Booking",
-   # ],
-
     "show_sidebar": True,
 
     "navigation_expanded": True,
@@ -113,21 +96,13 @@ JAZZMIN_SETTINGS = {
 
         "vendor.vendor": "fas fa-store",
         "vendor.Payout": "fas fa-money-bill-wave",
-        "vendor.BankAccount": "fas fa-university",
-        "vendor.Notifications": "fas fa-bell",
-        "vendor.Dispute": "fas fa-gavel",
-        "vendor.DisputeMessage": "fas fa-comments",
-        "vendor.DisputeAuditLog": "fas fa-history",
 
         "store.Category": "fas fa-layer-group",
         "store.Service": "fas fa-spa",
-        "store.ServiceGallery": "fas fa-images",
         "store.Booking": "fas fa-calendar-check",
         "store.ServiceReview": "fas fa-star",
-        "store.Notification": "fas fa-bell",
 
         "customer.Address": "fas fa-map-marker-alt",
-        "customer.Notifications": "fas fa-bell",
     },
 
     "default_icon_parents": "fas fa-folder",
@@ -178,9 +153,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'glownext.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
 DATABASES = {
     "default": {
         "ENGINE": env.str("DB_ENGINE", "django.db.backends.mysql"),
@@ -192,9 +164,6 @@ DATABASES = {
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -212,9 +181,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/6.0/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -223,9 +189,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
 
