@@ -39,7 +39,7 @@ class DisputeAdmin(admin.ModelAdmin):
             "fields": ("customer", "vendor", "booking"),
         }),
         ("Customer Complaint", {
-            "fields": ("reason", "subject", "description", "attachment", "amount"),
+            "fields": ("reason", "subject", "description", "amount"),
         }),
         ("Vendor Response", {
             "fields": ("vendor_response", "vendor_responded_at"),
@@ -48,10 +48,7 @@ class DisputeAdmin(admin.ModelAdmin):
         ("Admin Resolution", {
             "fields": ("admin_response", "resolution", "resolved_by", "resolved_at"),
         }),
-        ("Legacy", {
-            "fields": ("notes",),
-            "classes": ("collapse",),
-        }),
+       
     )
 
     actions = ("mark_under_review", "mark_resolved", "mark_rejected", "mark_closed")
@@ -92,7 +89,7 @@ class DisputeAdmin(admin.ModelAdmin):
     mark_closed.short_description = "Mark selected disputes as Closed"
 
     def save_model(self, request, obj, form, change):
-        """Write an audit log entry whenever an admin saves a dispute."""
+       
         if change:
             try:
                 old = vendor_models.Dispute.objects.get(pk=obj.pk)
@@ -224,6 +221,12 @@ class PayoutAdmin(admin.ModelAdmin):
         "processed_at",
         "processed_by",
     )
+    fieldsets = (
+        ("Payout Details", {
+            "fields": ("pid", "vendor", "amount", "status", "payment_reference", "admin_note", "requested_at", "processed_at", "processed_by"),
+        }),
+    )
+    exclude = ("gross_amount", "commission_amount", "net_amount")
     ordering = ("-requested_at",)
 
     actions = (

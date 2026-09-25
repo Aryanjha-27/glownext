@@ -26,6 +26,7 @@ function DashboardContent() {
     pending: bookings.filter((b) => b.booking_status === "Pending").length,
     confirmed: bookings.filter((b) => b.booking_status === "Confirmed").length,
     completed: bookings.filter((b) => b.booking_status === "Completed").length,
+    declined: bookings.filter((b) => b.booking_status === "Declined").length,
   };
 
   return (
@@ -62,12 +63,13 @@ function DashboardContent() {
         </div>
       ) : (
         <>
-          <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-5">
             {[
               { label: "Total Bookings", value: counts.total, icon: "fa-regular fa-calendar" },
               { label: "Pending Approval", value: counts.pending, icon: "fa-regular fa-clock" },
               { label: "Confirmed", value: counts.confirmed, icon: "fa-solid fa-check" },
               { label: "Completed", value: counts.completed, icon: "fa-solid fa-award" },
+              { label: "Declined", value: counts.declined, icon: "fa-solid fa-circle-xmark" },
             ].map((s) => (
               <div key={s.label} className="gn-card p-5 border border-border">
                 <i className={`${s.icon} text-primary text-xl`} aria-hidden="true" />

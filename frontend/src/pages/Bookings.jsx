@@ -33,7 +33,7 @@ function BookingsList() {
       </div>
 
       <div className="mt-6 flex flex-wrap gap-2">
-        {["All", "Pending", "Confirmed", "Completed", "Cancelled"].map((f) => (
+        {['All', 'Pending', 'Confirmed', 'Completed', 'Declined', 'Cancelled'].map((f) => (
           <button
             key={f}
             type="button"
@@ -65,6 +65,11 @@ function BookingsList() {
                   <p className="mt-1 text-sm text-muted-foreground">
                     {formatDate(b.scheduled_date)} &middot; {b.scheduled_time} &middot; {b.service_type} visit
                   </p>
+                  {b.booking_status === "Declined" && b.decline_reason ? (
+                    <p className="mt-1 text-xs text-red-600">
+                      Reason: {b.decline_reason}
+                    </p>
+                  ) : null}
                 </div>
 
                 <div className="flex items-center gap-4">

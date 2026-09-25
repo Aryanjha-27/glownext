@@ -2,6 +2,8 @@ const API_BASE_URL = import.meta.env["VITE_API_BASE_URL"] ?? "/api";
 const API_SERVER_URL = API_BASE_URL.replace(/\/api\/?$/, "");
 const TOKEN_STORAGE_KEY = "glownext.access_token";
 const REFRESH_STORAGE_KEY = "glownext.refresh_token";
+const LEGACY_TOKEN_STORAGE_KEY = "glownext.token";
+const LEGACY_REFRESH_STORAGE_KEY = "glownext.refreshToken";
 class ApiError extends Error {
   status;
   kind;
@@ -26,7 +28,11 @@ function isBackendMissing(error) {
 function getToken() {
   if (typeof window === "undefined") return null;
   try {
-    return window.localStorage.getItem(TOKEN_STORAGE_KEY);
+    return (
+      window.localStorage.getItem(TOKEN_STORAGE_KEY) ??
+      window.localStorage.getItem(LEGACY_TOKEN_STORAGE_KEY) ??
+      null
+    );
   } catch {
     return null;
   }
@@ -34,10 +40,20 @@ function getToken() {
 function setTokens(access, refresh) {
   if (typeof window === "undefined") return;
   try {
-    if (access) window.localStorage.setItem(TOKEN_STORAGE_KEY, access);
-    else window.localStorage.removeItem(TOKEN_STORAGE_KEY);
-    if (refresh) window.localStorage.setItem(REFRESH_STORAGE_KEY, refresh);
-    else if (refresh === null) window.localStorage.removeItem(REFRESH_STORAGE_KEY);
+    if (access) {
+      window.localStorage.setItem(TOKEN_STORAGE_KEY, access);
+      window.localStorage.setItem(LEGACY_TOKEN_STORAGE_KEY, access);
+    } else {
+      window.localStorage.removeItem(TOKEN_STORAGE_KEY);
+      window.localStorage.removeItem(LEGACY_TOKEN_STORAGE_KEY);
+    }
+    if (refresh) {
+      window.localStorage.setItem(REFRESH_STORAGE_KEY, refresh);
+      window.localStorage.setItem(LEGACY_REFRESH_STORAGE_KEY, refresh);
+    } else if (refresh === null) {
+      window.localStorage.removeItem(REFRESH_STORAGE_KEY);
+      window.localStorage.removeItem(LEGACY_REFRESH_STORAGE_KEY);
+    }
   } catch {}
 }
 const UNAUTHORIZED_EVENT = "glownext:unauthorized";
@@ -122,7 +138,13 @@ async function request(path, options = {}) {
   }
   if (!response.ok) {
     if (response.status === 401) {
-      const refreshToken = typeof window !== "undefined" ? window.localStorage.getItem(REFRESH_STORAGE_KEY) : null;
+      const refreshToken = typeof window !== "undefined"
+        ? (
+            window.localStorage.getItem(REFRESH_STORAGE_KEY) ??
+            window.localStorage.getItem(LEGACY_REFRESH_STORAGE_KEY) ??
+            null
+          )
+        : null;
       if (auth && refreshToken && !isRetry && !path.includes("/auth/token/refresh/")) {
         try {
           const refreshResponse = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {

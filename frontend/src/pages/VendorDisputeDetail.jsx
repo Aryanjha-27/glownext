@@ -100,20 +100,6 @@ function VendorDisputeDetailContent() {
                 </p>
               </div>
 
-              {dispute.attachment ? (
-                <div>
-                  <span className="text-muted-foreground font-medium">Customer Uploaded Evidence: </span>
-                  <a
-                    href={dispute.attachment}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-primary hover:underline font-medium inline-flex items-center gap-1"
-                  >
-                    <i className="fa-solid fa-paperclip" /> View Attachment
-                  </a>
-                </div>
-              ) : null}
-
               <div className="pt-3 border-t border-border/50">
                 <div className="flex items-center justify-between">
                   <strong className="text-foreground">Your Official Statement:</strong>

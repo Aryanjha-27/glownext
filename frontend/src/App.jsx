@@ -1,5 +1,5 @@
 import { Navigate, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { API_SERVER_URL } from "@/api/apiClient";
 import { Providers } from "@/components/Providers";
@@ -50,6 +50,10 @@ function AppContent() {
   const vendorPath = location.pathname === "/vendor" || location.pathname.startsWith("/vendor/");
   const authPath = location.pathname === "/login" || location.pathname === "/register";
   const isAdmin = Boolean(user?.is_staff || user?.is_superuser);
+
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [location.pathname]);
 
   useEffect(() => {
     if (!loading && isAdmin) {

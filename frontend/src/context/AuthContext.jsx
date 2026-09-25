@@ -30,14 +30,6 @@ function AuthProvider({ children }) {
   }, [loadUser]);
 
   useEffect(() => {
-    if (!user) return undefined;
-    const refreshTimer = window.setInterval(() => {
-      void loadUser();
-    }, 30000);
-    return () => window.clearInterval(refreshTimer);
-  }, [user, loadUser]);
-
-  useEffect(() => {
     const onUnauthorized = () => setUser(null);
     window.addEventListener(UNAUTHORIZED_EVENT, onUnauthorized);
     return () => window.removeEventListener(UNAUTHORIZED_EVENT, onUnauthorized);
@@ -59,7 +51,11 @@ function AuthProvider({ children }) {
         return user;
       },
       register: async (payload) => {
-        await authApi.register(payload);
+        const data = await authApi.register(payload);
+        if (data?.user) {
+          setUser(data.user);
+        }
+        return data;
       },
       logout: async () => {
         await authApi.logout();

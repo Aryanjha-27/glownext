@@ -25,6 +25,7 @@ PAYMENT_STATUS = (
     ("Paid", "Paid"),
     ("Processing", "Processing"),
     ("Failed", "Failed"),
+    ("Refunded", "Refunded"),
 )
 
 PAYMENT_METHOD = (

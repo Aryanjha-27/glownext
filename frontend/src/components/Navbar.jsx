@@ -20,7 +20,7 @@ function BellIcon({ className = "h-4 w-4" }) {
 }
 
 function Navbar() {
-  const { isAuthenticated, user, userType, logout, refresh } = useAuth();
+  const { isAuthenticated, user, userType, logout, setUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -32,7 +32,15 @@ function Navbar() {
     if (!notificationId) return;
     try {
       await apiClient.patch(`/notifications/${notificationId}/`, { read: true });
-      await refresh();
+      setUser((prev) => {
+        if (!prev?.notifications) return prev;
+        return {
+          ...prev,
+          notifications: prev.notifications.map((notification) =>
+            notification.id === notificationId ? { ...notification, read: true } : notification,
+          ),
+        };
+      });
     } catch (error) {
       console.error("Failed to mark notification as read", error);
     }
@@ -42,11 +50,26 @@ function Navbar() {
     const nextState = !showNotifications;
     setShowNotifications(nextState);
 
-    if (!nextState || unreadCount === 0) return;
+    if (!nextState) return;
 
-    for (const notification of notifications.filter((item) => !item.read)) {
-      await markNotificationRead(notification.id);
-    }
+    const unreadNotifications = notifications.filter((item) => !item.read);
+    if (unreadNotifications.length === 0) return;
+
+    await Promise.all(
+      unreadNotifications.map((notification) =>
+        apiClient.patch(`/notifications/${notification.id}/`, { read: true }),
+      ),
+    );
+
+    setUser((prev) => {
+      if (!prev?.notifications) return prev;
+      return {
+        ...prev,
+        notifications: prev.notifications.map((notification) =>
+          unreadNotifications.some((item) => item.id === notification.id) ? { ...notification, read: true } : notification,
+        ),
+      };
+    });
   };
 
   const handleLogout = async () => {

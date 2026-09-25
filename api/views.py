@@ -49,6 +49,20 @@ def user_payload(user):
     return UserSerializer(user).data
 
 
+def jwt_payload(user):
+    refresh = RefreshToken.for_user(user)
+    access_token = str(refresh.access_token)
+    refresh_token = str(refresh)
+    return {
+        "access": access_token,
+        "refresh": refresh_token,
+        "token": access_token,
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "user": user_payload(user),
+    }
+
+
 class RegisterAPI(APIView):
     permission_classes = [AllowAny]
 
@@ -78,7 +92,7 @@ class RegisterAPI(APIView):
             ProfileModel.objects.create(user=user,full_name=full_name or username,mobile=data.get("mobile") or "",user_type=user_type,)
             if user_type == "Vendor":
                 VendorModel.objects.create(user=user,store_name=full_name or username,email=email,)
-        return Response({"user": user_payload(user)}, status=status.HTTP_201_CREATED)
+        return Response(jwt_payload(user), status=status.HTTP_201_CREATED)
 
 
 class LoginAPI(APIView):
@@ -93,12 +107,7 @@ class LoginAPI(APIView):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
         django_login(request, user)
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            "access": str(refresh.access_token),
-            "refresh": str(refresh),
-            "user": user_payload(user),
-        })
+        return Response(jwt_payload(user))
 
 
 class CurrentUserAPI(APIView):
@@ -311,7 +320,7 @@ class VendorBookingsAPI(APIView):
             return error
         bookings = Booking.objects.filter(service__vendor=vendor).select_related(
             "customer", "service"
-        ).order_by("-scheduled_date", "-scheduled_time", "-date")
+        ).order_by("-date", "-scheduled_date", "-scheduled_time")
         booking_status = request.query_params.get("booking_status")
         if booking_status and booking_status != "All":
             bookings = bookings.filter(booking_status=booking_status)
@@ -333,12 +342,31 @@ class VendorBookingsAPI(APIView):
         elif action == "decline" and booking.booking_status in {"Pending", "Confirmed"}:
             booking.booking_status = "Declined"
             booking.decline_reason = request.data.get("decline_reason", "")
-            create_user_notification(
-                booking.customer,
-                f"Your booking request for {booking.service.title} was declined by the vendor{f'. Reason: {booking.decline_reason}' if booking.decline_reason else '.'}",
-                notification_type="Booking",
-                booking=booking,
-            )
+            if booking.payment_status == "Paid":
+                refund_amount = Decimal(str(booking.total or 0))
+                booking.payment_status = "Refunded"
+                booking.commission_amount = Decimal("0.00")
+                booking.vendor_amount = Decimal("0.00")
+                create_user_notification(
+                    booking.customer,
+                    f"Your payment of Rs. {refund_amount:.2f} for {booking.service.title} was refunded because the vendor declined the booking{f'. Reason: {booking.decline_reason}' if booking.decline_reason else '.'}",
+                    notification_type="Payment",
+                    booking=booking,
+                )
+                vendor_user = booking.service.vendor.user if booking.service and booking.service.vendor else None
+                create_user_notification(
+                    vendor_user,
+                    f"Booking {booking.bid} was declined after payment. Rs. {refund_amount:.2f} was refunded to the customer and removed from your payout balance.",
+                    notification_type="Payment",
+                    booking=booking,
+                )
+            else:
+                create_user_notification(
+                    booking.customer,
+                    f"Your booking request for {booking.service.title} was declined by the vendor{f'. Reason: {booking.decline_reason}' if booking.decline_reason else '.'}",
+                    notification_type="Booking",
+                    booking=booking,
+                )
         elif action == "complete" and booking.booking_status == "Confirmed":
             booking.booking_status = "Completed"
             create_user_notification(
@@ -349,7 +377,7 @@ class VendorBookingsAPI(APIView):
             )
         else:
             return Response({"detail": "This booking cannot be changed from its current status."}, status=status.HTTP_400_BAD_REQUEST)
-        booking.save(update_fields=["booking_status", "decline_reason", "updated"])
+        booking.save(update_fields=["booking_status", "decline_reason", "payment_status", "commission_amount", "vendor_amount", "updated"])
         return Response(BookingSerializer(booking).data)
 
 
@@ -527,7 +555,9 @@ class VendorPayoutsAPI(APIView):
             payout = Payout.objects.create(
                 vendor=vendor,
                 amount=req_amount,
+                gross_amount=req_amount,
                 net_amount=req_amount,
+                commission_amount=Decimal("0.00"),
                 status="Pending",
             )
 
@@ -684,7 +714,7 @@ class BookingsAPI(APIView):
             return error
         if bid is not None:
             return Response({"detail": "Use POST to cancel a booking."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        bookings = Booking.objects.filter(customer=request.user).select_related("customer", "service", "service__vendor").order_by("-scheduled_date", "-scheduled_time", "-date")
+        bookings = Booking.objects.filter(customer=request.user).select_related("customer", "service", "service__vendor").order_by("-date", "-scheduled_date", "-scheduled_time")
         booking_status = request.query_params.get("booking_status")
         if booking_status and booking_status != "All":
             bookings = bookings.filter(booking_status=booking_status)
@@ -1132,9 +1162,7 @@ class CustomerDisputeListCreateAPI(APIView):
             status="Open",
         )
 
-        if "attachment" in request.FILES:
-            dispute.attachment = request.FILES["attachment"]
-            dispute.save(update_fields=["attachment"])
+      
 
         for admin_user in UserModel.objects.filter(is_staff=True):
             create_user_notification(
@@ -1377,7 +1405,7 @@ class AdminDisputeDetailAPI(APIView):
         dispute = get_object_or_404(Dispute, pk=pk)
         old_status = dispute.status
 
-        allowed_fields = ("status", "admin_response", "resolution")
+        allowed_fields = ("status", "admin_response", )
         changed = []
         for field in allowed_fields:
             if field in request.data:
@@ -1400,8 +1428,7 @@ class AdminDisputeDetailAPI(APIView):
             action_parts.append(f"Status: {old_status} → {new_status}")
         if "admin_response" in request.data:
             action_parts.append("Admin response updated")
-        if "resolution" in request.data:
-            action_parts.append("Resolution recorded")
+       
 
         if old_status != new_status and dispute.customer:
             create_user_notification(

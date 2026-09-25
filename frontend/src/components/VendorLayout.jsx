@@ -24,7 +24,7 @@ const links = [
 export default function VendorLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout, user, refresh } = useAuth();
+  const { logout, user, setUser } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
   const notifications = Array.isArray(user?.notifications) ? user.notifications : [];
   const unreadCount = notifications.filter((notification) => !notification.read).length;
@@ -33,7 +33,15 @@ export default function VendorLayout({ children }) {
     if (!notificationId) return;
     try {
       await apiClient.patch(`/notifications/${notificationId}/`, { read: true });
-      await refresh();
+      setUser((prev) => {
+        if (!prev?.notifications) return prev;
+        return {
+          ...prev,
+          notifications: prev.notifications.map((notification) =>
+            notification.id === notificationId ? { ...notification, read: true } : notification,
+          ),
+        };
+      });
     } catch (error) {
       console.error("Failed to mark notification as read", error);
     }
@@ -43,11 +51,26 @@ export default function VendorLayout({ children }) {
     const nextState = !showNotifications;
     setShowNotifications(nextState);
 
-    if (!nextState || unreadCount === 0) return;
+    if (!nextState) return;
 
-    for (const notification of notifications.filter((item) => !item.read)) {
-      await markNotificationRead(notification.id);
-    }
+    const unreadNotifications = notifications.filter((item) => !item.read);
+    if (unreadNotifications.length === 0) return;
+
+    await Promise.all(
+      unreadNotifications.map((notification) =>
+        apiClient.patch(`/notifications/${notification.id}/`, { read: true }),
+      ),
+    );
+
+    setUser((prev) => {
+      if (!prev?.notifications) return prev;
+      return {
+        ...prev,
+        notifications: prev.notifications.map((notification) =>
+          unreadNotifications.some((item) => item.id === notification.id) ? { ...notification, read: true } : notification,
+        ),
+      };
+    });
   };
 
   const handleLogout = async () => {

@@ -46,7 +46,7 @@ class vendor(models.Model):
                 if self.slug=="" or self.slug==None:
                         self.slug = slugify(self.store_name)
                 if self.is_verified and self.verification_status != "Verified":
-                        self.verification_status = "Verified"
+                        self.verification_status = "Pending"
                 if self.is_verified and self.verified_at is None:
                         self.verified_at = timezone.now()
                 elif not self.is_verified and self.verification_status == "Verified":
@@ -79,9 +79,8 @@ class Payout(models.Model):
         user, on_delete=models.SET_NULL, null=True, blank=True, related_name="processed_payouts"
     )
 
-    item = models.ForeignKey("store.Booking", on_delete=models.SET_NULL, null=True, blank=True, related_name="store_item")
-    gross_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
     commission_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    gross_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
     net_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
     date = models.DateTimeField(auto_now_add=True)
 
@@ -89,10 +88,19 @@ class Payout(models.Model):
         if not self.pid:
             import shortuuid
             self.pid = f"PO-{shortuuid.ShortUUID(alphabet='1234567890').random(length=10)}"
+        if self.amount and not self.gross_amount:
+            self.gross_amount = self.amount
+        elif self.gross_amount and not self.amount:
+            self.amount = self.gross_amount
+
         if self.amount and not self.net_amount:
             self.net_amount = self.amount
         elif self.net_amount and not self.amount:
             self.amount = self.net_amount
+
+        if self.amount and not self.commission_amount:
+            self.commission_amount = Decimal("0.00")
+
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -105,7 +113,7 @@ class Payout(models.Model):
 DISPUTE_REASON = (
     ("Service not provided", "Service not provided"),
     ("Service quality issue", "Service quality issue"),
-    ("Vendor did not arrive", "Vendor did not arrive"),
+    ("Beautician did not arrive", "Beautician did not arrive"),
     ("Incorrect service", "Incorrect service"),
     ("Payment issue", "Payment issue"),
     ("Booking issue", "Booking issue"),
@@ -150,7 +158,7 @@ class Dispute(models.Model):
     subject = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(blank=True, default="")
 
-    attachment = models.FileField(upload_to="disputes/attachments/", null=True, blank=True)
+    
 
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
 

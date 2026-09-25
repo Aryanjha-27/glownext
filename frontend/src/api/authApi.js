@@ -7,7 +7,9 @@ async function login(payload) {
       baseUrl: `${backendUrl}/api`,
       credentials: "include",
     });
-    setTokens(data.access ?? data.token ?? null, data.refresh ?? null);
+    const accessToken = data.access ?? data.access_token ?? data.token ?? null;
+    const refreshToken = data.refresh ?? data.refresh_token ?? null;
+    setTokens(accessToken, refreshToken);
     return data;
   } catch (error) {
     if (isMissing(error)) return backendMissing("POST /api/auth/login/");
@@ -16,7 +18,11 @@ async function login(payload) {
 }
 async function register(payload) {
   try {
-    return await apiClient.post("/auth/register/", payload, { auth: false });
+    const data = await apiClient.post("/auth/register/", payload, { auth: false });
+    const accessToken = data.access ?? data.access_token ?? data.token ?? null;
+    const refreshToken = data.refresh ?? data.refresh_token ?? null;
+    if (accessToken) setTokens(accessToken, refreshToken);
+    return data;
   } catch (error) {
     if (isMissing(error)) return backendMissing("POST /api/auth/register/");
     throw error;

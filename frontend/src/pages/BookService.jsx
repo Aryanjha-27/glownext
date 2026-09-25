@@ -20,6 +20,7 @@ function BookingForm() {
   const { slug, sid } = useParams();
   const serviceIdentifier = slug ?? sid;
   const navigate = useNavigate();
+  const draftStorageKey = `glownext.bookingDraft.${serviceIdentifier ?? "unknown"}`;
 
   const [service, setService] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,6 +34,29 @@ function BookingForm() {
   const [address, setAddress] = useState("");
   const [busy, setBusy] = useState(false);
   const [bookingError, setBookingError] = useState(null);
+
+  useEffect(() => {
+    if (!serviceIdentifier || typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(draftStorageKey);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      if (saved.date) setDate(saved.date);
+      if (saved.time) setTime(saved.time);
+      if (saved.serviceType) setServiceType(saved.serviceType);
+      if (saved.paymentMethod) setPaymentMethod(saved.paymentMethod);
+      if (saved.notes) setNotes(saved.notes);
+      if (saved.address) setAddress(saved.address);
+    } catch {
+      window.localStorage.removeItem(draftStorageKey);
+    }
+  }, [draftStorageKey, serviceIdentifier]);
+
+  useEffect(() => {
+    if (!serviceIdentifier || typeof window === "undefined") return;
+    const draft = { date, time, serviceType, paymentMethod, notes, address };
+    window.localStorage.setItem(draftStorageKey, JSON.stringify(draft));
+  }, [address, date, draftStorageKey, notes, paymentMethod, serviceIdentifier, serviceType, time]);
 
   const today = new Date();
   const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
@@ -90,6 +114,9 @@ function BookingForm() {
         notes,
         address,
       });
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem(draftStorageKey);
+      }
       if (paymentMethod === "Khalti") {
         const payment = await initiateKhaltiPayment(res.id, service.effective_price);
         if (!payment?.payment_url) {

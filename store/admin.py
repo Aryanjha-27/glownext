@@ -70,7 +70,7 @@ class BookingAdmin(admin.ModelAdmin):
         "bid",
         "customer",
         "service",
-        "get_vendor",
+        "vendor",
         "service_type",
         "scheduled_date",
         "scheduled_time",
@@ -107,13 +107,14 @@ class BookingAdmin(admin.ModelAdmin):
 
     list_per_page = 25
 
-    
-    def get_vendor(self, obj):
+    def vendor(self, obj):
         if obj.service and obj.service.vendor:
             return obj.service.vendor.store_name
 
         return "N/A"
 
+    vendor.short_description = "Vendor"
+    vendor.admin_order_field = "service__vendor__store_name"
 
 
 class ServiceReviewAdmin(admin.ModelAdmin):

@@ -47,10 +47,9 @@ function DisputeDetailContent() {
             </div>
             <span className="gn-badge bg-primary/10 text-primary">{dispute.status}</span>
           </div>
-          <p className="mt-5 whitespace-pre-wrap text-sm text-muted-foreground">{dispute.description}</p>
-          {dispute.attachment ? <a className="mt-4 inline-block text-sm text-primary hover:underline" href={dispute.attachment} target="_blank" rel="noreferrer">View evidence</a> : null}
+          
           {dispute.vendor_response ? <div className="mt-5 border-t border-border pt-4"><strong>Vendor response</strong><p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{dispute.vendor_response}</p></div> : null}
-          {dispute.admin_response || dispute.resolution ? <div className="mt-5 border-t border-border pt-4"><strong>Admin decision</strong><p className="mt-2 text-sm">{dispute.resolution || dispute.admin_response}</p></div> : null}
+         
         </section>
         <section className="gn-card border border-border p-6">
           <h2 className="font-display text-lg">Booking reference</h2>

@@ -44,6 +44,7 @@ urlpatterns = [
     path("test/", TestAPI.as_view()),
 
     path("auth/login/", LoginAPI.as_view()),
+    path("auth/token/", LoginAPI.as_view()),
     path("auth/register/", RegisterAPI.as_view()),
     path("auth/user/", CurrentUserAPI.as_view()),
     path("auth/profile/", ProfileAPI.as_view()),

@@ -280,11 +280,10 @@ class DisputeSerializer(serializers.ModelSerializer):
             "reason",
             "subject",
             "description",
-            "attachment",
             "amount",
             "status",
             "admin_response",
-            "resolution",
+            
             "resolved_by",
             "resolved_by_email",
             "resolved_at",
@@ -295,7 +294,7 @@ class DisputeSerializer(serializers.ModelSerializer):
             "updated",
         ]
         read_only_fields = [
-            "did", "status", "admin_response", "resolution",
+            "did", "status", "admin_response",
             "resolved_by", "resolved_by_email", "resolved_at",
             "vendor_response", "vendor_responded_at",
             "date", "updated",
