@@ -3,7 +3,6 @@ import { useState } from "react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { DashboardNav } from "@/components/DashboardNav";
 import { useBookings } from "@/hooks/useBookings";
-import { SkeletonGrid } from "@/components/SkeletonCard";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { EmptyState } from "@/components/EmptyState";
 import { formatPrice } from "@/utils/formatPrice";
@@ -47,7 +46,13 @@ function BookingsList() {
 
       <div className="mt-8">
         {isLoading ? (
-          <SkeletonGrid count={4} />
+          <div className="space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="gn-card p-4 text-sm text-muted-foreground">
+                Loading appointments...
+              </div>
+            ))}
+          </div>
         ) : error ? (
           <ErrorMessage error={error} onRetry={() => void refetch()} />
         ) : bookings.length > 0 ? (

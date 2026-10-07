@@ -264,29 +264,8 @@
     text-transform: uppercase;
   }
 
-  .gn-skeleton {
-    background: linear-gradient(
-      90deg,
-      var(--color-muted) 25%,
-      color-mix(in oklab, var(--color-muted) 60%, white) 50%,
-      var(--color-muted) 75%
-    );
-    background-size: 200% 100%;
-    animation: gn-shimmer 1.4s infinite linear;
-    border-radius: var(--radius-md);
-  }
-
   .gn-section {
     padding-block: 5rem;
-  }
-}
-
-@keyframes gn-shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
   }
 }
 

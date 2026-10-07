@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { listCategories } from "@/api/serviceApi";
-import { SkeletonGrid } from "@/components/SkeletonCard";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { EmptyState } from "@/components/EmptyState";
 import { imageUrl } from "@/utils/imageUrl";
@@ -77,7 +76,9 @@ export default function Home() {
           {categoriesLoading ? (
             <div className="mt-8 grid grid-cols-2 gap-5 md:grid-cols-4">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="gn-skeleton aspect-[4/5] w-full rounded-3xl" />
+                <div key={i} className="gn-card flex aspect-[4/5] items-center justify-center rounded-3xl border border-border text-sm text-muted-foreground">
+                  Loading...
+                </div>
               ))}
             </div>
           ) : categoriesError ? (

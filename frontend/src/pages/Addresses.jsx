@@ -4,7 +4,6 @@ import { DashboardNav } from "@/components/DashboardNav";
 import { listAddresses, createAddress, deleteAddress } from "@/api/addressApi";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { EmptyState } from "@/components/EmptyState";
-import { SkeletonRows } from "@/components/SkeletonCard";
 
 export default function Addresses() {
   return (
@@ -120,7 +119,13 @@ function AddressesContent() {
 
       <div className="mt-8 max-w-2xl">
         {isLoading ? (
-          <SkeletonRows count={3} />
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="gn-card p-4 text-sm text-muted-foreground">
+                Loading addresses...
+              </div>
+            ))}
+          </div>
         ) : error ? (
           <ErrorMessage error={error} onRetry={fetchAddresses} />
         ) : addresses.length > 0 ? (

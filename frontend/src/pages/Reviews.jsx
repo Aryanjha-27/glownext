@@ -5,7 +5,6 @@ import { listMyReviews } from "@/api/reviewApi";
 import { ReviewCard } from "@/components/ReviewCard";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { EmptyState } from "@/components/EmptyState";
-import { SkeletonRows } from "@/components/SkeletonCard";
 
 export default function Reviews() {
   return (
@@ -48,7 +47,13 @@ function ReviewsContent() {
 
       <div className="mt-8 max-w-2xl">
         {isLoading ? (
-          <SkeletonRows count={3} />
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="gn-card p-4 text-sm text-muted-foreground">
+                Loading reviews...
+              </div>
+            ))}
+          </div>
         ) : error ? (
           <ErrorMessage error={error} onRetry={fetchReviews} />
         ) : reviews.length > 0 ? (

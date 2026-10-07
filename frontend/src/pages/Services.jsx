@@ -2,7 +2,6 @@ import { useSearchParams } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import { listServices, listCategories } from "@/api/serviceApi";
 import { ServiceCard } from "@/components/ServiceCard";
-import { SkeletonGrid } from "@/components/SkeletonCard";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { EmptyState } from "@/components/EmptyState";
 
@@ -126,7 +125,13 @@ export default function Services() {
 
       <div className="mt-10">
         {servicesLoading ? (
-          <SkeletonGrid count={6} />
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="gn-card p-5 text-sm text-muted-foreground">
+                Loading services...
+              </div>
+            ))}
+          </div>
         ) : servicesError ? (
           <ErrorMessage
             error={servicesError}

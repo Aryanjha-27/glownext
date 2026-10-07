@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { SkeletonGrid } from "@/components/SkeletonCard";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { EmptyState } from "@/components/EmptyState";
 import { disputeApi } from "@/api/disputeApi";
@@ -78,7 +77,13 @@ function VendorDisputesContent() {
 
       <div className="mt-8">
         {isLoading ? (
-          <SkeletonGrid count={3} />
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="gn-card p-4 text-sm text-muted-foreground">
+                Loading disputes...
+              </div>
+            ))}
+          </div>
         ) : error ? (
           <ErrorMessage error={error} onRetry={fetchDisputes} />
         ) : disputes.length > 0 ? (

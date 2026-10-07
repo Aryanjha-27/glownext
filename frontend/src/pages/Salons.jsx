@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { listVendors } from "@/api/vendorApi";
 import { imageUrl } from "@/utils/imageUrl";
 import { RatingStars } from "@/components/RatingStars";
-import { SkeletonGrid } from "@/components/SkeletonCard";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { EmptyState } from "@/components/EmptyState";
 
@@ -43,7 +42,13 @@ export default function Salons() {
 
       <div className="mt-10">
         {isLoading ? (
-          <SkeletonGrid count={6} />
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="gn-card p-5 text-sm text-muted-foreground">
+                Loading salons...
+              </div>
+            ))}
+          </div>
         ) : error ? (
           <ErrorMessage error={error} onRetry={fetchVendors} />
         ) : vendors.length > 0 ? (

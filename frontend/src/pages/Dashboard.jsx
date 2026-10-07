@@ -3,7 +3,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { DashboardNav } from "@/components/DashboardNav";
 import { useBookings } from "@/hooks/useBookings";
-import { SkeletonStats } from "@/components/SkeletonCard";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { formatPrice } from "@/utils/formatPrice";
 import { formatDate } from "@/utils/formatDate";
@@ -54,8 +53,12 @@ function DashboardContent() {
       </div>
 
       {isLoading ? (
-        <div className="mt-8">
-          <SkeletonStats />
+        <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-5">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="gn-card p-5 text-sm text-muted-foreground">
+              Loading dashboard...
+            </div>
+          ))}
         </div>
       ) : error ? (
         <div className="mt-8">
