@@ -74,7 +74,7 @@ export default function Home() {
           <h2 className="mt-2 text-3xl sm:text-4xl text-foreground font-display">Pick Your Service</h2>
 
           {categoriesLoading ? (
-            <div className="mt-8 grid grid-cols-2 gap-5 md:grid-cols-4">
+            <div className="mt-8 grid grid-cols-2 gap-6 md:grid-cols-4">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="gn-card flex aspect-[4/5] items-center justify-center rounded-3xl border border-border text-sm text-muted-foreground">
                   Loading...
@@ -90,7 +90,7 @@ export default function Home() {
               />
             </div>
           ) : categories && categories.length > 0 ? (
-            <div className="mt-8 grid grid-cols-2 gap-5 md:grid-cols-4">
+            <div className="mt-8 grid grid-cols-2 gap-6 md:grid-cols-4">
               {categories.map((c, i) => (
                 <Link
                   key={String(c.id)}
