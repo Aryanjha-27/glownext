@@ -33,11 +33,7 @@ async function getMyVendorProfile() {
   }
 }
 async function updateMyVendorProfile(data) {
-  try {
-    return await apiClient.patch("/vendor/profile/", data);
-  } catch {
-    return backendMissing("PATCH /api/vendor/profile/");
-  }
+  return await apiClient.patch("/vendor/profile/", data);
 }
 async function getMyVendorEarnings() {
   try {

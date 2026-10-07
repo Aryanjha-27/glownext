@@ -141,7 +141,26 @@ class LogoutAPI(APIView):
 class CategoriesAPI(APIView):
     def get(self, request):
         categories = Service.objects.exclude(category="").values_list("category", flat=True).distinct().order_by("category")
-        return Response([{"id": slugify(title), "title": title, "slug": slugify(title), "image": None} for title in categories])
+        category_images = {}
+        services = (
+            Service.objects.filter(status="Published")
+            .exclude(category="")
+            .exclude(thumbnail="")
+            .only("category", "thumbnail")
+            .order_by("-date")
+        )
+        for service in services:
+            category_images.setdefault(service.category, service.thumbnail.url)
+
+        return Response([
+            {
+                "id": slugify(title),
+                "title": title,
+                "slug": slugify(title),
+                "image": category_images.get(title),
+            }
+            for title in categories
+        ])
 
     def post(self, request):
         if not request.user.is_authenticated:
@@ -248,8 +267,6 @@ class VendorServicesAPI(APIView):
         category = request.data.get("category") or request.data.get("category_id") or ""
         if isinstance(category, str) and category:
             category = category.strip()
-            if category.lower().replace("-", " ") in {item.lower().replace("-", " ") for item in (vendor.categories or [])}:
-                category = next(item for item in (vendor.categories or []) if item.lower().replace("-", " ") == category.lower().replace("-", " "))
 
         service = Service(
             vendor=vendor,
@@ -290,8 +307,6 @@ class VendorServicesAPI(APIView):
             category = request.data.get("category") or request.data.get("category_id") or ""
             if isinstance(category, str) and category:
                 category = category.strip()
-                if category.lower().replace("-", " ") in {item.lower().replace("-", " ") for item in (vendor.categories or [])}:
-                    category = next(item for item in (vendor.categories or []) if item.lower().replace("-", " ") == category.lower().replace("-", " "))
             service.category = category
         if "thumbnail" in request.FILES:
             service.thumbnail = request.FILES["thumbnail"]
@@ -369,9 +384,14 @@ class VendorBookingsAPI(APIView):
                 )
         elif action == "complete" and booking.booking_status == "Confirmed":
             booking.booking_status = "Completed"
+            message = f"Your service for booking {booking.bid} has been completed."
+            if booking.payment_method == "COD":
+                message += " Please confirm your cash payment."
+            elif booking.payment_method == "Khalti" and booking.payment_status == "Paid":
+                message += "Thank You"
             create_user_notification(
                 booking.customer,
-                f"Your service for booking {booking.bid} has been completed. Please confirm your cash payment.",
+                message,
                 notification_type="Booking",
                 booking=booking,
             )
@@ -749,6 +769,15 @@ class BookingsAPI(APIView):
             payload["note"] = payload.pop("notes")
         serializer = BookingSerializer(data=payload)
         if serializer.is_valid():
+            service = serializer.validated_data.get("service")
+            if service is not None:
+                selected_type = serializer.validated_data.get("service_type", "Store")
+                available_types = {"Home", "Store"} if service.service_type == "Both" else {service.service_type}
+                if selected_type not in available_types:
+                    return Response(
+                        {"service_type": [f"This service is only available for {service.service_type.lower()} visits."]},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
             booking = serializer.save()
             booking.total = booking.service.effective_price
             booking.save(update_fields=["total", "commission_amount", "vendor_amount", "commission_rate"])

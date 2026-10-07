@@ -93,7 +93,7 @@ function VendorProfileContent() {
           <label className="gn-label">City<input className="gn-input mt-1.5 w-full" value={form.city || ""} onChange={(event) => update("city", event.target.value)} /></label>
         </div>
         <label className="gn-label">Country<input className="gn-input mt-1.5 w-full" value={form.country || ""} onChange={(event) => update("country", event.target.value)} /></label>
-        <label className="gn-label">Company register certificate<input type="file" accept="image/*" required={!form.is_verified} className="gn-input mt-1.5 w-full" onChange={(event) => setVerificationDocument(event.target.files?.[0] ?? null)} /></label>
+        <label className="gn-label">Company register certificate<input type="file" accept="image/*,application/pdf,.pdf" required={!form.is_verified} className="gn-input mt-1.5 w-full" onChange={(event) => setVerificationDocument(event.target.files?.[0] ?? null)} /></label>
         <label className="gn-label">Store photo<input type="file" accept="image/*" className="gn-input mt-1.5 w-full" onChange={(event) => setProfileImage(event.target.files?.[0] ?? null)} /></label>
         <button disabled={busy} className="gn-btn gn-btn-primary">{busy ? "Sending..." : "Send Verification Request"}</button>
       </form>

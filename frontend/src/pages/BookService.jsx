@@ -70,7 +70,12 @@ function BookingForm() {
     setError(null);
     getService(serviceIdentifier)
       .then((data) => {
-        if (active) setService(data);
+        if (active) {
+          setService(data);
+          if (data.service_type === "Home" || data.service_type === "Store") {
+            setServiceType(data.service_type);
+          }
+        }
       })
       .catch((err) => {
         if (active) setError(err);
@@ -86,6 +91,10 @@ function BookingForm() {
   if (isLoading) return <LoadingSpinner label="Loading service..." />;
   if (error) return <ErrorMessage error={error} />;
   if (!service) return null;
+
+  const availableServiceTypes = service.service_type === "Both"
+    ? ["Home", "Store"]
+    : [service.service_type === "Home" ? "Home" : "Store"];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -155,8 +164,8 @@ function BookingForm() {
 
           <div>
             <label className="gn-label block font-semibold mb-2">Location / Setting:</label>
-            <div className="grid grid-cols-2 gap-3">
-              {["Home", "Store"].map((type) => (
+            <div className={`grid gap-3 ${availableServiceTypes.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
+              {availableServiceTypes.map((type) => (
                 <button
                   key={type}
                   type="button"
